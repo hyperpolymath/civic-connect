@@ -1,0 +1,36 @@
+= Civic-Connect - Citation Guide
+:toc:
+
+== BibTeX
+
+[source,bibtex]
+----
+@software{civic-connect_2025,
+  author = {Polymath, Hyper},
+  title = {Civic-Connect},
+  year = {2025},
+  url = {https://github.com/hyperpolymath/Civic-Connect},
+  license = {AGPL-3.0-or-later}
+}
+----
+
+== Harvard Style
+
+Polymath, H. (2025) _Civic-Connect_ [Computer software]. Available at: https://github.com/hyperpolymath/Civic-Connect
+
+== OSCOLA
+
+Hyper Polymath, 'Civic-Connect' (2025) <https://github.com/hyperpolymath/Civic-Connect>
+
+== MLA
+
+Polymath, Hyper. "Civic-Connect." 2025, github.com/hyperpolymath/Civic-Connect.
+
+== APA 7
+
+Polymath, H. (2025). _Civic-Connect_ [Computer software]. GitHub. https://github.com/hyperpolymath/Civic-Connect
+
+== See Also
+
+* link:../CITATION.cff[CITATION.cff]
+* link:../codemeta.json[codemeta.json]
