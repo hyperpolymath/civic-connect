@@ -1,0 +1,97 @@
+= ADR-0001: Initial Architecture and Technology Stack
+:author: Jonathan D.A. Jewell
+:email: jonathan.jewell@gmail.com
+:revdate: 2024-12-17
+:status: Accepted
+:deciders: Jonathan D.A. Jewell
+
+== Status
+
+Accepted
+
+== Context
+
+CivicConnect is a gamified political organizing platform that enables grassroots movements to grow through verified peer-to-peer connections. The platform must prioritize:
+
+1. **Privacy**: Organizers face surveillance, retaliation, and doxxing
+2. **Security**: No shortcuts that could endanger users
+3. **Scalability**: Support 10,000+ concurrent users
+4. **Auditability**: Open source, community-owned
+5. **Reliability**: Mission-critical for organizing campaigns
+
+We need to select a technology stack that serves these requirements while being maintainable by a small team.
+
+== Decision
+
+We will use a polyglot architecture with three primary languages:
+
+=== Ada for Core Business Logic
+* User accounts, verification system, leveling engine
+* Type safety prevents entire classes of bugs
+* SPARK subset allows formal verification of critical paths
+* Proven in aerospace, defense, medical devices (reliability track record)
+
+=== Rust for API and Performance-Critical Operations
+* HTTP REST API
+* Cryptographic operations (ed25519, Argon2, Signal protocol)
+* Location services (H3 geohashing)
+* Memory safety without garbage collection
+* Excellent async/concurrency support (tokio)
+
+=== Elixir/Phoenix for Real-Time Features
+* WebSocket connections
+* Chat messaging
+* Presence tracking
+* Erlang VM handles millions of concurrent connections
+* Built-in fault tolerance (supervisors)
+
+=== Infrastructure
+* **PostgreSQL + PostGIS**: Spatial queries for location-based discovery
+* **Redis**: Caching, sessions, pub/sub for real-time
+* **MinIO**: S3-compatible object storage (self-hosted)
+* **Podman**: Rootless containers (NOT Docker)
+* **Kubernetes**: Production orchestration (self-hosted)
+
+== Consequences
+
+=== Positive
+* Strong type safety across critical paths (Ada, Rust)
+* Excellent performance characteristics
+* Memory safety without GC (Rust) or with managed OTP (Elixir)
+* Self-hosted infrastructure maintains data sovereignty
+* Each language optimized for its domain
+
+=== Negative
+* Polyglot complexity requires diverse expertise
+* FFI boundaries add integration overhead
+* Smaller talent pool for Ada
+* More operational complexity vs. cloud PaaS
+
+=== Neutral
+* Three build systems to maintain
+* Documentation must cover multiple languages
+* CI/CD pipeline more complex
+
+== Alternatives Considered
+
+=== Go Monolith
+Simpler, but lacks Ada's formal verification capabilities and Elixir's real-time strengths. Type system less robust than Rust/Ada.
+
+=== Node.js/TypeScript
+Widely known, but runtime type checking insufficient for security-critical paths. Single-threaded model limits scalability options.
+
+=== Python Django
+Excellent developer experience, but performance concerns for real-time features. Type safety insufficient for verification system.
+
+== Related Decisions
+
+* ADR-0002 (planned): Zero-knowledge location storage with H3
+* ADR-0003 (planned): E2E encryption with Signal protocol
+* ADR-0004 (planned): Gamification and leveling system design
+
+== References
+
+* https://en.wikipedia.org/wiki/SPARK_(programming_language)[SPARK Ada]
+* https://h3geo.org/[Uber H3 Hexagonal Grid]
+* https://signal.org/docs/[Signal Protocol]
+* https://www.phoenixframework.org/[Phoenix Framework]

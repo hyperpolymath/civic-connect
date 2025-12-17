@@ -1,32 +1,218 @@
-= Civic-Connect
+= CivicConnect
 Jonathan D.A. Jewell <jonathan.jewell@gmail.com>
 :toc: macro
 :icons: font
 :source-highlighter: rouge
 :experimental:
-:url-github: https://github.com/hyperpolymath/Civic-Connect
-:url-gitlab: https://gitlab.com/hyperpolymath/Civic-Connect
-:url-bitbucket: https://bitbucket.org/hyperpolymath/Civic-Connect
-:url-codeberg: https://codeberg.org/hyperpolymath/Civic-Connect
+:url-github: https://github.com/hyperpolymath/civic-connect
+:url-gitlab: https://gitlab.com/hyperpolymath/civic-connect
+:url-bitbucket: https://bitbucket.org/hyperpolymath/civic-connect
+:url-codeberg: https://codeberg.org/hyperpolymath/civic-connect
 
-Civic engagement platform and government API integration
+Gamified political organizing platform for grassroots movements
 
 image:https://img.shields.io/badge/RSR-Certified-gold[RSR Certified,link=https://github.com/hyperpolymath/rhodium-standard-repositories]
 image:https://img.shields.io/badge/License-AGPL%20v3-blue[License]
+image:https://img.shields.io/badge/Status-Development-orange[Status]
 
 toc::[]
 
 == Overview
-== Installation
+
+CivicConnect enables grassroots movements to grow through verified peer-to-peer connections. It combines location-based networking with RPG-style progression mechanics, all built on a privacy-first foundation.
+
+=== Core Features
+
+* **Location-Based Discovery**: Find events and organizers nearby (privacy-preserving)
+* **Verification System**: QR code-based attendance verification with cryptographic signatures
+* **Leveling Progression**: Gamified advancement from Newcomer to Movement Leader
+* **End-to-End Encrypted Chat**: Signal protocol for private messaging
+* **Mentor Matching**: Connect experienced organizers with newcomers
+
+=== Privacy First
+
+CivicConnect serves political organizers who face surveillance, retaliation, and harassment. Every design decision considers: "Could this feature endanger an organizer?"
+
+* Zero-knowledge location storage (H3 geohashing, server never sees coordinates)
+* E2E encrypted messaging (Signal protocol)
+* Pseudonymous profiles allowed
+* Decentralized verification (no central approval)
+
+== Quick Start
+
+=== Prerequisites
+
+* GNAT (Ada) >= 12.0
+* Rust >= 1.75
+* Elixir >= 1.16
+* Podman >= 4.0 (NOT Docker)
+* PostgreSQL >= 15 with PostGIS
+
+=== Installation
 
 [source,bash]
 ----
-# Clone from GitHub (primary)
+# Clone repository
 git clone {url-github}
+cd civic-connect
 
-# Or from mirrors
-git clone {url-gitlab}
-git clone {url-codeberg}
+# Start infrastructure services
+cd infrastructure
+podman-compose up -d
+cd ..
+
+# Or use the setup script
+./scripts/setup_dev.sh
+----
+
+=== Running the API (Rust)
+
+[source,bash]
+----
+cd backend/rust-api
+cargo run
+# Listening on http://localhost:8080
+----
+
+=== Running the Web Server (Elixir)
+
+[source,bash]
+----
+cd backend/elixir-phoenix
+mix deps.get
+mix phx.server
+# Listening on http://localhost:4000
+----
+
+=== Running Tests
+
+[source,bash]
+----
+# All tests
+./scripts/run_tests.sh
+
+# With linting
+./scripts/run_tests.sh --lint
+
+# Individual components
+cd backend/rust-api && cargo test
+cd backend/elixir-phoenix && mix test
+cd backend/ada-core && gprbuild -P civicconnect.gpr
+----
+
+== Architecture
+
+----
+               Internet/CDN
+                    |
+             Load Balancer
+                    |
+    +---------------+---------------+
+    |               |               |
+Rust API      Elixir Phoenix   Static Assets
+(HTTP/REST)    (WebSocket)      (MinIO/CDN)
+Port 8080      Port 4000        Port 9000
+    |               |
+    +-------+-------+
+            |
+     Ada Core Library
+    (Business Logic FFI)
+            |
+    +-------+-------+-------+
+    |       |       |       |
+PostgreSQL  Redis   MinIO
++ PostGIS  (Cache) (Storage)
+----
+
+=== Technology Stack
+
+[cols="1,2,3"]
+|===
+| Component | Technology | Purpose
+
+| Core Logic | Ada (GNAT) | Business logic, verification, leveling
+| API Layer | Rust (Axum) | HTTP API, cryptography, location
+| Real-Time | Elixir (Phoenix) | WebSocket, chat, presence
+| Database | PostgreSQL + PostGIS | Spatial queries, persistence
+| Cache | Redis | Sessions, pub/sub, caching
+| Storage | MinIO | S3-compatible object storage
+| Containers | Podman | Rootless, daemonless containers
+|===
+
+== Project Structure
+
+----
+civic-connect/
++-- backend/
+|   +-- ada-core/           # Core business logic
+|   |   +-- src/
+|   |   |   +-- civicconnect.ads/adb
+|   |   |   +-- civicconnect-accounts.ads/adb
+|   |   |   +-- civicconnect-leveling.ads/adb
+|   |   |   +-- civicconnect-verification.ads/adb
+|   |   +-- civicconnect.gpr
+|   |
+|   +-- rust-api/           # HTTP API, crypto
+|   |   +-- src/
+|   |   |   +-- api/        # REST endpoints
+|   |   |   +-- crypto/     # ed25519, Argon2
+|   |   |   +-- location/   # H3 geohashing
+|   |   |   +-- db/         # sqlx models
+|   |   +-- Cargo.toml
+|   |
+|   +-- elixir-phoenix/     # Real-time, chat
+|       +-- lib/
+|           +-- civic/
+|           +-- civic_web/
+|
++-- docs/
+|   +-- decisions/          # ADRs
+|   +-- api/                # OpenAPI specs
+|   +-- architecture/       # Diagrams
+|
++-- infrastructure/
+|   +-- podman-compose.yml
+|   +-- kubernetes/
+|   +-- ansible/
+|
++-- scripts/
+    +-- setup_dev.sh
+    +-- run_tests.sh
+----
+
+== Documentation
+
+* link:docs/decisions/0001-initial-architecture.adoc[ADR-0001: Initial Architecture]
+* link:RSR_COMPLIANCE.adoc[RSR Compliance Guide]
+* link:ECOSYSTEM.scm[Technical Ecosystem]
+* link:STATE.scm[Project State]
+* link:META.scm[Architecture Decisions]
+
+== Development
+
+=== RSR Compliance
+
+This project follows link:https://github.com/hyperpolymath/rhodium-standard-repositories[Rhodium Standard Repositories] guidelines:
+
+* Living documentation (ADRs updated continuously)
+* 2-week sprints with demos
+* 80%+ test coverage target
+* Security-first development
+* Community involvement
+
+=== Code Quality
+
+[source,bash]
+----
+# Rust formatting and linting
+cd backend/rust-api
+cargo fmt
+cargo clippy
+
+# Elixir formatting and linting
+cd backend/elixir-phoenix
+mix format
+mix credo --strict
 ----
 
 == Mirrors
@@ -41,18 +227,22 @@ git clone {url-codeberg}
 | Codeberg | {url-codeberg}
 |===
 
-== License
-
-Licensed under AGPL-3.0-or-later OR LicenseRef-Palimpsest-0.5.
-
-See link:LICENSE[LICENSE] for details.
-
 == Contributing
 
-See link:CONTRIBUTING.adoc[CONTRIBUTING.adoc].
+See link:CONTRIBUTING.adoc[CONTRIBUTING.adoc] for guidelines.
 
-== Metadata
+== License
 
-* Domain: software-development
-* Framework: RSR (Rhodium Standard Repository)
-* Dublin Core: link:.well-known/dc.xml[.well-known/dc.xml]
+Licensed under AGPL-3.0-or-later.
+
+See link:LICENSE.txt[LICENSE.txt] for details.
+
+== Security
+
+For security issues, see link:SECURITY.md[SECURITY.md].
+
+== Contact
+
+* Project Lead: Jonathan D.A. Jewell
+* Email: jonathan.jewell@gmail.com
+* Issues: {url-github}/issues
