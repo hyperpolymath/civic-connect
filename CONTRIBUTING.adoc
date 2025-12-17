@@ -1,0 +1,156 @@
+= Contributing to CivicConnect
+:toc: macro
+:icons: font
+
+Thank you for your interest in contributing to CivicConnect! This document provides guidelines for contributing to the project.
+
+toc::[]
+
+== Code of Conduct
+
+Please read and follow our link:CODE_OF_CONDUCT.md[Code of Conduct].
+
+== Getting Started
+
+1. Fork the repository
+2. Clone your fork
+3. Set up the development environment (see link:README.adoc[README])
+4. Create a feature branch
+5. Make your changes
+6. Submit a pull request
+
+== Development Workflow
+
+=== Branch Naming
+
+* `feature/short-description` - New features
+* `fix/short-description` - Bug fixes
+* `docs/short-description` - Documentation changes
+* `refactor/short-description` - Code refactoring
+
+=== Commit Messages
+
+Follow conventional commits format:
+
+----
+[component] Short description (max 72 chars)
+
+Longer description if needed. Explain the "why" not the "what".
+
+Refs: #123
+----
+
+Examples:
+----
+[rust/api] Add rate limiting to verification endpoint
+[ada/leveling] Fix XP calculation for mentorship bonus
+[elixir/chat] Implement typing indicators
+[docs] Update ADR-007 with H3 decision rationale
+----
+
+=== Pull Request Requirements
+
+Before submitting a PR:
+
+* [ ] All tests pass (`./scripts/run_tests.sh`)
+* [ ] Linters happy (`./scripts/run_tests.sh --lint`)
+* [ ] Documentation updated if needed
+* [ ] ADR written for architectural decisions
+* [ ] No hardcoded secrets or credentials
+* [ ] Security considerations addressed
+
+== Code Standards
+
+=== Ada
+
+* Follow GNAT coding style
+* Use `pragma Preelaborate` where possible
+* Document public interfaces with comments
+* All critical paths should have SPARK annotations
+
+=== Rust
+
+* Run `cargo fmt` before committing
+* Address all `clippy` warnings
+* Use `thiserror` for error types
+* Write tests for crypto functions (property-based testing encouraged)
+
+=== Elixir
+
+* Run `mix format` before committing
+* Address all `credo` warnings
+* Use pattern matching over conditionals
+* Document public functions with `@doc`
+
+== Architecture Decisions
+
+For significant changes, write an Architecture Decision Record (ADR):
+
+1. Create `docs/decisions/NNNN-title.adoc`
+2. Follow the ADR template
+3. Reference the ADR in your PR description
+
+See link:docs/decisions/0001-initial-architecture.adoc[ADR-0001] for an example.
+
+== Security
+
+=== Reporting Vulnerabilities
+
+For security issues, see link:SECURITY.md[SECURITY.md]. Do NOT open public issues for security vulnerabilities.
+
+=== Security Checklist
+
+* [ ] No PII in logs
+* [ ] Input validation on all user data
+* [ ] Parameterized SQL queries
+* [ ] Rate limiting on sensitive endpoints
+* [ ] Authentication where required
+* [ ] HTTPS only
+
+== Testing
+
+=== Coverage Requirements
+
+* **Ada**: 100% on verification logic
+* **Rust**: 80%+ overall, property-based tests for crypto
+* **Elixir**: 80%+ overall
+
+=== Test Types
+
+* **Unit tests**: Test individual functions
+* **Integration tests**: Test API endpoints
+* **Property tests**: Crypto invariants (Rust proptest)
+* **E2E tests**: Full user flows
+
+== Documentation
+
+=== When to Update Docs
+
+* Adding new endpoints: Update API docs
+* Changing architecture: Write/update ADR
+* Changing setup: Update README
+* New features: Update user guides
+
+=== Documentation Standards
+
+* AsciiDoc preferred, Markdown accepted
+* Code examples should be runnable
+* Include error cases in API docs
+
+== Getting Help
+
+* Open an issue for questions
+* Tag with `question` label
+* Check existing issues first
+
+== Recognition
+
+Contributors are recognized in:
+
+* CONTRIBUTORS.md file
+* Release notes
+* Project website (future)
+
+== License
+
+By contributing, you agree that your contributions will be licensed under the AGPL-3.0-or-later license.

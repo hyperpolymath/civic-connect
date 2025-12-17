@@ -1,0 +1,110 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-FileCopyrightText: 2025 Jonathan D.A. Jewell
+
+[package]
+name = "civicconnect-api"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["Jonathan D.A. Jewell <jonathan.jewell@gmail.com>"]
+description = "CivicConnect REST API - High-performance API layer for the civic organizing platform"
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/hyperpolymath/civic-connect"
+documentation = "https://docs.civicconnect.org"
+keywords = ["civic", "organizing", "api", "privacy"]
+categories = ["web-programming::http-server"]
+
+[dependencies]
+# Web Framework
+axum = { version = "0.7", features = ["macros"] }
+tower = { version = "0.4", features = ["util", "limit", "buffer"] }
+tower-http = { version = "0.5", features = ["cors", "trace", "compression-gzip"] }
+
+# Async Runtime
+tokio = { version = "1.35", features = ["full"] }
+
+# Database
+sqlx = { version = "0.7", features = [
+    "runtime-tokio",
+    "postgres",
+    "macros",
+    "chrono",
+    "uuid",
+    "json"
+]}
+
+# Redis for caching/sessions
+redis = { version = "0.24", features = ["tokio-comp", "connection-manager"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Cryptography
+ed25519-dalek = { version = "2.1", features = ["serde", "rand_core"] }
+argon2 = "0.5"
+rand = "0.8"
+sha2 = "0.10"
+hex = "0.4"
+
+# Location & Spatial
+h3o = "0.4"
+geo = "0.27"
+geojson = "0.24"
+
+# JWT Authentication
+jsonwebtoken = "9.2"
+
+# HTTP Client (for external APIs)
+reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls"] }
+
+# Validation
+validator = { version = "0.17", features = ["derive"] }
+
+# Error Handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging & Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Configuration
+config = "0.14"
+dotenvy = "0.15"
+
+# Date/Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID
+uuid = { version = "1.6", features = ["v4", "serde"] }
+
+[dev-dependencies]
+# Testing
+tokio-test = "0.4"
+proptest = "1.4"
+mockall = "0.12"
+wiremock = "0.5"
+
+# HTTP testing
+axum-test = "14.0"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.dev]
+debug = true
+incremental = true
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = "warn"
+pedantic = "warn"
+nursery = "warn"
+unwrap_used = "warn"
+expect_used = "warn"
