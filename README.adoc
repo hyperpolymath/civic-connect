@@ -1,17 +1,103 @@
 = Civic-Connect
-
-image:https://img.shields.io/badge/License-PMPL--1.0-blue.svg[License: PMPL-1.0,link="https://github.com/hyperpolymath/palimpsest-license"]
-Jonathan D.A. Jewell <jonathan.jewell@gmail.com>
+Jonathan D.A. Jewell <jonathan.jewell@open.ac.uk>
 :toc: macro
 :icons: font
 :source-highlighter: rouge
 :experimental:
-:url-github: https://github.com/hyperpolymath/Civic-Connect
-:url-gitlab: https://gitlab.com/hyperpolymath/Civic-Connect
-:url-bitbucket: https://bitbucket.org/hyperpolymath/Civic-Connect
-:url-codeberg: https://codeberg.org/hyperpolymath/Civic-Connect
+:url-github: https://github.com/hyperpolymath/civic-connect
+:url-gitlab: https://gitlab.com/hyperpolymath/civic-connect
+:url-bitbucket: https://bitbucket.org/hyperpolymath-dev/civic-connect
+:url-codeberg: https://codeberg.org/hyperpolymath/civic-connect
 
-Civic engagement platform and government API integration
+Privacy-first civic engagement platform with government API integration, post-quantum secure DNS, and provenance-grade audit infrastructure.
 
 image:https://img.shields.io/badge/RSR-Certified-gold[RSR Certified,link=https://github.com/hyperpolymath/rhodium-standard-repositories]
 image:https://img.shields.io/badge/License-PMPL--1.0-blue.svg[License: PMPL-1.0,link="https://github.com/hyperpolymath/palimpsest-license"]
+
+toc::[]
+
+== Overview
+
+Civic-Connect combines hardened ingress infrastructure, oblivious DNS resolution, GraphQL DNS APIs, and SurrealDB provenance graphs to enable privacy-preserving civic engagement with government data.
+
+=== Key Components
+
+* **IndieWeb2 Bastion** — Hardened ingress gateway with consent-first architecture
+* **Oblivious DNS (odns-rs)** — Post-quantum encrypted DNS proxy/resolver (Kyber-1024 + Dilithium5)
+* **GraphQL DNS API** — DNSSEC-signed DNS queries via GraphQL (Rust/Axum)
+* **Civic-Stream** — Government API integration and stream processing
+* **SurrealDB Provenance** — Graph database for audit trails and data provenance
+* **IPFS Storage** — Content-addressed snapshots with rehydration
+* **Nickel Policies** — Machine-checkable consent and crypto compliance contracts
+
+=== Security Features
+
+* Post-quantum cryptography: Kyber-1024 (KEM), Dilithium5 (signatures), SPHINCS+ (fallback)
+* Hybrid signatures: Ed448 + Dilithium5 dual-sign for quantum-resistant + classical assurance
+* Zero-knowledge DNS: Oblivious DNS prevents query correlation
+* Provenance anchoring: Ethereum, Polygon, and Internet Computer for tamper-evidence
+
+== Architecture
+
+See link:TOPOLOGY.md[TOPOLOGY.md] for a visual architecture map and completion dashboard.
+
+```
+Users / Citizens (GUI / PWA / API Clients)
+            │
+            ▼
+    IndieWeb2 Bastion (Hardened Ingress, oDNS)
+            │
+            ▼
+    Civic-Stream (Government API Integration)
+            │
+            ▼
+    Data Layer (SurrealDB Graph + IPFS)
+```
+
+== Quick Start
+
+[source,bash]
+----
+cd indieweb2-bastion
+just bootstrap
+just all
+----
+
+This bootstraps dependencies (jq, capnproto, nickel, deno), validates Nickel policies, runs the ReScript policy gate, and starts the GUI/PWA server on port 8443.
+
+=== Prerequisites
+
+* **Rust** (nightly) — Core services
+* **Deno** — Consent API, policy gate runtime
+* **Nickel** — Policy contracts
+* **SurrealDB** — Provenance graph
+* **IPFS** — Content-addressed storage
+* **stapeln toolchain** — cerro-torre, selur, vordr, selur-compose
+
+== Technology Stack
+
+[cols="1,3"]
+|===
+| Language | Purpose
+
+| Rust | odns-rs, graphql-dns-api, webmention-limiter
+| ReScript | Policy gate (9 validators), UI components
+| Deno | Consent API, signing, publishing, static server
+| Nickel | Policy contracts and validation
+| Solidity | Smart contracts (Ethereum/Polygon)
+| Motoko | Internet Computer canisters
+|===
+
+== Documentation
+
+* link:TOPOLOGY.md[Architecture Topology & Completion Dashboard]
+* link:docs/planning/HANDOVER_SUMMARY.md[CivicConnect Vision & Handover]
+* link:docs/planning/RSR_COMPLIANCE.md[RSR Compliance Guide]
+* link:indieweb2-bastion/CRYPTO-POLICY.adoc[Cryptographic Policy (13 CPR requirements)]
+* link:indieweb2-bastion/README.adoc[IndieWeb2 Bastion Documentation]
+
+== License
+
+SPDX-License-Identifier: PMPL-1.0-or-later
+
+Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <jonathan.jewell@open.ac.uk>

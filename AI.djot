@@ -11,25 +11,42 @@ The `.machine_readable/` directory contains structured metadata required for aut
 - `NEUROSYM.scm`: Neurosymbolic integration configuration and hybrid reasoning settings.
 - `PLAYBOOK.scm`: Operational runbook, workflows, and incident procedures.
 
-Additional artefact:
+Additional artefacts:
 
-- `AI.djot`: AI Assistant behavioural and operational instructions.
+- `AI.a2ml`: AI Agent entry point with canonical locations and invariants.
+- `AI.djot`: This file — behavioural and operational instructions.
+- `TOPOLOGY.md`: Visual architecture map and completion dashboard.
+
+## Project Summary
+
+**Civic-Connect** is a privacy-first civic engagement platform combining:
+- **IndieWeb2 Bastion**: Hardened ingress with Oblivious DNS, GraphQL DNS API, post-quantum crypto
+- **Civic-Stream**: Government API integration and stream processing
+- **Data Layer**: SurrealDB provenance graph + IPFS content-addressed storage
+- **CivicConnect Vision**: Gamified civic participation (planned, see `docs/planning/`)
 
 ## Repository Roots
 
-- Local repository root: `/var/mnt/eclipse/repos`
-- Remote mapping: `https://github.com/hyperpolymath/<name>`
+- Local repository root: `/var/mnt/eclipse/repos/civic-connect`
+- Symlink access: `~/Documents/hyperpolymath-repos/civic-connect`
+- GitHub: `https://github.com/hyperpolymath/civic-connect`
+- GitLab: `https://gitlab.com/hyperpolymath/civic-connect`
 - Repository names are lowercase; dots (`.`) are replaced with hyphens (`-`).
-- If a repository is missing locally, check the remote and synchronize before proceeding.
 
-## AI CLI Standards
+## Sub-Projects
 
-- Include `ai-cli-crash-capture/` and `contractiles/` from this template in all new repositories.
-- Mirror all 6SCM files into `.machine_readable/6scm/`.
-- Before generating code, inspect `/var/mnt/eclipse/repos/proven` for the current Idris “unbreakable” library status.
-- If the project depends on the unbreakable Idris library, add an *Idris Inside* badge to the repository.
-- When new bindings are required, create them under `/var/mnt/eclipse/repos/proven` using the naming pattern `idris2-zig-<language>`.
-- If new code implies additional unbreakable Idris modules, add them to `/var/mnt/eclipse/repos/proven` and update binders across all supported languages.
+- `civic-stream/` — Government API integration core (~50% complete)
+- `indieweb2-bastion/` — Hardened bastion with oDNS, GraphQL DNS, SurrealDB provenance (~60% complete)
+
+## Critical Invariants
+
+1. Post-quantum cryptography mandatory for all signing and encryption
+2. No plaintext DNS queries — Oblivious DNS only
+3. SurrealDB provenance graph is append-only
+4. Consent must be explicit and auditable
+5. Self-hosted infrastructure only
+6. Chainguard wolfi-base images for all containers
+7. SCM files ONLY in `.machine_readable/` (NEVER root)
 
 ## Language Policy
 
@@ -37,19 +54,14 @@ Additional artefact:
 
 | Language/Tool | Use Case | Notes |
 |---------------|----------|-------|
-| ReScript | Application code | Type-safe, compiles to JS |
-| Deno | Runtime and package management | Replaces Node/npm/bun |
-| Rust | Systems, performance-critical, WASM | Preferred for CLI tools |
-| Tauri 2.0+ | Mobile apps (iOS/Android) | Rust backend + web UI |
-| Dioxus | Mobile apps (native UI) | Pure Rust, React-like |
-| Gleam | Backend services | BEAM or JS targets |
-| Bash/POSIX Shell | Automation scripts | Keep minimal |
-| JavaScript | Only where ReScript cannot | MCP glue, Deno APIs |
-| Nickel | Configuration | Complex config logic |
+| Rust | Core services, crypto, DNS, API | Primary for performance-critical |
+| ReScript | Policy gate, UI components | Type-safe, compiles to JS |
+| Deno | Runtime, consent API, signing | Replaces Node/npm/bun |
+| Nickel | Policy contracts | Complex config validation |
 | Guile Scheme | Metadata/state files | For all `.scm` artefacts |
-| Julia | Batch/data processing | Per RSR |
-| OCaml | AffineScript compiler | Language-specific |
-| Ada | Safety-critical systems | Where required |
+| Solidity | Smart contracts | Ethereum/Polygon |
+| Motoko | Smart contracts | Internet Computer |
+| Bash/POSIX Shell | Automation scripts | Keep minimal |
 
 ### Banned Languages and Tools
 
@@ -57,44 +69,41 @@ Additional artefact:
 |--------|-------------|
 | TypeScript | ReScript |
 | Node.js | Deno |
-| npm | Deno |
-| Bun | Deno |
-| pnpm/yarn | Deno |
+| npm/Bun/pnpm/yarn | Deno |
 | Go | Rust |
 | Python | Julia / Rust / ReScript |
-| Java/Kotlin | Rust / Tauri / Dioxus |
-| Swift | Tauri / Dioxus |
-| React Native | Tauri / Dioxus |
-| Flutter/Dart | Tauri / Dioxus |
+| Java/Kotlin | Rust |
+| Docker | Podman + stapeln |
 
-## Mobile Development Policy
+## Container Standards
 
-A strict Rust-first approach applies.
+- **Files**: Always "Containerfile" (never "Dockerfile")
+- **Base images**: `cgr.dev/chainguard/wolfi-base:latest`
+- **Runtime**: Podman (never Docker)
+- **Build/sign**: cerro-torre (Ed25519 signatures, .ctp bundles)
+- **Sealing**: selur seal (zero-copy IPC bridge)
+- **Orchestration**: selur-compose with compose.toml
+- **Execution**: vordr (formally verified container runtime)
 
-- Use **Tauri 2.0+** for web UI (ReScript) + Rust backend.
-- Use **Dioxus** for pure Rust native UI.
+## Security Requirements
 
-Both are FOSS with independent governance.
+- No MD5 or SHA-1; use SHA-256+, BLAKE3, or SHAKE3-512
+- HTTPS only
+- No hardcoded secrets
+- Pin all dependencies by SHA
+- Include SPDX license headers in all files
+- Post-quantum algorithms for all new crypto code
 
 ## Enforcement Rules
 
-- Do not create new TypeScript files; convert existing TS to ReScript.
-- Do not use `package.json` for runtime dependencies; use `deno.json` imports.
-- Do not include `node_modules` in production; Deno handles dependency caching.
-- Do not use Go; use Rust.
-- Do not use Python; use Julia (data/batch), Rust (systems), or ReScript (apps).
-- Do not use Kotlin/Swift; use Tauri 2.0+ or Dioxus for mobile.
+- Do not create new TypeScript files; convert existing TS to ReScript
+- Do not use `package.json` for runtime dependencies; use `deno.json` imports
+- Do not include `node_modules` in production; Deno handles dependency caching
+- Do not use Go; use Rust
+- Do not use Python; use Julia (data/batch), Rust (systems), or ReScript (apps)
 
 ## Package Management
 
 - Primary: Guix (`guix.scm`)
 - Fallback: Nix (`flake.nix`)
 - JavaScript dependencies: Deno (`deno.json` imports)
-
-## Security Requirements
-
-- Do not use MD5 or SHA-1; use SHA-256 or stronger.
-- Use HTTPS only.
-- Do not hardcode secrets.
-- Pin all dependencies by SHA.
-- Include SPDX license headers in all files.

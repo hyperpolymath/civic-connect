@@ -1,15 +1,63 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# 0-AI-MANIFEST — AI Agent Entry Point for civic-connect
+# Last updated: 2026-02-20
 
-# AI Assistant Instructions
+# Canonical File Locations
+# ========================
+# SCM files ONLY in `.machine_readable/`:
+#   STATE.scm, ECOSYSTEM.scm, META.scm, AGENTIC.scm, NEUROSYM.scm, PLAYBOOK.scm
+# NEVER create SCM files in the repository root.
+#
+# Sub-projects:
+#   civic-stream/     — Government API integration core
+#   indieweb2-bastion/ — Hardened ingress, oDNS, GraphQL DNS, provenance
+#
+# Planning docs:
+#   docs/planning/    — CivicConnect vision and handover materials
+#
+# Container config:
+#   Containerfile (NEVER Dockerfile)
+#   compose.toml (selur-compose, NEVER docker-compose)
 
-## Repository Focus
-- `rsr-template-repo` is treated as a Rhodium Standard Repository; obey the Rhodium policies, maintain `.bot_directives`, and keep `.machines_readable/6scm/` authoritative.
-- Prefer to keep generated files out of source control, and regenerate them with the documented commands before committing.
+# Critical Invariants (NEVER violate)
+# ====================================
+# 1. Post-quantum crypto is mandatory for all signing and encryption
+# 2. No plaintext DNS queries — all DNS via Oblivious DNS
+# 3. SurrealDB provenance graph must be append-only for audit trail
+# 4. IPFS content hashes must match provenance records
+# 5. Consent must be explicit and auditable for all data processing
+# 6. Self-hosted infrastructure only — no cloud provider dependencies
+# 7. Chainguard wolfi-base images for all containers
+# 8. PMPL-1.0-or-later license on all original code
 
-## Workflow
-1. Inspect `.machines_readable/6scm/STATE.scm` for blockers and next actions.
-2. Respect any constraints listed inside `.machines_readable/6scm/AGENTIC.scm` when tooling changes are requested.
-3. After finishing edits, update STATE with your outcomes and commit with a concise, imperative message.
+# Repository Structure
+# ====================
+# civic-connect/
+# ├── civic-stream/          — Government API integration
+# ├── indieweb2-bastion/     — Hardened bastion (oDNS, GraphQL DNS, SurrealDB)
+# │   ├── graphql-dns-api/   — Rust/Axum GraphQL DNS endpoint
+# │   ├── odns-rs/           — Oblivious DNS proxy + resolver (Rust)
+# │   ├── services/          — Consent API (Deno), webmention limiter (Rust)
+# │   ├── policy/            — Nickel policy contracts
+# │   ├── contracts/         — Smart contracts (Solidity, Motoko)
+# │   ├── surrealdb/         — SurrealDB schema and provenance
+# │   └── container/         — Containerfile, stapeln config
+# ├── .machine_readable/     — SCM files (STATE, META, ECOSYSTEM, etc.)
+# ├── docs/                  — Documentation
+# │   └── planning/          — CivicConnect vision docs
+# ├── contractiles/          — k9, dust, lust, must, trust
+# └── .github/workflows/     — CI/CD (17 standard RSR workflows)
 
-## Delivery Promises
-- Mention in summaries whether STATE, `contractiles/`, or `.bot_directives/` changed.
-- Keep this file in sync with the repository’s status; update it if the governance changes.
+# Session Startup Sequence
+# ========================
+# 1. Read this file (AI.a2ml)
+# 2. Read .machine_readable/STATE.scm for current project status
+# 3. Read .machine_readable/ECOSYSTEM.scm for tech stack
+# 4. Read .machine_readable/META.scm for architecture decisions
+# 5. Read .claude/CLAUDE.md for development instructions
+# 6. Check TOPOLOGY.md for visual architecture map
+
+# Lifecycle Hooks
+# ===============
+# on-enter: Read STATE.scm, check for blockers
+# on-exit: Update STATE.scm with session outcomes, update session-history
