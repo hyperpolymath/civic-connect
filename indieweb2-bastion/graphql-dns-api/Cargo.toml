@@ -21,7 +21,7 @@ tower = "0.5"
 tower-http = { version = "0.6", features = ["cors", "trace"] }
 
 # Database — kv-mem default (pure Rust); enable "rocksdb" feature for persistent storage
-surrealdb = { version = "1.5", features = ["kv-mem"] }
+surrealdb = { version = "2.6", features = ["kv-mem"] }
 
 # Blockchain
 ethers = { version = "2.0", features = ["rustls", "abigen"] }
