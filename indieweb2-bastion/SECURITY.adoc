@@ -1,0 +1,398 @@
+= Security Policy - indieweb2-bastion
+:toc: macro
+
+[abstract]
+--
+Security vulnerability reporting and response procedures for indieweb2-bastion. Rhodium Standard 0.5, Pillar 1, Section 2.1.7.
+--
+
+toc::[]
+
+== Supported Versions
+
+[cols="1,1,2"]
+|===
+|Version |Supported |Notes
+
+|1.x.x
+|✅ Yes
+|Active maintenance, security patches
+
+|0.x.x
+|⚠️ Limited
+|Critical security fixes only, upgrade recommended
+
+|<0.1.0
+|❌ No
+|End of life, no security support
+
+|===
+
+**Current stable version:** 1.0.0
+
+== ⚠️ BLOCKCHAIN SECURITY NOTICE
+
+**Smart contracts deployed to mainnet are IMMUTABLE.**
+
+* **Testnet vulnerabilities:** Can be redeployed
+* **Mainnet vulnerabilities:** Require proxy upgrade or emergency pause
+* **Report mainnet vulnerabilities IMMEDIATELY** (Critical severity by default)
+
+== Reporting a Vulnerability
+
+**⚠️ DO NOT open public GitHub issues for security vulnerabilities.**
+
+**⚠️ DO NOT disclose mainnet contract vulnerabilities publicly before patch.**
+
+=== Preferred Reporting Method
+
+**Email:** jonathan.jewell@open.ac.uk
+
+**Subject line:** `[SECURITY] indieweb2-bastion - Brief description`
+
+**For smart contract vulnerabilities, also include:**
+* **Network:** Mainnet/Testnet/Local
+* **Contract address:** 0x...
+* **Deployment date:** If known
+
+**PGP Key (optional):** https://example.com/pgp-key.asc
+
+=== What to Include
+
+1. **Description:** Detailed vulnerability explanation
+2. **Impact:** Potential consequences (fund loss, privilege escalation, etc.)
+3. **Reproduction:** Step-by-step instructions to reproduce
+4. **Environment:**
+   - Blockchain network (Ethereum mainnet, Polygon, Internet Computer)
+   - Solidity/Motoko version
+   - Node.js/ReScript versions
+   - Contract addresses
+5. **Proof of Concept:** Transaction hashes, contract calls, screenshots
+6. **Suggested Fix:** If known
+
+**Example report:**
+[source]
+----
+Subject: [SECURITY] indieweb2-bastion - Reentrancy in IdentityRegistry
+
+Description:
+IdentityRegistry.withdraw() vulnerable to reentrancy attack.
+
+Impact:
+Attacker can drain contract balance via recursive calls.
+
+Reproduction:
+1. Deploy malicious contract with fallback function
+2. Call IdentityRegistry.withdraw()
+3. Fallback triggers recursive withdraw before balance update
+
+Environment:
+- Ethereum Sepolia testnet
+- Contract: 0x742d35Cc6634C0532925a3b8...
+- Solidity 0.8.20
+- Deployed: 2025-01-15
+
+PoC:
+contract Attacker {
+  IdentityRegistry target;
+
+  function attack() external {
+    target.withdraw();
+  }
+
+  fallback() external payable {
+    if (address(target).balance > 0) {
+      target.withdraw();
+    }
+  }
+}
+
+Suggested Fix:
+Use checks-effects-interactions pattern:
+1. Update balance state BEFORE external call
+2. Or use ReentrancyGuard from OpenZeppelin
+----
+
+=== Response Timeline
+
+* **Acknowledgment:** Within 24 hours (mainnet), 48 hours (testnet)
+* **Initial assessment:** Within 3 days (mainnet), 1 week (testnet)
+* **Status update:** Every 3 days (mainnet), 7 days (testnet)
+* **Fix deployment:** 7-14 days (mainnet critical), 30-90 days (other)
+
+=== Severity Levels
+
+**Critical (Mainnet):** Fund loss, authentication bypass, privilege escalation
+* Response: Emergency patch + proxy upgrade within 7 days
+* Disclosure: After patch deployment + 14 days
+* **May trigger emergency pause if actively exploited**
+
+**High:** Reentrancy, integer overflow, access control bypass
+* Response: Patch within 14 days (mainnet), 30 days (testnet)
+* Disclosure: After patch deployment + 14 days
+
+**Medium:** Information disclosure, DoS, gas optimization attacks
+* Response: Patch within 30 days (mainnet), 60 days (testnet)
+* Disclosure: After patch deployment + 30 days
+
+**Low:** Minor information leaks, configuration issues
+* Response: Patch in next release
+* Disclosure: After patch deployment + 30 days
+
+== Coordinated Disclosure
+
+**We follow responsible disclosure:**
+
+1. **Private report** to jonathan.jewell@open.ac.uk
+2. **Confirmation** and severity assessment
+3. **Fix development** in private branch
+4. **Security advisory** drafted (with CVE for mainnet)
+5. **Patch deployment:**
+   - **Mainnet:** Proxy upgrade via timelock governance
+   - **Testnet:** Redeploy contracts
+6. **Public disclosure** after coordinated timeline
+
+**Embargo period:**
+* **Mainnet:** 90 days from report or patch deployment (whichever is sooner)
+* **Testnet:** 60 days
+
+== Security Advisories
+
+Published at:
+* **GitHub:** https://github.com/yourorg/indieweb2-bastion/security/advisories
+* **Email list:** security-announce@example.com
+* **On-chain:** Event logs in SecurityModule contract
+
+**Format:** CVE-YYYY-XXXXX, severity, affected contracts/versions, mitigation
+
+== Bug Bounty Program
+
+**⚠️ No formal bug bounty program at this time.**
+
+**Acknowledgments:**
+* Security researchers credited in SECURITY_ACKNOWLEDGMENTS.adoc
+* Name + website/Twitter (with permission)
+* Hall of Fame: https://example.com/security-hall-of-fame
+
+**We may offer rewards for:**
+* Critical mainnet vulnerabilities (case-by-case basis)
+* Novel attack vectors
+
+== Security Best Practices
+
+=== Smart Contract Development
+
+**Solidity:**
+[source,solidity]
+----
+// ALWAYS use OpenZeppelin libraries
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract IdentityRegistry is ReentrancyGuard, Ownable {
+    // Checks-effects-interactions pattern
+    function withdraw(uint256 amount) external nonReentrant {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+
+        // Effects BEFORE interactions
+        balances[msg.sender] -= amount;
+
+        // Interactions last
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+    }
+}
+----
+
+**Motoko (Internet Computer):**
+[source,motoko]
+----
+// Use stable variables for upgradeable state
+stable var identities : [(Principal, Identity)] = [];
+
+// Principal-based access control
+public shared(msg) func register(did : Text) : async Result.Result<(), Text> {
+  if (not isAuthorized(msg.caller)) {
+    return #err("Unauthorized");
+  };
+  // ...
+};
+----
+
+=== Testing
+
+**Required before mainnet deployment:**
+[source,bash]
+----
+# Unit tests (100% coverage for critical functions)
+just test-contracts
+
+# Slither static analysis
+slither contracts/
+
+# Mythril symbolic execution
+myth analyze contracts/IdentityRegistry.sol
+
+# Echidna fuzzing
+echidna-test contracts/IdentityRegistry.sol
+
+# Testnet deployment + manual testing
+just deploy-testnet
+just test-integration-testnet
+----
+
+=== Deployment
+
+**Never commit secrets:**
+[source,bash]
+----
+# Use environment variables
+export PRIVATE_KEY="..."  # From hardware wallet or secret manager
+export INFURA_KEY="..."
+
+# Or use encrypted keystore
+cast wallet import deployer --interactive
+----
+
+**Mainnet deployment checklist:**
+* [ ] All tests passing (unit + integration)
+* [ ] Static analysis clean (Slither, Mythril)
+* [ ] Fuzz testing completed (Echidna, Foundry)
+* [ ] Code review by 2+ developers
+* [ ] External audit completed (for high-value contracts)
+* [ ] Testnet deployment successful
+* [ ] Timelock configured (48+ hour delay)
+* [ ] Emergency pause mechanism tested
+* [ ] Monitoring alerts configured
+
+=== Code Review
+
+**Security checklist:**
+* [ ] No secrets in code/commits
+* [ ] User input validated/sanitized
+* [ ] Access control on all admin functions
+* [ ] Reentrancy guards on external calls
+* [ ] Integer overflow/underflow checks (or Solidity 0.8+)
+* [ ] Gas limits considered (avoid unbounded loops)
+* [ ] Event logs for all state changes
+* [ ] Proxy upgrade paths tested
+* [ ] Emergency pause mechanism
+* [ ] HTTPS enforced (off-chain components)
+
+=== Dependencies
+
+**Audit smart contract dependencies:**
+[source,bash]
+----
+# Check for known vulnerabilities
+npm audit
+
+# Update dependencies carefully (BREAKING CHANGES)
+npm update
+
+# For OpenZeppelin, pin to specific version
+"@openzeppelin/contracts": "4.9.3"
+----
+
+**Subscribe to:**
+* OpenZeppelin Security Advisories: https://github.com/OpenZeppelin/openzeppelin-contracts/security/advisories
+* Ethereum Security Announcements: https://github.com/ethereum/solidity/security
+* Dfinity Security: https://forum.dfinity.org/c/security
+
+== Security Features
+
+**indieweb2-bastion includes:**
+
+* **Access Control:** Role-based (OpenZeppelin AccessControl)
+* **Reentrancy Protection:** ReentrancyGuard on all state-changing functions
+* **Proxy Pattern:** EIP-1967 Transparent Upgradeable Proxy
+* **Timelock Governance:** 48-hour delay on upgrades
+* **Emergency Pause:** Circuit breaker for critical vulnerabilities
+* **Event Logging:** All state changes emit events
+* **Rate Limiting:** Off-chain API (Envoy)
+* **Input Validation:** Contract functions + off-chain validation
+
+**Internet Computer specific:**
+* **Stable Memory:** State preserved across canister upgrades
+* **Controller-only upgrades:** Multi-sig controller required
+* **Cycle monitoring:** Alerts on low cycles
+
+== Cryptographic Algorithm Requirements
+
+IMPORTANT: Full policy documented in `CRYPTO-POLICY.adoc` (canonical source). Machine-readable: `.machine_readable/CRYPTO-POLICY.scm`.
+
+[cols="1,2,2,1"]
+|===
+|ID |Requirement |Algorithm / Standard |Status
+
+|CPR-001 |Password Hashing |Argon2id (512 MiB / 8 iter / 4 lanes) — RFC 9106 |Required
+|CPR-002 |General Hashing |SHAKE3-512 — FIPS 202 |Required
+|CPR-003 |PQ Signatures |Dilithium5-AES / ML-DSA-87 — FIPS 204 |Required
+|CPR-004 |PQ Key Exchange |Kyber-1024 / ML-KEM-1024 — FIPS 203 |Required
+|CPR-005 |Classical Sigs (hybrid) |Ed448 + Dilithium5 — RFC 8032 + FIPS 204 |Required
+|CPR-006 |Symmetric Encryption |XChaCha20-Poly1305 — RFC 8439 ext. |Required
+|CPR-007 |Key Derivation |HKDF-SHAKE512 — RFC 5869 + FIPS 202 |Required
+|CPR-008 |RNG |ChaCha20-DRBG — NIST SP 800-90A |Required
+|CPR-009 |Database Hashing |BLAKE3 + SHAKE3-512 |Required
+|CPR-010 |Protocol Stack |QUIC + HTTP/3 + IPv6 — RFC 9000/9114/8200 |Required
+|CPR-011 |Accessibility |WCAG 2.3 AAA |Required
+|CPR-012 |Fallback Signature |SPHINCS+ / SLH-DSA — FIPS 205 |Required
+|CPR-013 |Formal Verification |Coq / Isabelle/HOL |Required
+|CPR-014 |TLS |TLS 1.3 only — RFC 8446 |Required
+|CPR-015 |Certificate Pinning |DANE-TLSA — RFC 6698 |Required
+|CPR-016 |Blockchain Sigs |Ed448 + Dilithium5 hybrid (off-chain) |Required
+
+|===
+
+=== Terminated Algorithms
+
+WARNING: The following algorithms MUST NOT be used in new code.
+
+* **Ed25519** — Replaced by Ed448+Dilithium5 hybrid (deadline: 2026-06-01)
+* **SHA-1 / MD5** — Broken, collision attacks demonstrated (immediate)
+* **RSA** — Quantum-vulnerable, replaced by ML-DSA-87 (deadline: 2026-06-01)
+* **X25519** — Replaced by Kyber-1024 / ML-KEM-1024 (deadline: 2026-06-01)
+* **HKDF-SHA256** — Replaced by HKDF-SHAKE512 (deadline: 2026-06-01)
+* **SHA-256** — Replaced by SHAKE3-512 and BLAKE3 (deadline: 2026-09-01)
+* **HTTP/1.1** — Replaced by HTTP/3 over QUIC (deadline: 2026-06-01)
+* **IPv4** — IPv6-only policy (deadline: 2026-09-01)
+* **TLS 1.2** — TLS 1.3 only (immediate)
+
+=== Post-Quantum Migration
+
+**Current state:** Ed25519 for DNSSEC/git signing, SHA-256 for content hashing, X25519 for oDNS key exchange.
+
+**Target state:** Ed448+Dilithium5 hybrid signatures, BLAKE3+SHAKE3-512 hashing, Kyber-1024 key exchange.
+
+**Timeline:**
+
+1. **2026-02-14:** Policy defined (CRYPTO-POLICY.adoc)
+2. **2026-03-01:** BLAKE3 + SHAKE3-512 hashing migration
+3. **2026-04-01:** XChaCha20-Poly1305 symmetric encryption
+4. **2026-06-01:** Ed448+Dilithium5 hybrid sigs + Kyber-1024 KEM
+5. **2026-09-01:** QUIC/HTTP3/IPv6-only transport
+6. **2026-12-01:** Formal verification of all crypto protocols
+
+== Vulnerability Disclosure Log
+
+**2025-01-20: [PLACEHOLDER] - Awaiting first security report**
+
+**(See full log in SECURITY_ADVISORIES.adoc)**
+
+== Contact
+
+**Security Team:**
+* Email: jonathan.jewell@open.ac.uk
+* PGP: https://example.com/pgp-key.asc
+
+**Maintainers:**
+* Lead: [Name] (@handle)
+* Security: [Name] (@handle)
+
+**Response hours:** 24/7 for mainnet critical vulnerabilities, Monday-Friday 9 AM - 5 PM UTC otherwise
+
+---
+
+**Thank you for helping keep indieweb2-bastion secure!** 🔒
+
+_Last Updated: 2025-01-21 | Rhodium Standard 0.5_

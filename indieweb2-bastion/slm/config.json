@@ -1,0 +1,6 @@
+{
+  "default_model": "mistral-7b.Q4_K_M.gguf",
+  "fallback": "browser-native",
+  "api": "http://localhost:11434",
+  "mode": "auto"
+}

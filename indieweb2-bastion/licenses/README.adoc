@@ -1,0 +1,16 @@
+= Licensing Overview
+:project-name: IndieWeb2  
+
+== 📄 Licenses
+- link:LICENSE-MIT.txt[MIT License] (permissive, traditional)
+- link:LICENSE-PALIMPSEST.txt[Palimpsest v0.8] (ethical AI/attribution)
+
+== 🔍 Quick Guide
+| Use Case               | Recommended License       |
+|------------------------|---------------------------|
+| Building applications  | link:LICENSE-MIT.txt[MIT] |
+| Ethical AI training    | link:LICENSE-PALIMPSEST.txt[Palimpsest] |
+
+== 📚 External Resources
+- MIT: https://opensource.org/licenses/MIT
+- Palimpsest: https://github.com/hyperpolymath/palimpsest-license

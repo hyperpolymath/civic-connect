@@ -1,0 +1,238 @@
+= Cookbook - indieweb2-bastion
+:toc: macro
+
+[abstract]
+--
+Practical guide to Just recipes for indieweb2-bastion (consent-first DNS + blockchain identity platform). Rhodium Standard 0.5, Pillar 1, Section 2.1.3.
+--
+
+toc::[]
+
+== Quick Reference
+
+[source,bash]
+----
+# First-time setup
+just bootstrap
+
+# Validate policy and schema
+just validate
+
+# Build and deploy
+just rescript-build
+just build-policy-wasm
+just deploy-testnet
+
+# Smart contracts
+just compile-contracts
+just test-contracts
+just deploy-sepolia
+----
+
+== Bootstrap
+
+=== `just bootstrap`
+
+**Purpose:** Install dependencies and create directory structure
+
+**What it does:**
+* Creates `.tmp`, `policy/`, `sbom/`, `logging/` directories
+* Installs: jq, capnproto, Nickel, Deno
+* One-time setup for development
+
+**When to use:**
+* First-time repository setup
+* After fresh clone
+* When dependencies missing
+
+== Validation
+
+=== `just validate`
+
+**Purpose:** Validate Nickel policy, Cap'n Proto schemas, SurrealDB
+
+**What it does:**
+1. Exports Nickel policy to JSON
+2. Compiles Cap'n Proto provenance schema
+3. Validates SurrealDB schema
+
+**Failures:**
+* Nickel type errors
+* Cap'n Proto syntax errors
+* SurrealDB schema violations
+
+=== `just validate-eval`
+
+**Purpose:** Evaluate Nickel policy without exporting
+
+**Use:** Quick syntax check
+
+=== `just validate-pretty`
+
+**Purpose:** Pretty-print policy JSON for review
+
+**Output:** `.tmp/policy.pretty.json`
+
+== ReScript Frontend
+
+=== `just rescript-build`
+
+**Purpose:** Compile ReScript to JavaScript
+
+**What it does:**
+* Runs `npx rescript build`
+* Compiles `.res` files to `.bs.js`
+
+=== `just rescript-clean`
+
+**Purpose:** Clean ReScript build artifacts
+
+== Policy Engine (WASM)
+
+=== `just build-policy-wasm`
+
+**Purpose:** Compile consent policy to WASM
+
+**What it does:**
+* Compiles CURPS policy to WASM
+* Output: `policy.wasm` for Envoy
+
+=== `just sign-policy`
+
+**Purpose:** Sign policy with Ed25519
+
+**Requires:** Private key in `POLICY_SIGNING_KEY`
+
+== Smart Contracts
+
+=== `just compile-contracts`
+
+**Purpose:** Compile Solidity/Vyper/Motoko contracts
+
+**What it does:**
+* Ethereum/Polygon: `npx hardhat compile`
+* Internet Computer: `dfx build`
+
+=== `just test-contracts`
+
+**Purpose:** Run smart contract test suites
+
+**Coverage target:** 95%+
+
+=== `just deploy-sepolia`
+
+**Purpose:** Deploy to Ethereum Sepolia testnet
+
+**Prerequisites:**
+* `SEPOLIA_RPC_URL` in `.env`
+* `PRIVATE_KEY` for testnet account
+* Testnet ETH (faucet)
+
+=== `just deploy-polygon`
+
+**Purpose:** Deploy to Polygon mainnet
+
+**⚠️ WARNING:** Mainnet deployment is irreversible
+
+=== `just deploy-ic-testnet`
+
+**Purpose:** Deploy canisters to IC testnet
+
+== oDNS Operations
+
+=== `just start-odns-proxy`
+
+**Purpose:** Start oblivious DNS proxy
+
+**Port:** 853 (DNS over TLS)
+
+=== `just start-odns-resolver`
+
+**Purpose:** Start oblivious DNS resolver
+
+**Privacy:** No client IP logging
+
+=== `just rotate-hpke-keys`
+
+**Purpose:** Rotate HPKE encryption keys
+
+**Frequency:** Every 24 hours (automated)
+
+== SurrealDB
+
+=== `just start-surrealdb`
+
+**Purpose:** Start SurrealDB instance
+
+**Port:** 8000
+
+=== `just export-provenance`
+
+**Purpose:** Export provenance graph to IPFS
+
+**Output:** IPFS CID
+
+== Deployment
+
+=== `just deploy-testnet`
+
+**Purpose:** Deploy full stack to testnet
+
+**Components:**
+* Bastion gateway (Envoy)
+* oDNS proxy + resolver
+* GraphQL API
+* SurrealDB
+* Smart contracts (Sepolia)
+
+=== `just deploy-production`
+
+**Purpose:** Deploy to production
+
+**⚠️ Checklist:**
+* [ ] Security audit completed
+* [ ] Testnet validated for 7+ days
+* [ ] Multi-sig configured
+* [ ] Monitoring alerts active
+
+== Monitoring
+
+=== `just health-check`
+
+**Purpose:** Check all services
+
+**Endpoints:**
+* Gateway: `/healthz`
+* oDNS: DNS query test
+* GraphQL: `{__typename}`
+* SurrealDB: Connection test
+
+=== `just logs`
+
+**Purpose:** Tail all service logs
+
+=== `just metrics`
+
+**Purpose:** Display Prometheus metrics
+
+== Troubleshooting
+
+**"Nickel type error"**
+→ Run `just validate-pretty` to see JSON output
+
+**"Contract deployment failed"**
+→ Check gas price, account balance, RPC connection
+
+**"oDNS proxy not starting"**
+→ Verify HPKE keys exist: `ls policy/runner/crypto/`
+
+== References
+
+* link:ARCHITECTURE.adoc[Architecture Documentation]
+* link:../REVERSIBILITY.adoc[Reversibility Procedures]
+* link:https://nickel-lang.org/[Nickel Language]
+* link:https://www.envoyproxy.io/[Envoy Proxy]
+
+---
+
+_Last Updated: 2025-01-21 | Rhodium Standard 0.5_

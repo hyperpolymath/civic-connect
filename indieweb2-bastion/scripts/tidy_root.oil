@@ -1,0 +1,31 @@
+#!/usr/bin/env oil
+
+### Moves root-level "tripe" to a temporary directory for review.
+
+var junk_dir = '_JUNK_TO_DELETE'
+mkdir -p $junk_dir
+
+echo "Moving potential tripe to '$junk_dir' for your review..."
+
+var items_to_move = [
+  '{{POLICY_JSON}}',
+  '{{POLICY_JSON}}.prev',
+  '{{POLICY_PRETTY}}',
+  '{{TMP_DIR}}',
+  'tree2.txt',
+  'wordpress'  # This is the misplaced root directory
+]
+
+for item in @items_to_move {
+  if (test -e $item) {
+    echo "Moving: $item"
+    mv $item $junk_dir
+  } else {
+    echo "Skipping (not found): $item"
+  }
+}
+
+echo ""
+echo "Tidy-up complete."
+echo "Please inspect the '$junk_dir' directory."
+echo "If you are happy, delete it with: rm -rf $junk_dir"

@@ -1,0 +1,166 @@
+#!/usr/bin/env oil
+
+### An interactive script to tidy the project root.
+### It asks before deleting or moving anything.
+
+# --- Helper Procedures ---
+
+# A simple Y/N prompt
+proc _prompt_yes_no (question) {
+  read -p "$question (y/n) " answer
+  case $answer in
+    [Yy]|[Yy]es)
+      return 0  # Oil/bash success (true)
+      ;;
+    *)
+      return 1  # Oil/bash failure (false)
+      ;;
+  esac
+}
+
+# A procedure to handle duplicate files
+proc _handle_duplicate (file1, file2) {
+  echo ""
+  echo "Found duplicate files:"
+  echo "  [1] $file1"
+  echo "  [2] $file2"
+  read -p "Which version do you want to KEEP? (1 or 2, 's' to skip) " choice
+  case $choice in
+    1)
+      if (_prompt_yes_no "  -> Are you sure you want to delete '$file2'? ") {
+        rm -f $file2
+        echo "Removed $file2"
+      }
+      ;;
+    2)
+      if (_prompt_yes_no "  -> Are you sure you want to delete '$file1'? ") {
+        rm -f $file1
+        echo "Removed $file1"
+      }
+      ;;
+    *)
+      echo "Skipped."
+      ;;
+  esac
+}
+
+# --- Main Script ---
+
+echo "Starting interactive repository tidy-up..."
+echo "Files will be moved to '_JUNK_TO_DELETE' for safety."
+echo "---"
+
+# Create the junk directory
+var junk_dir = '_JUNK_TO_DELETE'
+mkdir -p $junk_dir
+
+# ---
+echo "Section 1: Build Artefacts & Misplaced Files"
+# ---
+
+var artefacts = [
+  '{{POLICY_JSON}}',
+  '{{POLICY_JSON}}.prev',
+  '{{POLICY_PRETTY}}',
+  '{{TMP_DIR}}',
+  'tree2.txt'
+]
+
+for item in @artefacts {
+  if (test -e $item) {
+    if (_prompt_yes_no "Move junk artefact '$item' to '$junk_dir'? ") {
+      mv $item $junk_dir
+      echo "Moved $item"
+    }
+  }
+}
+
+# Handle misplaced wordpress directory
+if (test -d wordpress) and (test -d products/wordpress) {
+  if (_prompt_yes_no "Move misplaced root 'wordpress/' dir to '$junk_dir'? ") {
+    mv wordpress $junk_dir
+    echo "Moved 'wordpress'"
+  }
+}
+
+# ---
+echo ""
+echo "Section 2: node_modules"
+echo "---"
+
+# Add node_modules to .gitignore
+var gitignore = '.gitignore'
+if (test -f $gitignore) {
+  if ! (grep -q "node_modules" $gitignore) {
+    if (_prompt_yes_no "Add 'node_modules/' to $gitignore? ") {
+      echo "" >> $gitignore
+      echo "# Node.js dependencies (build-time only)" >> $gitignore
+      echo "node_modules/" >> $gitignore
+      echo "Added 'node_modules/' to $gitignore"
+    }
+  }
+} else {
+  if (_prompt_yes_no "Create $gitignore and add 'node_modules/'? ") {
+    echo "node_modules/" > $gitignore
+    echo "Created $gitignore"
+  }
+}
+
+# Offer to delete node_modules
+if (test -d node_modules) {
+  if (_prompt_yes_no "Delete local 'node_modules/' directory? (Saves space, run 'npm install' to rebuild) ") {
+    rm -rf node_modules
+    echo "Deleted 'node_modules/'"
+  }
+}
+
+# ---
+echo ""
+echo "Section 3: File Duplicates"
+echo "---"
+
+if (test -f bootstrap.sh) and (test -f scripts/bootstrap.sh) {
+  _handle_duplicate("bootstrap.sh", "scripts/bootstrap.sh")
+}
+
+if (test -f crypto/sign_policy.js) and (test -f policy/runner/crypto/sign_policy.js) {
+  _handle_duplicate("crypto/sign_policy.js", "policy/runner/crypto/sign_policy.js")
+}
+
+if (test -f policy/run.js) and (test -f policy/runner/policy/run.js) {
+  _handle_duplicate("policy/run.js", "policy/runner/policy/run.js")
+}
+
+# ---
+echo ""
+echo "Section 4: Documentation Duplicates"
+echo "---"
+
+var doc_dupes = [ 'default-consent.adoc', 'maintainer.adoc', 'trusted_contributor.adoc' ]
+if (test -d docs/capabilities) {
+  if (_prompt_yes_no "Clean up duplicate docs? (This will keep the 'docs/capabilities/' versions) ") {
+    for doc in @doc_dupes {
+      if (test -f "docs/$doc") {
+        rm -f "docs/$doc"
+        echo "Removed docs/$doc"
+      }
+    }
+  }
+}
+
+# ---
+echo ""
+echo "Section 5: File Rename"
+echo "---"
+
+if (test -f SECURITY.md) {
+  if (_prompt_yes_no "Rename 'SECURITY.md' to 'SECURITY.adoc' (to match your preference)? ") {
+    mv SECURITY.md SECURITY.adoc
+    echo "Renamed to SECURITY.adoc"
+  }
+}
+
+echo ""
+echo "---"
+echo "Interactive tidy-up complete."
+echo "Please check the '$junk_dir' directory and delete it when you are satisfied."

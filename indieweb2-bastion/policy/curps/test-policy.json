@@ -1,0 +1,77 @@
+{
+  "version": "0.1.0",
+  "capabilities": {
+    "maintainer": "docs/capabilities/maintainer.adoc",
+    "trusted_contributor": "docs/capabilities/contributor.adoc",
+    "default-consent": "docs/capabilities/consent.adoc"
+  },
+  "mutations": [
+    {
+      "name": "rotate_keys",
+      "description": "Rotate all cryptographic keys",
+      "approvals": 2,
+      "timelock_hours": 24
+    },
+    {
+      "name": "mutate_dns",
+      "description": "Modify DNS records",
+      "approvals": 1,
+      "timelock_hours": 1
+    }
+  ],
+  "roles": [
+    {
+      "name": "maintainer",
+      "members": ["alice", "jonathan"],
+      "privileges": ["publish_manifest", "rotate_keys", "mutate_dns"]
+    },
+    {
+      "name": "trusted_contributor",
+      "members": [],
+      "privileges": ["publish_manifest"]
+    }
+  ],
+  "routes": [
+    { "path": "/.well-known", "plane": "data", "methods": ["GET"], "guards": ["waf", "policy-gate"] },
+    { "path": "/odns", "plane": "data", "methods": ["GET", "POST"], "guards": ["mtls", "waf", "policy-gate"] },
+    { "path": "/graphql-dns", "plane": "control", "methods": ["POST"], "guards": ["mtls", "policy-gate"] },
+    { "path": "/webmention", "plane": "data", "methods": ["POST"], "guards": ["webmention-rate-limit", "waf", "policy-gate"] },
+    { "path": "/webmention/status", "plane": "data", "methods": ["GET"], "guards": ["waf", "policy-gate"] },
+    { "path": "/webmention/verify", "plane": "data", "methods": ["POST"], "guards": ["webmention-rate-limit", "waf", "policy-gate"] }
+  ],
+  "consent_bindings": [
+    {
+      "name": "default",
+      "manifest_ref": "ipfs://QmConsentManifest001",
+      "required": true,
+      "defaults": {
+        "telemetry": "off",
+        "indexing": "on"
+      }
+    }
+  ],
+  "constraints": {
+    "require_mtls": true,
+    "log_all_mutations": true,
+    "max_rate_rpm": 120
+  },
+  "crypto": {
+    "password_hashing": { "name": "Argon2id", "standard": "RFC 9106", "status": "required" },
+    "general_hashing": { "name": "SHAKE3-512", "standard": "FIPS 202", "status": "required" },
+    "pq_signatures": { "name": "Dilithium5-AES", "standard": "FIPS 204", "status": "required" },
+    "pq_key_exchange": { "name": "Kyber-1024", "standard": "FIPS 203", "status": "required" },
+    "classical_sigs": { "name": "Ed448+Dilithium5", "standard": "RFC 8032 + FIPS 204", "status": "required" },
+    "symmetric": { "name": "XChaCha20-Poly1305", "standard": "RFC 8439 ext", "status": "required" },
+    "key_derivation": { "name": "HKDF-SHAKE512", "standard": "RFC 5869 + FIPS 202", "status": "required" },
+    "rng": { "name": "ChaCha20-DRBG", "standard": "NIST SP 800-90A", "status": "required" },
+    "database_hashing": { "name": "BLAKE3+SHAKE3-512", "standard": "BLAKE3 + FIPS 202", "status": "required" },
+    "fallback_sig": { "name": "SPHINCS+", "standard": "FIPS 205", "status": "required" },
+    "terminated": [
+      { "name": "Ed25519", "standard": "RFC 8032", "status": "terminated" },
+      { "name": "SHA-1", "standard": "FIPS 180-4", "status": "terminated" },
+      { "name": "RSA", "standard": "PKCS#1", "status": "terminated" },
+      { "name": "X25519", "standard": "RFC 7748", "status": "terminated" },
+      { "name": "HKDF-SHA256", "standard": "RFC 5869", "status": "terminated" }
+    ]
+  }
+}

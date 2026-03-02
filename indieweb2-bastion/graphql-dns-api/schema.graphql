@@ -1,0 +1,354 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# GraphQL schema for indieweb2-bastion DNS API
+# Full DNS RR coverage with DNSSEC support
+# Nickel CURPS policy integration for governance
+
+"""
+DNS record with blockchain provenance
+"""
+type DNSRecord {
+  "Unique record identifier"
+  id: ID!
+
+  "Fully qualified domain name"
+  name: String!
+
+  "DNS record type"
+  type: DNSRecordType!
+
+  "Time to live (seconds)"
+  ttl: Int!
+
+  "Record value (format depends on type)"
+  value: String!
+
+  "DNSSEC enabled for this record"
+  dnssec: Boolean!
+
+  "DNSSEC signature (if enabled)"
+  rrsig: String
+
+  "Blockchain transaction hash (provenance anchor)"
+  blockchainTxHash: String
+
+  "Creation timestamp"
+  createdAt: DateTime!
+
+  "Last update timestamp"
+  updatedAt: DateTime!
+}
+
+"""
+DNS record types - full RR coverage
+"""
+enum DNSRecordType {
+  "IPv4 address"
+  A
+
+  "IPv6 address"
+  AAAA
+
+  "Canonical name (alias)"
+  CNAME
+
+  "Mail exchange"
+  MX
+
+  "Text record"
+  TXT
+
+  "Service locator"
+  SRV
+
+  "Certification Authority Authorization"
+  CAA
+
+  "DANE certificate association"
+  TLSA
+
+  "Name server"
+  NS
+
+  "Start of authority"
+  SOA
+
+  "Pointer (reverse DNS)"
+  PTR
+}
+
+"""
+Input for creating/updating DNS records
+"""
+input DNSRecordInput {
+  name: String!
+  type: DNSRecordType!
+  ttl: Int!
+  value: String!
+  dnssec: Boolean
+}
+
+"""
+DNSSEC zone configuration
+"""
+type DNSSECZone {
+  "Zone name"
+  zone: String!
+
+  "DNSSEC enabled"
+  enabled: Boolean!
+
+  "Key signing key (KSK) public key"
+  ksk: String
+
+  "Zone signing key (ZSK) public key"
+  zsk: String
+
+  "DS record for parent zone"
+  dsRecord: String
+
+  "Last key rotation"
+  lastRotation: DateTime
+}
+
+"""
+Reverse DNS lookup result
+"""
+type ReverseDNSResult {
+  "IP address queried"
+  ip: String!
+
+  "Resolved hostnames"
+  hostnames: [String!]!
+
+  "PTR records"
+  ptrRecords: [DNSRecord!]!
+}
+
+"""
+Blockchain provenance information
+"""
+type BlockchainProvenance {
+  "Record ID"
+  recordId: ID!
+
+  "Content hash anchored to blockchain"
+  contentHash: String!
+
+  "Blockchain network (ethereum, polygon)"
+  network: String!
+
+  "Transaction hash"
+  txHash: String!
+
+  "Block number"
+  blockNumber: Int!
+
+  "Timestamp"
+  timestamp: DateTime!
+}
+
+"""
+DNS query statistics
+"""
+type DNSStatistics {
+  "Total records"
+  totalRecords: Int!
+
+  "Records by type"
+  recordsByType: [RecordTypeCount!]!
+
+  "DNSSEC enabled zones"
+  dnssecZones: Int!
+
+  "Blockchain anchored records"
+  blockchainAnchored: Int!
+}
+
+type RecordTypeCount {
+  type: DNSRecordType!
+  count: Int!
+}
+
+"""
+Custom scalar for DateTime
+"""
+scalar DateTime
+
+type Query {
+  "Get single DNS record by ID"
+  dnsRecord(id: ID!): DNSRecord
+
+  "Query DNS records by name and/or type"
+  dnsRecords(
+    name: String
+    type: DNSRecordType
+    limit: Int = 100
+    offset: Int = 0
+  ): [DNSRecord!]!
+
+  "Reverse DNS lookup (IP to hostname)"
+  reverseDNS(ip: String!): ReverseDNSResult!
+
+  "Get DNSSEC configuration for a zone"
+  dnssecZone(zone: String!): DNSSECZone
+
+  "Get blockchain provenance for a record"
+  blockchainProvenance(recordId: ID!): BlockchainProvenance
+
+  "Get DNS statistics"
+  statistics: DNSStatistics!
+
+  "Health check"
+  health: String!
+
+  "Get current policy configuration"
+  policy: Policy!
+
+  "Get mutation proposal by ID"
+  proposal(id: ID!): MutationProposal
+
+  "Get all mutation proposals"
+  proposals(status: ProposalStatus): [MutationProposal!]!
+
+  "Check if identity has privilege"
+  hasPrivilege(identity: String!, privilege: String!): Boolean!
+}
+
+type Mutation {
+  "Create a new DNS record"
+  createDNSRecord(input: DNSRecordInput!): DNSRecord!
+
+  "Update an existing DNS record"
+  updateDNSRecord(id: ID!, input: DNSRecordInput!): DNSRecord!
+
+  "Delete a DNS record"
+  deleteDNSRecord(id: ID!): Boolean!
+
+  "Enable DNSSEC for a zone"
+  enableDNSSEC(zone: String!): DNSSECZone!
+
+  "Rotate DNSSEC keys for a zone"
+  rotateDNSSECKeys(zone: String!): DNSSECZone!
+
+  "Anchor record hash to blockchain"
+  anchorToBlockchain(recordId: ID!, network: String!): BlockchainProvenance!
+
+  "Propose a mutation (requires approval and timelock)"
+  proposeMutation(mutationName: String!, payload: JSON!): MutationProposal!
+
+  "Approve a mutation proposal"
+  approveMutation(proposalId: ID!): MutationProposal!
+
+  "Execute an approved mutation"
+  executeMutation(proposalId: ID!): MutationProposal!
+}
+
+"""
+Mutation proposal requiring governance approval
+"""
+type MutationProposal {
+  "Unique proposal identifier"
+  id: ID!
+
+  "Name of the mutation being proposed"
+  mutationName: String!
+
+  "Identity that proposed the mutation"
+  proposer: String!
+
+  "Timestamp when proposed (Unix seconds)"
+  proposedAt: Int!
+
+  "Timestamp when timelock expires (Unix seconds)"
+  timelockUntil: Int!
+
+  "Identities that have approved"
+  approvals: [String!]!
+
+  "Number of approvals required"
+  requiredApprovals: Int!
+
+  "Current proposal status"
+  status: ProposalStatus!
+
+  "Mutation payload (JSON)"
+  payload: JSON!
+}
+
+"""
+Status of a mutation proposal
+"""
+enum ProposalStatus {
+  PENDING
+  TIMELOCK_ACTIVE
+  APPROVED
+  REJECTED
+  EXECUTED
+}
+
+"""
+CURPS policy loaded from Nickel
+"""
+type Policy {
+  "Policy version"
+  version: String!
+
+  "Mutation policies with approval requirements"
+  mutations: [MutationPolicy!]!
+
+  "Roles with privileges"
+  roles: [Role!]!
+
+  "Policy constraints"
+  constraints: PolicyConstraints!
+}
+
+"""
+Mutation policy with governance rules
+"""
+type MutationPolicy {
+  "Mutation name"
+  name: String!
+
+  "Human-readable description"
+  description: String!
+
+  "Number of approvals required"
+  approvals: Int!
+
+  "Timelock duration in hours"
+  timelockHours: Int!
+}
+
+"""
+Role with members and privileges
+"""
+type Role {
+  "Role name"
+  name: String!
+
+  "Identity members of this role"
+  members: [String!]!
+
+  "Privileges granted to this role"
+  privileges: [String!]!
+}
+
+"""
+Policy constraints
+"""
+type PolicyConstraints {
+  "Require mTLS for all connections"
+  requireMtls: Boolean!
+
+  "Log all mutation attempts"
+  logAllMutations: Boolean!
+
+  "Maximum requests per minute"
+  maxRateRpm: Int!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

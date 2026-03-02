@@ -1,0 +1,7 @@
+# SDP mTLS Profile
+ca: ca.pem
+profiles:
+  - name: bastion-ingress
+    cert: bastion.crt
+    key: bastion.key
+    ttl: 24h

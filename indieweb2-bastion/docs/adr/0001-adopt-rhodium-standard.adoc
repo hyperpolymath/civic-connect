@@ -1,0 +1,71 @@
+= ADR-0001: Adopt Rhodium Standard 0.5
+:toc: macro
+:icons: font
+
+[cols="1,2"]
+|===
+|Status |Accepted
+|Date |2025-01-21
+|Deciders |Project maintainers, infrastructure team
+|===
+
+toc::[]
+
+== Context
+
+The project requires a comprehensive software quality and compliance framework that addresses:
+
+* **Supply chain security** (audit-grade provenance, SBOM, reproducible builds)
+* **Documentation quality** (instant legibility, onboarding, architectural clarity)
+* **Interoperability** (multi-ecosystem packaging, WASM-first compilation)
+* **Ethical transparency** (AI usage disclosure, carbon reporting, inclusivity)
+
+For blockchain projects, additional considerations include:
+
+* Smart contract immutability and upgrade patterns
+* Multi-chain deployment provenance
+* Carbon footprint of blockchain operations
+* Security audit requirements
+
+Rhodium Standard 0.5 provides a unified framework with blockchain-specific adaptations.
+
+== Decision
+
+**We adopt Rhodium Standard 0.5 as the minimum compliance framework for this repository, with blockchain-specific interpretations.**
+
+**Target Level:** Rhodium Silver (immediate), Rhodium Gold (2025-06)
+
+**Blockchain-Specific Adaptations:**
+
+* REVERSIBILITY.adoc documents upgrade patterns, not rollback (mainnet deployments are immutable)
+* Carbon reporting includes testnet usage and PoS chain considerations
+* SLSA attestation for smart contract bytecode and deployment artifacts
+
+== Consequences
+
+=== Positive
+
+* **Supply Chain Security:** SLSA attestation for contract deployments, bytecode provenance
+* **Transparency:** Smart contract upgrade patterns documented, audit findings disclosed
+* **Multi-Chain Support:** Standardized compliance across Ethereum, Polygon, and Internet Computer
+
+=== Negative
+
+* **Immutability Constraints:** Mainnet deployments cannot be rolled back (upgrade patterns only)
+* **Complex Carbon Reporting:** Must account for testnet usage, PoS consensus, and execution costs
+
+== Implementation
+
+See link:../../.rhodium/WAIVER.adoc[WAIVER.adoc] for blockchain-specific waivers including Waiver-2025-006 (REVERSIBILITY adaptations).
+
+== References
+
+* link:https://rhodium-standard.org[Rhodium Standard 0.5 Charter]
+* link:../../.rhodium/WAIVER.adoc[Active Waivers] (6 blockchain-specific waivers)
+* link:../../RHODIUM-IMPLEMENTATION-PLAN.adoc[Implementation Plan]
+
+== Related ADRs
+
+* link:0002-multi-chain-architecture.adoc[ADR-0002: Multi-Chain Architecture]
+* ADR-0003: Smart Contract Upgrade Patterns (planned)
+* ADR-0004: SLSA for Blockchain Artifacts (planned)

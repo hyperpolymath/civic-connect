@@ -1,0 +1,97 @@
+// SPDX-License-Identifier: PMPL-1.0-or-later
+// Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <jonathan.jewell@open.ac.uk>
+= ADR-0003: oDNS Go-to-Rust Rewrite with Post-Quantum Cryptography
+:status: Accepted
+:date: 2026-02-14
+:deciders: Jonathan D.A. Jewell
+
+== Status
+
+Accepted — Rust implementation in `odns-rs/` workspace.
+
+== Context
+
+The `odns-proxy` (310 lines) and `odns-resolver` (278 lines) components are written in Go, which is a **banned language** per the hyperpolymath language policy. Go must be replaced by Rust.
+
+Additionally, these components currently use cryptographic primitives that are **terminated** per `CRYPTO-POLICY.adoc`:
+
+[cols="2,2,2"]
+|===
+|Operation |Current (Go/cloudflare-circl) |Target (Rust/CRYPTO-POLICY.adoc)
+
+|Key Exchange
+|X25519 (TERMINATED — CPR-004)
+|Kyber-1024 / ML-KEM-1024 (FIPS 203)
+
+|Key Derivation
+|HKDF-SHA256 (TERMINATED — CPR-007)
+|HKDF-SHAKE512 (RFC 5869 + FIPS 202)
+
+|Symmetric Encryption
+|ChaCha20-Poly1305 (TERMINATED — CPR-006)
+|XChaCha20-Poly1305 (RFC 8439 extended nonce)
+
+|DNS Resolution
+|Go net/dns
+|hickory-dns (Rust)
+
+|===
+
+== Decision
+
+Rewrite both `odns-proxy` and `odns-resolver` in Rust with the following architecture:
+
+=== Dependencies
+
+* `hickory-dns` — DNS protocol handling (replacement for trust-dns)
+* `pqcrypto-kyber` — Kyber-1024 / ML-KEM-1024 key encapsulation
+* `pqcrypto-dilithium` — Dilithium5-AES / ML-DSA-87 signatures
+* `chacha20poly1305` — XChaCha20-Poly1305 symmetric encryption
+* `hkdf` + `sha3` — HKDF-SHAKE512 key derivation
+* `blake3` — Content hashing
+* `tokio` — Async runtime
+* `axum` — HTTP framework (if proxy needs HTTP endpoints)
+
+=== Scope
+
+* **odns-proxy:** TCP/UDP DNS proxy with encrypted upstream queries
+* **odns-resolver:** Recursive DNS resolver with DNSSEC validation
+* Both: Kyber-1024 key exchange for encrypted DNS transport
+
+=== Migration Path
+
+1. Create `odns-rs/` workspace with `proxy` and `resolver` crates
+2. Port DNS protocol handling to hickory-dns
+3. Replace X25519 → Kyber-1024 for key exchange
+4. Replace HKDF-SHA256 → HKDF-SHAKE512 for key derivation
+5. Replace ChaCha20-Poly1305 → XChaCha20-Poly1305 for encryption
+6. Integration testing against existing test suite
+7. Remove Go code (`odns-proxy/`, `odns-resolver/`)
+
+== Consequences
+
+=== Positive
+
+* Eliminates banned language (Go) from codebase
+* Post-quantum security for DNS transport (Kyber-1024)
+* Consistent language stack (Rust for all systems code)
+* Better integration with graphql-dns-api (shared types, workspace)
+* Memory safety guarantees from Rust
+
+=== Negative
+
+* Development effort (~2 weeks estimated)
+* Temporary feature freeze on oDNS during rewrite
+* Kyber-1024 key sizes larger than X25519 (1568 bytes vs 32 bytes)
+
+=== Neutral
+
+* Test coverage must be maintained or improved
+* Existing Go dependencies (cloudflare/circl) no longer needed
+
+== References
+
+* `CRYPTO-POLICY.adoc` — Full cryptographic requirements
+* `.machine_readable/CRYPTO-POLICY.scm` — Machine-readable policy
+* FIPS 203 — ML-KEM (Kyber) standard
+* FIPS 204 — ML-DSA (Dilithium) standard

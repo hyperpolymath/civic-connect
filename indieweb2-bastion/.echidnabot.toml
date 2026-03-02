@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# echidnabot configuration for indieweb2-bastion
+
+[echidnabot]
+enabled = true
+verify_proofs = false  # No formal proofs yet (CPR-013 pending)
+
+[scan]
+# Rust source for security scanning
+paths = [
+  "graphql-dns-api/src/",
+  "odns-rs/",
+  "services/",
+]
+
+# Policy files to validate
+policy_paths = [
+  "policy/curps/",
+  "CRYPTO-POLICY.adoc",
+]
+
+[findings]
+# Submit findings to gitbot-fleet
+fleet_integration = true
+severity_threshold = "medium"

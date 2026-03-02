@@ -1,0 +1,36 @@
+set shell := ["bash", "-cu"]
+
+TMP := "../.tmp"
+POLICY := "../policy/curps/policy.ncl"
+POLICY_JSON := "{{TMP}}/policy.json"
+
+init:
+  mkdir -p {{TMP}}
+
+nickel-validate: init
+  nickel export {{POLICY}} > {{POLICY_JSON}}
+
+nickel-eval: init
+  nickel eval {{POLICY}} > /dev/null
+
+rescript-build:
+  npx rescript build
+
+policy-gate: nickel-validate rescript-build
+  node ../lib/js/src/PolicyGateCLI.js {{POLICY_JSON}}
+
+deno-sign: nickel-validate
+  deno run --allow-read --allow-write --unstable ../policy/runner/crypto/sign_policy.js {{POLICY_JSON}} {{TMP}}/policy.sig
+
+deno-verify: deno-sign
+  deno run --allow-read --allow-run --allow-write --unstable ../policy/runner/policy/run.js {{POLICY_JSON}} {{TMP}}/policy.sig.json
+
+security-checks:
+  @echo "SELinux enforcing:" $(getenforce || echo "unknown")
+  @echo "Seccomp profile stub: ../container/seccomp.json"
+  @echo "Read-only rootfs, user namespaces, no-new-privileges must be set in deploy manifests"
+
+ipfs-rehydrate:
+  @echo "Stub: deno/ipfs/rehydrate.js will pull CID and restore SurrealDB snapshot"
+
+all: nickel-validate nickel-eval policy-gate deno-sign deno-verify security-checks ipfs-rehydrate

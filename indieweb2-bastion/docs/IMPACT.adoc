@@ -1,0 +1,13 @@
+= Impact Statement
+:project-name: IndieWeb2
+
+== 🌍 Ethical Alignment
+IndieWeb2 aligns with:
+- **Consent-first design**: Explicit manifests and opt-in telemetry.
+- **Audit-grade provenance**: Tamper-evident logs and reproducible snapshots.
+- **Community empowerment**: Tools for contributors to assert identity and legacy.
+
+== 🤝 Community Impact
+- Reduces cognitive load for developers in distributed ecosystems.
+- Provides verifiable provenance for journalists, educators, and open-source communities.
+- Inspires principled infrastructure design for future generations.

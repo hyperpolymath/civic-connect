@@ -1,0 +1,440 @@
+= Privacy Policy - indieweb2-bastion
+:toc: macro
+
+[abstract]
+--
+Privacy policy and data handling procedures for indieweb2-bastion. Rhodium Standard 0.5, Pillar 1, Section 2.1.8.
+--
+
+toc::[]
+
+== Overview
+
+**indieweb2-bastion is a consent-first, decentralized identity platform.**
+
+**Core Privacy Principles:**
+* **Consent-first:** Users control their data
+* **Decentralization:** No central data repository
+* **Cryptographic sovereignty:** Users own their keys
+* **Minimal data collection:** Only what's necessary
+* **Transparency:** All data practices documented
+
+**Last Updated:** 2025-01-21
+
+== What Data We Collect
+
+=== On-Chain Data (Public Blockchains)
+
+**Ethereum/Polygon Smart Contracts:**
+
+[cols="1,2,1"]
+|===
+|Data Type |Purpose |Retention
+
+|Wallet addresses
+|Identity association
+|Permanent (blockchain immutable)
+
+|DID (Decentralized Identifier)
+|Identity reference
+|Permanent (blockchain immutable)
+
+|Content hashes (IPFS CID)
+|Identity metadata pointer
+|Permanent (blockchain immutable)
+
+|Timestamps
+|Audit trail
+|Permanent (blockchain immutable)
+
+|Transaction hashes
+|Verification
+|Permanent (blockchain immutable)
+
+|===
+
+**⚠️ IMPORTANT:** All on-chain data is **PUBLIC** and **PERMANENT**. Once written to mainnet, it **CANNOT** be deleted.
+
+**Internet Computer Canisters:**
+
+[cols="1,2,1"]
+|===
+|Data Type |Purpose |Retention
+
+|Principal ID
+|Authentication
+|Permanent (unless canister upgraded)
+
+|Identity records
+|DID document storage
+|User-controlled (can be deleted)
+
+|Stable memory state
+|Cross-upgrade persistence
+|Permanent (unless explicitly cleared)
+
+|===
+
+=== Off-Chain Data (Optional Services)
+
+**oDNS Proxy (Privacy-Preserving DNS):**
+
+[cols="1,2,1,1"]
+|===
+|Data Type |Purpose |Retention |Visibility
+
+|DNS queries (encrypted)
+|oDNS resolution
+|Not logged
+|Proxy sees encrypted query, resolver sees query content but NOT client IP
+
+|Client IP
+|Rate limiting
+|5 minutes
+|Proxy only (NOT shared with resolver)
+
+|Query metadata
+|Service health
+|24 hours (aggregated)
+|Internal only
+
+|===
+
+**SurrealDB (Off-Chain Index):**
+
+[cols="1,2,1"]
+|===
+|Data Type |Purpose |Retention
+
+|DID → blockchain mapping
+|Query acceleration
+|90 days (configurable)
+
+|Usage analytics (anonymized)
+|Service improvement
+|365 days
+
+|Error logs (anonymized)
+|Debugging
+|30 days
+
+|===
+
+**Envoy Gateway:**
+
+[cols="1,2,1"]
+|===
+|Data Type |Purpose |Retention
+
+|Access logs (IP anonymized)
+|Rate limiting, DDoS protection
+|7 days
+
+|Request metrics
+|Service monitoring
+|30 days
+
+|===
+
+=== Data We DO NOT Collect
+
+* ❌ Email addresses (no accounts)
+* ❌ Phone numbers
+* ❌ Government IDs
+* ❌ Biometric data
+* ❌ Location data (GPS)
+* ❌ Browsing history
+* ❌ Device fingerprints
+* ❌ Social graphs (explicit connections only)
+
+== How We Use Your Data
+
+=== Primary Uses
+
+**Identity Verification:**
+* DID resolution via on-chain registry
+* Cryptographic signature verification
+* IPFS content retrieval
+
+**Service Operation:**
+* oDNS query resolution (privacy-preserving)
+* Rate limiting (abuse prevention)
+* Error monitoring (service reliability)
+
+**Analytics (Anonymized):**
+* Usage patterns (aggregate only, no individual tracking)
+* Performance metrics
+* Service health monitoring
+
+=== We DO NOT:
+
+* ❌ Sell or share data with third parties
+* ❌ Track users across websites
+* ❌ Build advertising profiles
+* ❌ Use data for marketing
+* ❌ Share data with governments (except legal requirement)
+
+== Your Rights
+
+=== On-Chain Data (Limited Rights)
+
+**Blockchain data is immutable.** You have:
+
+* **Right to view:** All data is public via blockchain explorers
+* **Right to context:** See this privacy policy for data usage
+* **NO right to deletion:** Blockchain data cannot be removed
+
+**Mitigation:**
+* Use pseudonymous addresses (don't link to real identity)
+* Store sensitive data off-chain (IPFS with encryption)
+* Use new addresses for different contexts
+
+=== Off-Chain Data (Full Rights)
+
+**GDPR/CCPA Rights (if applicable):**
+
+* **Right to access:** Request copy of your data
+* **Right to deletion:** Request deletion of off-chain data
+* **Right to rectification:** Request correction of inaccurate data
+* **Right to portability:** Export your data in machine-readable format
+* **Right to object:** Object to specific data processing
+
+**How to exercise rights:**
+Email: privacy@example.com with subject: `[PRIVACY REQUEST] <Your request>`
+
+**Response time:** 30 days
+
+=== Self-Sovereign Identity Rights
+
+**As a DID holder, you control:**
+
+* ✅ **Key rotation:** Change your cryptographic keys
+* ✅ **Metadata updates:** Update DID document via IPFS
+* ✅ **Service endpoints:** Add/remove service entries
+* ✅ **Verifiable credentials:** Issue/revoke credentials
+* ✅ **Consent:** Granular control over data sharing
+
+== Data Retention
+
+=== On-Chain (Permanent)
+
+* **Ethereum/Polygon:** Permanent (blockchain immutable)
+* **Internet Computer:** Persistent unless canister upgraded with migration
+
+=== Off-Chain
+
+[cols="1,1,2"]
+|===
+|Data Type |Retention |Rationale
+
+|oDNS query logs
+|Not logged
+|Privacy-preserving by design
+
+|oDNS client IPs
+|5 minutes
+|Rate limiting only
+
+|SurrealDB index
+|90 days
+|Performance optimization
+
+|Analytics (anonymized)
+|365 days
+|Long-term trends
+
+|Error logs
+|30 days
+|Debugging
+
+|Envoy access logs
+|7 days
+|DDoS protection
+
+|===
+
+**Deletion process:**
+* Automated: Logs auto-expire per retention schedule
+* Manual: Email privacy@example.com to request immediate deletion
+
+== Data Security
+
+=== Cryptographic Protection
+
+**On-Chain:**
+* **Blockchain consensus:** Byzantine fault tolerance
+* **Cryptographic hashing:** SHA256, Keccak256
+* **Digital signatures:** ECDSA (secp256k1), Ed25519
+
+**Off-Chain:**
+* **TLS 1.3:** All network traffic encrypted
+* **At-rest encryption:** SurrealDB encrypted with AES-256
+* **Key management:** Hardware Security Modules (HSM) for production keys
+
+=== Access Control
+
+**Production infrastructure:**
+* Multi-factor authentication (MFA) required
+* Role-based access control (RBAC)
+* Principle of least privilege
+* Audit logging of all admin actions
+
+**Smart contract admin keys:**
+* Multi-sig wallets (3-of-5 threshold)
+* Timelock delays (48 hours) for upgrades
+* No single point of failure
+
+=== Incident Response
+
+**Data breach procedure:**
+1. **Identification:** Detect breach within 24 hours
+2. **Containment:** Isolate affected systems within 4 hours
+3. **Assessment:** Determine scope of data exposed within 72 hours
+4. **Notification:**
+   - Users: Within 72 hours (GDPR requirement)
+   - Regulators: Within 72 hours (GDPR requirement)
+   - Public disclosure: Within 7 days
+5. **Remediation:** Fix vulnerability, improve security
+6. **Post-mortem:** Public incident report
+
+**Contact for breaches:** security@example.com
+
+== Third-Party Services
+
+=== Blockchain Networks
+
+**Ethereum/Polygon:**
+* **Provider:** Public blockchain networks
+* **Data shared:** Transaction data (public)
+* **Privacy policy:** N/A (decentralized)
+
+**Internet Computer (Dfinity):**
+* **Provider:** Dfinity Foundation
+* **Data shared:** Canister state (user-controlled)
+* **Privacy policy:** https://dfinity.org/privacy
+
+=== IPFS
+
+**Provider:** Public IPFS network
+* **Data shared:** Content hashes, file metadata (public)
+* **Privacy policy:** N/A (decentralized)
+* **Note:** Encrypt sensitive data before IPFS upload
+
+=== Infrastructure Providers
+
+**Cloud hosting:**
+* **Provider:** [Cloud provider name]
+* **Data shared:** Off-chain data (SurrealDB, Envoy logs)
+* **Privacy policy:** [Link]
+* **Data residency:** EU/US (configurable)
+* **DPA:** Data Processing Agreement in place
+
+== Cookies and Tracking
+
+**We DO NOT use:**
+* ❌ Advertising cookies
+* ❌ Social media tracking pixels
+* ❌ Cross-site trackers
+* ❌ Fingerprinting
+
+**Essential cookies only:**
+
+[cols="1,2,1"]
+|===
+|Cookie Name |Purpose |Expiry
+
+|session_id
+|Authentication (optional web UI)
+|Session (1 day)
+
+|csrf_token
+|CSRF protection
+|Session (1 day)
+
+|===
+
+**Analytics:**
+* Self-hosted (no third-party analytics)
+* IP anonymization enabled
+* Aggregate metrics only
+
+== Children's Privacy
+
+**Age restriction:** indieweb2-bastion is not intended for children under 13.
+
+* We do not knowingly collect data from children
+* If we discover child data, we will delete it within 72 hours
+* Parents: Contact privacy@example.com to report child data
+
+== International Data Transfers
+
+**Primary jurisdiction:** [Your jurisdiction, e.g., EU/US]
+
+**Blockchain data:**
+* Stored on public blockchains (globally distributed)
+* No data transfer restrictions (public data)
+
+**Off-chain data:**
+* Stored in [EU/US/Asia] data centers
+* GDPR Standard Contractual Clauses (SCCs) for EU data
+* Privacy Shield (if applicable)
+
+== Changes to Privacy Policy
+
+**Notification of changes:**
+* Email notification to registered users (if applicable)
+* On-chain event log (PolicyUpdated event)
+* 30-day notice before enforcement
+
+**Version history:**
+* https://github.com/yourorg/indieweb2-bastion/blob/main/PRIVACY.adoc
+* Git commit log shows all historical versions
+
+== Contact
+
+**Privacy Officer:**
+* Email: privacy@example.com
+* Response time: 7 days
+
+**Data Protection Officer (DPO):**
+* Email: dpo@example.com (if required by GDPR)
+
+**General inquiries:**
+* Email: contact@example.com
+
+**Postal address:**
+[Your organization address]
+
+== Regulatory Compliance
+
+**Applicable regulations:**
+* ✅ GDPR (EU General Data Protection Regulation)
+* ✅ CCPA (California Consumer Privacy Act)
+* ✅ ePrivacy Directive (Cookie Law)
+
+**Legal basis for processing (GDPR):**
+* **Consent:** Explicit opt-in for optional services
+* **Contract:** Necessary for service provision
+* **Legitimate interest:** Service improvement, fraud prevention
+
+**Supervisory authority:**
+* [Your data protection authority]
+* Complaint procedure: https://[authority-website]
+
+== Open Source Transparency
+
+**Code transparency:**
+* Privacy-related code: https://github.com/yourorg/indieweb2-bastion
+* Smart contracts: Verified on Etherscan/Polygonscan
+* Reproducible builds: cerro-torre images with BLAKE3 hashes (.ctp bundles)
+
+**Audit reports:**
+* Privacy audit: [Link to audit report]
+* Security audit: [Link to security audit]
+* Smart contract audit: [Link to OpenZeppelin/Trail of Bits audit]
+
+---
+
+**Questions?** Email privacy@example.com
+
+_Last Updated: 2025-01-21 | Rhodium Standard 0.5_

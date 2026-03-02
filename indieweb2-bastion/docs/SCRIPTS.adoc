@@ -1,0 +1,16 @@
+= Shell Scripts
+:project-name: IndieWeb2
+
+== 📜 Default Scripts (Bash)
+All scripts in link:scripts[`scripts`] are written for Bash and include:
+- `export-snapshot.sh`: Export SurrealDB provenance graph to IPFS/IPNS.
+- `rotate-keys.sh`: Rotate bastion and resolver keys.
+- `generate-sbom.sh`: Produce SBOMs for cerro-torre/Wolfi containers.
+
+== 🌐 Alternative Shells
+For scripts in other shells:
+- link:scripts/nushell/[NuShell]
+- link:scripts/zsh/[Zsh]
+- link:scripts/fish/[Fish]
+
+*Valence Shell (vsh) scripts may be added in future releases.*

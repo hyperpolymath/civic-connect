@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <jonathan.jewell@open.ac.uk>
+
+[workspace]
+resolver = "2"
+members = ["common", "proxy", "resolver"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "PMPL-1.0-or-later"
+authors = ["Jonathan D.A. Jewell <jonathan.jewell@open.ac.uk>"]
+repository = "https://github.com/hyperpolymath/indieweb2-bastion"
+
+[workspace.dependencies]
+# Shared across crates
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+clap = { version = "4", features = ["derive"] }
+base64 = "0.22"
+anyhow = "1"
+thiserror = "2"
+
+# Post-quantum cryptography (FIPS 203 ML-KEM / Kyber-1024)
+pqcrypto-kyber = "0.8"
+pqcrypto-traits = "0.3"
+
+# Post-quantum signatures (FIPS 204 ML-DSA-87 / Dilithium5)
+pqcrypto-dilithium = "0.5"
+
+# Classical signatures (Ed448-Goldilocks — RFC 8032 Section 5.2.6)
+ed448-goldilocks-plus = "0.16"
+
+# Symmetric encryption (XChaCha20-Poly1305 — CPR-006)
+chacha20poly1305 = "0.10"
+
+# Key derivation (HKDF-SHA3-512 — CPR-007)
+hkdf = "0.12"
+sha3 = "0.10"
+
+# Post-quantum fallback (SLH-DSA / SPHINCS+ — CPR-012)
+pqcrypto-sphincsplus = "0.7"
+
+# RNG (ChaCha20-DRBG — CPR-008)
+rand = "0.8"
+
+# DNS protocol
+hickory-proto = "0.24"
+
+# TLS
+tokio-rustls = "0.26"
+rustls = "0.23"
+rustls-pemfile = "2"

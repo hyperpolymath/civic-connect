@@ -1,0 +1,26 @@
+{
+  "name": "indieweb2-bastion",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/maa-framework/2-web-protocols/indieweb2-bastion.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/maa-framework/2-web-protocols/indieweb2-bastion/issues"
+  },
+  "homepage": "https://gitlab.com/maa-framework/2-web-protocols/indieweb2-bastion#readme",
+  "dependencies": {
+    "rescript": "^12.1.0"
+  }
+}

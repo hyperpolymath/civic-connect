@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <jonathan.jewell@open.ac.uk>
+
+[package]
+name = "odns-proxy"
+description = "Oblivious DNS proxy — encrypts queries with Kyber-1024 KEM before forwarding to resolver"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "odns-proxy"
+path = "src/main.rs"
+
+[dependencies]
+odns-common = { path = "../common" }
+tokio = { workspace = true }
+tokio-rustls = { workspace = true }
+rustls = { workspace = true }
+rustls-pemfile = { workspace = true }
+hickory-proto = { workspace = true }
+clap = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+base64 = { workspace = true }
+anyhow = { workspace = true }
+pqcrypto-traits = { workspace = true }

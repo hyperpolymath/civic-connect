@@ -1,0 +1,17 @@
+= Funding & Sponsorship
+:project-name: IndieWeb2
+
+== 💰 How to Contribute
+- **Sponsor**: https://gitlab.com/hyperpolymath/sponsor
+- **Donate**: https://opencollective.com/hyperpolymath
+- **Bounties**: https://issuehunt.io/r/hyperpolymath/indieweb2
+
+== 📋 Allocation
+Funds are used for:
+- Development time (ReScript/Deno expertise)
+- CI/CD infrastructure
+- Community workshops on audit-grade web tooling
+
+== 🙏 Sponsors
+- AdaCore: Providing GNAT compiler inspiration
+- Open Source Collective: Fiscal hosting

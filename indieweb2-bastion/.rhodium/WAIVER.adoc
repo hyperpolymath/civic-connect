@@ -1,0 +1,267 @@
+= Rhodium Standard Waivers - indieweb2-bastion
+:toc: macro
+:toclevels: 2
+:icons: font
+
+[abstract]
+--
+Documented exceptions to Rhodium Standard 0.5 requirements for indieweb2-bastion repository (blockchain/smart contract project), with justification, remediation plans, and expiration dates.
+--
+
+toc::[]
+
+== Active Waivers
+
+=== Waiver-2025-001: SLSA Attestation Implementation
+
+**Requirement:** SLSA v1.0 provenance + in-toto attestation (Pillar 1, Section 2.1.2)
+
+**Status:** WAIVED until 2025-06-01
+
+**Justification:**
+
+Multi-chain smart contract deployment pipelines are in place for Ethereum, Polygon, and Internet Computer. However, SLSA attestation for blockchain artifacts has unique challenges:
+
+* Smart contract bytecode attestation
+* Multi-chain deployment provenance tracking
+* Integration with Sigstore/Rekor for blockchain artifacts
+
+**Remediation Plan:**
+
+* 2025-03: Set up Sigstore Cosign for smart contract artifacts
+* 2025-04: Implement deployment provenance for Ethereum/Polygon contracts
+* 2025-05: Extend attestation to Internet Computer canisters
+* 2025-06: Full SLSA v1.0 compliance across all chains
+
+**Signed By:** Infrastructure team (blockchain specialist)
+**Expiry:** 2025-06-01 (auto-enforced by CI gate)
+
+---
+
+=== Waiver-2025-002: Post-Quantum Cryptographic Signatures
+
+**Requirement:** Ed448 or ML-DSA hybrid signatures (Pillar 1, Section 2.1.1)
+
+**Status:** EXPIRED (was 2026-01-01) — Crypto policy now defined
+
+**Justification:**
+
+Previously using Ed25519 signatures for repository commits. Blockchain-specific considerations:
+
+* Smart contracts use blockchain-native signature schemes (ECDSA for Ethereum, EdDSA for ICP)
+* Post-quantum blockchain migration is ecosystem-level decision, not project-level
+* Repository signatures can upgrade independently of on-chain cryptography
+
+**Current State:** Ed25519 for git commits (deprecated per `CRYPTO-POLICY.adoc`). Full post-quantum + classical hybrid policy defined.
+
+**Crypto Policy Reference:** `CRYPTO-POLICY.adoc` (CPR-003, CPR-004, CPR-005)
+
+**Target algorithms:**
+
+* **Signatures:** Ed448 + Dilithium5-AES hybrid (ML-DSA-87, FIPS 204)
+* **Key exchange:** Kyber-1024 (ML-KEM-1024, FIPS 203)
+* **Fallback:** SPHINCS+ (SLH-DSA, FIPS 205)
+
+**Remediation Status (updated 2026-02-14):**
+
+* ✅ BLAKE3 content hashing — graphql-dns-api (DONE)
+* ✅ XChaCha20-Poly1305 symmetric — odns-rs/crypto (DONE)
+* ✅ Ed448+Dilithium5 hybrid signatures — odns-rs/signatures + graphql-dns-api DNSSEC (DONE)
+* ✅ Kyber-1024 KEM — odns-rs/crypto (DONE)
+* ✅ SPHINCS+ fallback — odns-rs/sphincs_fallback (DONE)
+* ✅ oDNS Rust rewrite with PQ crypto — ADR-0003 implemented, Go code removed (DONE)
+* ⬜ Consent-api BLAKE3+hybrid signing via Rust WASM (PENDING)
+
+**Signed By:** Security team
+**Original Expiry:** 2026-01-01
+**Waiver Status:** EXPIRED — replaced by CRYPTO-POLICY.adoc migration timeline
+
+---
+
+=== Waiver-2025-003: WASM Compilation Target
+
+**Requirement:** WASM-first compilation with fallback (Pillar 3, Section 2.3.1)
+
+**Status:** WAIVED until 2025-09-01
+
+**Justification:**
+
+Smart contracts compile to chain-specific targets:
+
+* **Ethereum/Polygon:** Solidity/Vyper → EVM bytecode (not WASM)
+* **Internet Computer:** Motoko → WASM (ALREADY COMPLIANT)
+* **ReScript frontend:** Can compile to WASM
+
+**Partial Compliance:** Internet Computer canisters already use WASM as native target.
+
+**Remediation Plan:**
+
+* 2025-04: Evaluate EVM → WASM transpilation options (experimental)
+* 2025-05: Implement WASM build targets for ReScript frontend components
+* 2025-07: Document WASM compliance per component (IC: native, EVM: not applicable, frontend: compliant)
+* 2025-09: Multi-target WASM strategy documented in ADR
+
+**Signed By:** Architecture team
+**Expiry:** 2025-09-01
+
+---
+
+=== Waiver-2025-004: WCAG AAA Accessibility
+
+**Requirement:** WCAG 2.2 AAA for all documentation (Pillar 3, Section 2.3.4)
+
+**Status:** WAIVED until 2026-03-01
+
+**Justification:**
+
+Current documentation meets WCAG AA standards. AAA compliance requires enhanced contrast, sign language for videos, and reading level optimization.
+
+**Current State:** WCAG 2.2 AA compliant
+
+**Remediation Plan:**
+
+* 2025-09: Accessibility audit focused on blockchain terminology (simplify explanations)
+* 2025-12: Implement enhanced contrast and semantic structure
+* 2026-02: Add extended descriptions for smart contract diagrams
+* 2026-03: Full WCAG AAA compliance
+
+**Signed By:** Documentation team
+**Expiry:** 2026-03-01
+
+---
+
+=== Waiver-2025-005: Carbon Reporting CI Gates
+
+**Requirement:** Carbon footprint CI gates at baseline +20% (Pillar 4, Section 2.4.4)
+
+**Status:** WAIVED until 2025-07-01
+
+**Justification:**
+
+Blockchain projects have unique carbon considerations:
+
+* **Build-time carbon:** CI/CD pipeline energy usage (measurable)
+* **Runtime carbon:** Smart contract execution on Proof-of-Stake chains (lower impact)
+* **Testnet usage:** Development testing energy (measurable)
+
+**Current State:** No carbon measurement infrastructure
+
+**Remediation Plan:**
+
+* 2025-02: Integrate CodeCarbon for CI pipeline measurement
+* 2025-02 to 2025-05: Baseline data collection (3 months)
+* 2025-06: Document carbon impact of smart contract testing strategies
+* 2025-07: Enable CI gates at baseline +20%, with blockchain-specific thresholds
+
+**Signed By:** Infrastructure team
+**Expiry:** 2025-07-01
+
+---
+
+=== Waiver-2025-006: REVERSIBILITY for Smart Contract Deployments
+
+**Requirement:** Documented rollback procedures (Pillar 1, Section 2.1.5)
+
+**Status:** PARTIAL WAIVER until 2025-08-01
+
+**Justification:**
+
+Smart contract deployments have **inherent irreversibility** on blockchain:
+
+* **Cannot rollback:** On-chain state changes are permanent
+* **Can upgrade:** Via proxy patterns (EIP-1967, Diamond Standard)
+* **Can migrate:** Deploy new contract, migrate state
+
+**Partial Compliance:** REVERSIBILITY.adoc will document:
+
+1. ✅ Repository/code rollback procedures (fully reversible)
+2. ✅ Testnet deployment rollback (can redeploy)
+3. ⚠️ Mainnet deployment: Document upgrade patterns, NOT rollback (impossible)
+
+**Remediation Plan:**
+
+* 2025-04: Document upgrade patterns for all deployed contracts
+* 2025-05: Create emergency pause mechanisms for critical contracts
+* 2025-06: Implement timelocked upgrades for governance
+* 2025-08: REVERSIBILITY.adoc complete with blockchain-specific guidance
+
+**Signed By:** Smart contract security team
+**Expiry:** 2025-08-01 (partial compliance acceptable for blockchain reality)
+
+---
+
+== Waiver Tracking
+
+[cols="1,2,1,1"]
+|===
+|ID |Requirement |Status |Expiry
+
+|2025-001
+|SLSA Attestation
+|Active
+|2025-06-01
+
+|2025-002
+|Post-Quantum Signatures
+|EXPIRED (policy defined)
+|2026-01-01
+
+|2025-003
+|WASM Compilation
+|Partial (IC compliant)
+|2025-09-01
+
+|2025-004
+|WCAG AAA
+|Active
+|2026-03-01
+
+|2025-005
+|Carbon Reporting Gates
+|Active
+|2025-07-01
+
+|2025-006
+|REVERSIBILITY (Blockchain)
+|Active (Partial)
+|2025-08-01
+
+|===
+
+**Total Active Waivers:** 6
+**Expiring Within 6 Months:** 3 (2025-001, 2025-003, 2025-006)
+
+---
+
+== Blockchain-Specific Compliance Notes
+
+**Smart Contract Immutability:**
+
+The nature of blockchain technology creates inherent tension with Rhodium's reversibility requirement. This is documented in Waiver-2025-006 and acknowledged as a fundamental limitation of decentralized systems.
+
+**Compliance Approach:**
+
+* ✅ **Repository level:** Fully reversible (git, code)
+* ✅ **Testnet level:** Fully reversible (redeploy at will)
+* ⚠️ **Mainnet level:** Upgrade patterns only (via proxy contracts)
+* ❌ **On-chain state:** Cannot rollback (blockchain immutability guarantee)
+
+This differentiation will be clearly documented in REVERSIBILITY.adoc and ARCHITECTURE.adoc.
+
+---
+
+== Waiver Policy
+
+**Automatic Expiry:** Waivers expire on the date specified. CI gates will enforce compliance after expiry unless waiver is renewed.
+
+**Renewal Process:** Submit ADR documenting justification, updated plan, risk assessment, and sign-off.
+
+**Maximum Extension:** 6 months per renewal, 2 renewals maximum (18 months total)
+
+**Permanent Exemption:** For blockchain-specific impossibilities (e.g., mainnet state rollback), requires ADR with security review.
+
+---
+
+_This document complies with Rhodium Standard 0.5, Pillar 1 (Audit-Grade), Section 2.1.6 (Documented Waivers), with blockchain-specific adaptations._
+
+_Last Updated: 2026-02-14_

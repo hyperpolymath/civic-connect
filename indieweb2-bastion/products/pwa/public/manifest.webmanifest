@@ -1,0 +1,9 @@
+{
+  "name": "IndieWeb2 PWA",
+  "short_name": "IndieWeb2",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0f1a",
+  "theme_color": "#2f6ae1",
+  "icons": []
+}

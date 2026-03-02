@@ -1,0 +1,187 @@
+= ADR-0002: Multi-Chain Architecture
+:toc: macro
+:icons: font
+
+[cols="1,2"]
+|===
+|Status |Accepted
+|Date |2025-01-21
+|Deciders |Architecture team, blockchain specialists
+|===
+
+toc::[]
+
+== Context
+
+The project requires smart contract deployment across multiple blockchain ecosystems with different characteristics:
+
+* **Ethereum/Polygon:** EVM-compatible, Solidity/Vyper, high gas costs (Ethereum), PoS consensus
+* **Internet Computer:** WebAssembly-based canisters, Motoko, low transaction costs, unique consensus
+
+Multi-chain strategy impacts:
+
+* Smart contract language choices
+* Deployment and upgrade patterns
+* Cross-chain interoperability
+* Carbon footprint considerations
+* Development and testing workflows
+
+== Decision
+
+**We adopt a multi-chain architecture targeting three blockchain ecosystems:**
+
+1. **Ethereum Mainnet:** Primary EVM deployment (Solidity, high security, high gas)
+2. **Polygon:** EVM-compatible L2 (Solidity, lower gas, faster finality)
+3. **Internet Computer:** WASM-based canisters (Motoko, unique architecture)
+
+**Smart Contract Languages:**
+
+* **Ethereum/Polygon:** Solidity 0.8.x (primary), Vyper 0.3.x (security-critical contracts)
+* **Internet Computer:** Motoko 0.10.x (WASM-native)
+
+**Frontend:** ReScript 11.0.1 (compiles to JavaScript, WASM-capable)
+
+== Alternatives Considered
+
+=== Option A: Single-Chain (Ethereum Only)
+
+**Rejected:**
+
+* ✅ Simpler architecture
+* ✅ Higher security (most battle-tested)
+* ❌ High gas costs limit adoption
+* ❌ No scalability options
+* ❌ Vendor lock-in to Ethereum
+
+=== Option B: Multi-Chain with Cosmos
+
+**Deferred:**
+
+* ✅ IBC cross-chain communication
+* ✅ Cosmos SDK flexibility
+* ❌ Smaller ecosystem than Ethereum
+* ❌ Additional language (Go) for Cosmos SDK
+* **Decision:** Monitor Cosmos, consider for future expansion
+
+=== Option C: WASM-Only (IC + Polkadot)
+
+**Rejected:**
+
+* ✅ WASM-first alignment with Rhodium
+* ❌ Misses Ethereum's massive DeFi ecosystem
+* ❌ Limited smart contract libraries and tooling
+* ❌ Network effect favors EVM
+
+== Consequences
+
+=== Positive
+
+* **Flexibility:** Deploy where gas costs are appropriate (Ethereum for high-value, Polygon for frequent)
+* **Scalability:** Polygon provides L2 scaling
+* **WASM Compliance:** Internet Computer canisters are WASM-native (partial Rhodium Pillar 3 compliance)
+* **Risk Distribution:** Not locked into single chain's fate
+
+=== Negative
+
+* **Complexity:** Three different deployment pipelines, testing environments, and upgrade patterns
+* **Cross-Chain Bridges:** Additional security risks and complexity for cross-chain operations
+* **Developer Experience:** Team must learn Solidity/Vyper AND Motoko
+* **SLSA Attestation:** Need provenance for three different artifact types (EVM bytecode, WASM canister)
+
+=== Neutral
+
+* **Carbon Footprint:** Polygon/IC are PoS (lower than PoW), but testnet usage still measurable
+* **Immutability:** All chains have smart contract immutability (upgrade patterns required for all)
+
+== Technology Stack Details
+
+=== Ethereum/Polygon Stack
+
+* **Smart Contracts:** Solidity 0.8.x, Vyper 0.3.x
+* **Development:** Hardhat, Foundry
+* **Testing:** Hardhat tests, Foundry fuzzing
+* **Deployment:** Hardhat scripts with multi-stage verification
+* **Upgrade Patterns:** EIP-1967 proxy pattern, Diamond Standard (EIP-2535)
+
+=== Internet Computer Stack
+
+* **Smart Contracts:** Motoko 0.10.x
+* **Development:** dfx (IC SDK)
+* **Testing:** Motoko unit tests, canister upgrade testing
+* **Deployment:** dfx deploy with canister management
+* **Upgrade Patterns:** Canister upgrade hooks, stable memory
+
+=== Frontend Stack
+
+* **Language:** ReScript 11.0.1 (strong typing, WASM-capable)
+* **Web3 Integration:** ethers.js (Ethereum/Polygon), @dfinity/agent (IC)
+* **Wallet Integration:** MetaMask (EVM), Internet Identity (IC)
+
+=== Development Tools
+
+* **SBOM:** Slither (Solidity), Mythril (security), cyclonedx-npm (dependencies)
+* **Security:** Trail of Bits audits, Certora formal verification
+* **CI/CD:** Multi-stage pipelines per chain (testnet → mainnet gates)
+
+== Deployment Strategy
+
+=== Testnet First
+
+**Order:**
+
+1. **Sepolia (Ethereum testnet):** Initial deployment, security testing
+2. **Mumbai (Polygon testnet):** L2 testing, gas optimization
+3. **IC Testnet:** Canister deployment and upgrade testing
+4. **Mainnet (gated):** After security audits and testnet validation
+
+=== Upgrade Patterns
+
+**Ethereum/Polygon:**
+
+* Proxy contracts (EIP-1967) for upgradeability
+* Timelock contracts for governance
+* Multi-sig wallets for admin functions
+* Emergency pause mechanisms
+
+**Internet Computer:**
+
+* Canister stable memory for state preservation
+* Upgrade hooks for migration logic
+* Canister controllers with multi-sig (Network Nervous System integration)
+
+== WASM Compliance
+
+**Partial Compliance with Rhodium Pillar 3:**
+
+* ✅ **Internet Computer:** Motoko compiles to WASM natively (COMPLIANT)
+* ⚠️ **Ethereum/Polygon:** Solidity/Vyper compile to EVM bytecode, NOT WASM
+* ⚠️ **Frontend:** ReScript can compile to WASM (planned)
+
+**Waiver:** Waiver-2025-003 until 2025-09-01
+
+**Rationale:** EVM is not WASM-based; blockchain-native targets take precedence over Rhodium WASM requirement.
+
+== Carbon Considerations
+
+**Measurement Strategy:**
+
+* **Build-Time:** CI/CD pipeline energy (CodeCarbon)
+* **Testnet Usage:** Gas consumed during testing (Ethereum: ~0.01 ETH, Polygon: minimal)
+* **Mainnet Runtime:** PoS consensus (Ethereum 2.0, Polygon) has lower carbon footprint than PoW
+
+**Target:** Baseline + 20% CI gates by 2025-07 (Waiver-2025-005)
+
+== References
+
+* link:https://eips.ethereum.org/EIPS/eip-1967[EIP-1967 Proxy Standard]
+* link:https://eips.ethereum.org/EIPS/eip-2535[EIP-2535 Diamond Standard]
+* link:https://internetcomputer.org/docs/current/developer-docs/backend/motoko/[Motoko Documentation]
+* link:../../.rhodium/WAIVER.adoc[Waiver-2025-003] - WASM Compilation
+* link:../../.rhodium/WAIVER.adoc[Waiver-2025-006] - REVERSIBILITY (Blockchain)
+
+== Related ADRs
+
+* link:0001-adopt-rhodium-standard.adoc[ADR-0001: Adopt Rhodium Standard]
+* ADR-0003: Smart Contract Upgrade Patterns (planned)
+* ADR-0004: Cross-Chain Bridge Security (planned)
+* ADR-0005: Formal Verification Strategy (planned)

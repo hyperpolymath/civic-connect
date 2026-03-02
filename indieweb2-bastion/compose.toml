@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <jonathan.jewell@open.ac.uk>
+#
+# stapeln compose file — replaces docker-compose.yml
+# Orchestrate: selur-compose up
+# Design:      stapeln (visual designer)
+
+version = "1.0"
+
+[services.graphql-dns-api]
+image = "indieweb2-bastion:latest.ctp"
+ports = ["8080:8080"]
+environment = { SURREALDB_URL = "ws://surrealdb:8000", CONSENT_API_URL = "http://consent-api:8082", ALLOWED_ORIGINS = "https://localhost" }
+depends_on = ["surrealdb", "consent-api"]
+restart = "always"
+healthcheck = { test = "curl -f http://localhost:8080/health", interval = "30s" }
+
+[services.webmention-rate-limiter]
+image = "indieweb2-bastion-webmention:latest.ctp"
+ports = ["8081:8081"]
+environment = { UPSTREAM_URL = "http://graphql-dns-api:8080" }
+depends_on = ["graphql-dns-api"]
+restart = "always"
+
+[services.consent-api]
+image = "indieweb2-bastion-consent:latest.ctp"
+ports = ["8082:8082"]
+restart = "always"
+
+[services.surrealdb]
+image = "cgr.dev/chainguard/wolfi-base:latest"
+ports = ["8000:8000"]
+volumes = ["surrealdb-data:/data"]
+restart = "always"
+
+[volumes.surrealdb-data]
+driver = "local"
+
+[networks.default]
+driver = "selur"

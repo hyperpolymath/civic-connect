@@ -1,0 +1,2 @@
+= IndieWeb2 Android App (Stub)
+Uses ReScript core libraries and WASM modules for consent/provenance rendering.

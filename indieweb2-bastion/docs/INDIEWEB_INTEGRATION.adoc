@@ -1,0 +1,260 @@
+// SPDX-License-Identifier: MPL-2.0-or-later
+// SPDX-FileCopyrightText: 2025 Hyperpolymath
+
+= IndieWeb Protocol Integration Architecture
+:toc: auto
+:sectnums:
+:icons: font
+
+== Overview
+
+This document describes how `indieweb2-bastion` (infrastructure layer) complements application-level IndieWeb security libraries like `php-aegis` and `sanctify-php`.
+
+[IMPORTANT]
+====
+**indieweb2-bastion** is an infrastructure/bastion project, NOT an IndieWeb protocol security library.
+
+It provides network-level protection. Application-level protocol security (sanitization, escaping, token verification) must be handled by dedicated libraries.
+====
+
+== Architecture: Two-Layer Security
+
+[source,text]
+----
+┌─────────────────────────────────────────────────────────────────┐
+│                        NETWORK LAYER                             │
+│                    (indieweb2-bastion)                           │
+├─────────────────────────────────────────────────────────────────┤
+│  • Hardened ingress gateway (Envoy + mTLS)                      │
+│  • Oblivious DNS (privacy-preserving resolution)                │
+│  • Rate limiting at ingress (120 rpm default)                   │
+│  • Content-Type validation (block malformed requests)           │
+│  • Provenance tracking (SurrealDB graph)                        │
+│  • Consent-aware routing (RFC9415 manifests)                    │
+│  • Policy contracts (Nickel CURPS)                              │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                      APPLICATION LAYER                           │
+│              (php-aegis, sanctify-php, sinople)                  │
+├─────────────────────────────────────────────────────────────────┤
+│  • Micropub input sanitization                                   │
+│  • Webmention validation/security                                │
+│  • IndieAuth token verification                                  │
+│  • Turtle/RDF escaping (TurtleEscaper)                          │
+│  • Content Security Policy headers                               │
+│  • Protocol-specific OWASP mitigations                          │
+└─────────────────────────────────────────────────────────────────┘
+----
+
+== What indieweb2-bastion Handles
+
+=== Current Capabilities
+
+[cols="1,3"]
+|===
+| Capability | Description
+
+| **Ingress Gateway**
+| Envoy-based gateway with mTLS enforcement, seccomp profiles, SELinux policies
+
+| **oDNS Privacy**
+| Oblivious DNS resolver (HPKE encryption, resolver blindness)
+
+| **GraphQL DNS API**
+| Full DNS RR coverage with DNSSEC support (planned v0.5)
+
+| **Provenance Tracking**
+| SurrealDB graph + Internet Computer canisters + IPFS pinning
+
+| **Policy Validation**
+| Nickel CURPS contracts, ReScript policy gate CLI
+
+| **Consent Management**
+| RFC9415 manifest-based consent tracking
+|===
+
+=== NOT Handled (Requires Application Layer)
+
+[cols="1,2"]
+|===
+| Gap | Recommended Solution
+
+| Micropub input sanitization
+| php-aegis / sanctify-php
+
+| Webmention validation
+| sinople rate limiter + sanctify-php
+
+| IndieAuth token verification
+| Dedicated IndieAuth library
+
+| Turtle/RDF escaping
+| TurtleEscaper (sanctify-php)
+
+| HTML content sanitization
+| Application-level sanitizers
+|===
+
+== Lessons TO indieweb2-bastion
+
+The following IndieWeb protocol awareness should be added to bastion ingress rules:
+
+=== 1. Micropub Request Validation (Ingress Level)
+
+[source,nickel]
+----
+// policy/curps/indieweb.ncl
+let micropub_policy = {
+  routes = ["/micropub"],
+  constraints = {
+    require_content_type = ["application/json", "application/x-www-form-urlencoded"],
+    reject_on_missing_auth = true,
+    max_payload_size_bytes = 1048576,  // 1 MiB
+  }
+}
+----
+
+=== 2. Webmention Rate Limiting
+
+[source,nickel]
+----
+// policy/curps/webmention.ncl
+let webmention_policy = {
+  routes = ["/webmention"],
+  constraints = {
+    max_rate_rpm = 60,  // Stricter than default 120
+    require_source_target = true,
+    block_self_ping = true,
+  }
+}
+----
+
+=== 3. Content-Type Enforcement
+
+[source,nickel]
+----
+// Block requests with wrong Content-Type at ingress
+let content_type_enforcement = {
+  "/micropub" = ["application/json", "application/x-www-form-urlencoded", "multipart/form-data"],
+  "/webmention" = ["application/x-www-form-urlencoded"],
+  "/.well-known/host-meta" = ["application/xrd+xml", "application/json"],
+}
+----
+
+== Lessons FROM indieweb2-bastion
+
+Concepts that should be adopted by application-level libraries:
+
+=== 1. Provenance Tracking
+
+Track the sanitization chain (who sanitized what, when):
+
+[source,surql]
+----
+DEFINE TABLE sanitization_events SCHEMAFULL;
+DEFINE FIELD input_hash ON sanitization_events TYPE string;
+DEFINE FIELD output_hash ON sanitization_events TYPE string;
+DEFINE FIELD sanitizer ON sanitization_events TYPE string;
+DEFINE FIELD timestamp ON sanitization_events TYPE datetime;
+DEFINE FIELD rules_applied ON sanitization_events TYPE array<string>;
+----
+
+=== 2. Policy Contracts
+
+Use Nickel-style contracts for security policies:
+
+[source,nickel]
+----
+// Define sanitization policy as a contract
+let SanitizationPolicy = {
+  allow_html_tags | Array String,
+  strip_attributes | Array String,
+  max_length | Num,
+  encoding | String,
+}
+----
+
+=== 3. Consent-Aware Architecture
+
+IndieWeb is about user control. Apply consent-first principles:
+
+[source,json]
+----
+{
+  "consent_manifest": {
+    "version": 1,
+    "defaults": {
+      "indexing": "opt-in",
+      "federation": "opt-out",
+      "telemetry": "off"
+    },
+    "overrides": {
+      "webmention_receipt": "explicit"
+    }
+  }
+}
+----
+
+== Integration Roadmap
+
+[cols="1,2,1"]
+|===
+| Phase | Integration Point | Timeline
+
+| **v0.3**
+| Basic Content-Type validation at ingress
+| Specification
+
+| **v0.5**
+| IndieWeb endpoint awareness in bastion rules
+| Implementation
+
+| **v0.7**
+| Provenance API for application-layer audit trails
+| Integration
+
+| **v1.0**
+| Full IndieWeb protocol support in bastion policies
+| Production
+|===
+
+== Related Projects
+
+[cols="1,3,1"]
+|===
+| Project | Purpose | Layer
+
+| **php-aegis**
+| PHP security library for IndieWeb protocols
+| Application
+
+| **sanctify-php**
+| Input sanitization, output escaping, Turtle/RDF
+| Application
+
+| **sinople**
+| Webmention rate limiting, validation
+| Application
+
+| **indieweb2-bastion**
+| Infrastructure gateway, provenance, consent
+| Network
+|===
+
+== Contributing
+
+To propose IndieWeb protocol support for indieweb2-bastion:
+
+1. Use the "IndieWeb Protocol Integration" issue template
+2. Specify which layer (ingress vs application) should handle the security concern
+3. Provide Nickel policy examples if possible
+
+== References
+
+* link:../ARCHITECTURE.adoc[Architecture Overview]
+* link:../SECURITY.adoc[Security Specifications]
+* link:../policy/curps/policy.ncl[CURPS Policy Language]
+* https://indieweb.org/Micropub[Micropub Specification]
+* https://indieweb.org/Webmention[Webmention Specification]
+* https://indieauth.spec.indieweb.org/[IndieAuth Specification]

@@ -1,0 +1,12 @@
+= Project Roadmap
+:project-name: IndieWeb2
+
+== 🗺️ Milestones
+- **v0.1**: Core manifests, bastion ingress, oDNS MVP, SurrealDB schema.
+- **v0.5**: GraphQL DNS full RR coverage, reverse DNS, CURPS WASM policy engine, browser extension beta.
+- **v1.0**: Enterprise-grade deployment, multi-region anycast, federation adapters (HE, Cloudflare, Route53).
+- **v2.0**: Threshold signatures, SDP overlays, privacy-preserving analytics.
+- **v3.0**: Formal verification of critical modules, education kits, standards proposals.
+
+== 🔄 Dependency Handoffs
+- Bastion ingress → oDNS proxies → GraphQL DNS → SurrealDB provenance → Browser UX

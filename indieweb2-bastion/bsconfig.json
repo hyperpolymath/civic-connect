@@ -1,0 +1,12 @@
+{
+  "name": "indieweb2-bastion",
+  "sources": [
+    { "dir": "src" }
+  ],
+  "package-specs": {
+    "module": "esmodule",
+    "in-source": true
+  },
+  "suffix": ".res.mjs",
+  "dependencies": []
+}

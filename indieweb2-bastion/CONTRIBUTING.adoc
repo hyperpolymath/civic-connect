@@ -1,0 +1,356 @@
+= Contributing to indieweb2-bastion
+:toc: macro
+
+[abstract]
+--
+Contribution guidelines for indieweb2-bastion. Rhodium Standard 0.5, Pillar 4, Section 4.1.
+--
+
+toc::[]
+
+== Welcome
+
+Thank you for considering contributing to indieweb2-bastion! This multi-chain identity platform welcomes contributions across Solidity, Motoko, ReScript, and infrastructure.
+
+== Code of Conduct
+
+**Be respectful, inclusive, and consent-first** (matching our platform values).
+
+* Treat all contributors with respect
+* Welcome newcomers
+* Focus on constructive feedback
+* Assume good intentions
+
+**Unacceptable behavior:**
+* Harassment or discrimination
+* Trolling or inflammatory comments
+* Bypassing consent mechanisms
+* Publishing others' private information
+
+**Enforcement:** conduct@example.com
+
+== Quick Start
+
+[source,bash]
+----
+# 1. Fork and clone
+git clone https://github.com/YOUR_USERNAME/indieweb2-bastion.git
+cd indieweb2-bastion
+
+# 2. Install dependencies
+just install-deps
+
+# 3. Run tests
+just test-all
+
+# 4. Make changes and test
+# Smart contracts: just test-contracts
+# ReScript: just test-rescript
+# Infrastructure: just test-infra
+
+# 5. Create PR
+git checkout -b feature/your-feature
+git commit -m "feat: description"
+git push origin feature/your-feature
+----
+
+== Development Setup
+
+See link:ONBOARDING.adoc[ONBOARDING.adoc] for detailed multi-chain setup.
+
+**Required:**
+* Node.js 20+, npm 9+
+* Solidity tooling (Foundry/Hardhat)
+* dfx (Internet Computer SDK)
+* ReScript 11.0.1+
+* stapeln toolchain — cerro-torre, selur, vordr (for containers and local testnet)
+
+== Types of Contributions
+
+=== Smart Contract Security
+
+**CRITICAL: Smart contracts are immutable on mainnet.**
+
+**Before submitting smart contract changes:**
+* Run full test suite (`just test-contracts`)
+* Run static analysis (`slither`, `mythril`)
+* Run fuzzing (`echidna`, `foundry fuzz`)
+* Deploy to testnet first
+* External audit recommended for critical changes
+
+=== Code Contributions
+
+**Accepted:**
+* Bug fixes (especially security vulnerabilities)
+* New features (discuss first in issue)
+* Gas optimizations
+* Documentation improvements
+* Test coverage improvements
+
+**Not accepted without extensive discussion:**
+* Breaking changes to deployed contracts
+* Major architectural changes
+* New blockchain integrations
+* New dependencies (especially for contracts)
+
+== Development Workflow
+
+=== Branch Naming
+
+* Feature: `feature/short-description`
+* Bug fix: `fix/issue-number-description`
+* Smart contract: `contract/description`
+* Infrastructure: `infra/description`
+
+=== Code Style
+
+**Solidity:**
+* Follow Solidity style guide
+* Use `forge fmt` formatter
+* NatSpec documentation required
+* OpenZeppelin libraries preferred
+
+**Motoko:**
+* Follow Motoko style guide
+* Use `moc` formatter
+* Doc comments required
+
+**ReScript:**
+* Use `rescript format`
+* Type annotations where helpful
+* Doc comments for public APIs
+
+**Example Solidity:**
+[source,solidity]
+----
+/// @title Identity Registry
+/// @notice Stores decentralized identifiers (DIDs)
+/// @dev Implements EIP-XXXX
+contract IdentityRegistry {
+    /// @notice Register a new DID
+    /// @param _did The decentralized identifier
+    /// @param _contentHash IPFS content hash
+    function registerIdentity(
+        string memory _did,
+        bytes32 _contentHash
+    ) external {
+        // Implementation
+    }
+}
+----
+
+=== Testing Requirements
+
+**Smart contracts:**
+* 100% coverage for critical functions
+* Fuzz testing for input validation
+* Integration tests on testnet
+* Gas benchmarks
+
+**ReScript/Infrastructure:**
+* 80%+ coverage
+* Integration tests
+* E2E tests for critical flows
+
+=== Commit Messages
+
+**Conventional Commits:**
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Types:**
+* `feat`: New feature
+* `fix`: Bug fix
+* `contract`: Smart contract changes
+* `docs`: Documentation
+* `test`: Tests
+* `chore`: Build/tooling
+
+**Scopes:**
+* `eth`: Ethereum contracts
+* `polygon`: Polygon contracts
+* `ic`: Internet Computer canisters
+* `odns`: oDNS resolver
+* `infra`: Infrastructure
+
+**Examples:**
+```
+feat(eth): add identity verification contract
+
+Implement EIP-712 signature verification for identity claims.
+
+Closes #42
+```
+
+```
+fix(ic): prevent canister upgrade race condition
+
+Add stable memory locking during upgrade.
+
+Fixes #123
+```
+
+== Security Guidelines
+
+**Smart contract security:**
+* Use OpenZeppelin contracts
+* ReentrancyGuard on external calls
+* Checks-effects-interactions pattern
+* Access control on admin functions
+* Event logs for all state changes
+* Gas limits considered
+* No unbounded loops
+
+**Report security vulnerabilities:**
+See link:SECURITY.adoc[SECURITY.adoc] for reporting process.
+
+**⚠️ DO NOT open public issues for security vulnerabilities.**
+
+== Pull Request Process
+
+1. **Pre-PR checklist:**
+   - [ ] Tests pass (`just test-all`)
+   - [ ] Contracts formatted (`forge fmt`, `moc`)
+   - [ ] ReScript formatted (`rescript format`)
+   - [ ] Documentation updated
+   - [ ] CHANGELOG.md updated
+   - [ ] No secrets in commits
+
+2. **PR template:**
+```markdown
+## Summary
+Brief description.
+
+## Blockchain Impact
+- [ ] Ethereum mainnet
+- [ ] Polygon mainnet
+- [ ] Internet Computer mainnet
+- [ ] Testnet only
+- [ ] No blockchain impact
+
+## Testing
+- [ ] Unit tests
+- [ ] Fuzz tests (smart contracts)
+- [ ] Testnet deployment
+- [ ] Gas benchmarks
+
+## Security
+- [ ] No new attack vectors
+- [ ] Access control verified
+- [ ] Reentrancy checked
+- [ ] Integer overflow/underflow checked
+
+## Checklist
+- [ ] All tests pass
+- [ ] Code formatted
+- [ ] Documentation updated
+- [ ] CHANGELOG.md updated
+
+Closes #XXX
+```
+
+3. **Review process:**
+   - 2+ approvals for contract changes
+   - 1+ approval for other changes
+   - Security review for critical changes
+   - Gas optimization review
+
+4. **Merge criteria:**
+   - ✅ All tests pass
+   - ✅ Required approvals received
+   - ✅ No merge conflicts
+   - ✅ Documentation complete
+
+== Testing Smart Contracts
+
+**Local testing:**
+[source,bash]
+----
+# Unit tests
+just test-contracts
+
+# Fuzz testing
+just fuzz-contracts
+
+# Gas reports
+just gas-report
+
+# Coverage
+just coverage-contracts
+----
+
+**Testnet deployment:**
+[source,bash]
+----
+# Deploy to Sepolia
+just deploy-testnet-eth
+
+# Deploy to Polygon Mumbai
+just deploy-testnet-polygon
+
+# Deploy to IC testnet
+just deploy-testnet-ic
+
+# Run integration tests
+just test-integration-testnet
+----
+
+== Multi-Chain Considerations
+
+**When contributing:**
+* Consider all 3 chains: Ethereum, Polygon, Internet Computer
+* Maintain feature parity where possible
+* Document chain-specific limitations
+* Test cross-chain workflows
+
+**Chain differences:**
+* Ethereum/Polygon: EVM bytecode, gas costs, finality
+* Internet Computer: WASM, cycles, instant finality, stable memory
+
+== Release Process
+
+**Testnet releases:**
+* Frequent (weekly)
+* Automated via CI
+
+**Mainnet releases:**
+* Infrequent (quarterly)
+* Requires:
+  - External audit
+  - Timelock governance vote
+  - Multi-sig approval
+  - Community announcement
+
+**Versioning:**
+* Contracts: Semantic versioning (v1.0.0)
+* Off-chain: Calendar versioning (2025.01.15)
+
+== Getting Help
+
+**Questions?**
+* GitHub Discussions: https://github.com/yourorg/indieweb2-bastion/discussions
+* Discord: #indieweb2-dev
+* Email: dev@example.com
+
+**Resources:**
+* link:ONBOARDING.adoc[ONBOARDING.adoc]
+* link:docs/ARCHITECTURE.adoc[ARCHITECTURE.adoc]
+* link:SECURITY.adoc[SECURITY.adoc]
+
+== Recognition
+
+Contributors recognized in:
+* CONTRIBUTORS.md
+* On-chain: ContributorRegistry contract
+* NFT badges for significant contributions (experimental)
+
+---
+
+**Thank you for contributing to indieweb2-bastion!** 🎉
+
+_Last Updated: 2025-01-21 | Rhodium Standard 0.5_

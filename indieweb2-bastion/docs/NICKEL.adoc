@@ -1,0 +1,18 @@
+= Nickel CLI Reference
+
+== Common commands
+* `nickel export file.ncl` - Export to JSON
+* `nickel eval file.ncl` - Evaluate expressions
+* `nickel check file.ncl` - Typecheck only
+
+== Flags
+* `--format` - Output format (json, yaml, toml)
+* `--trace` - Show evaluation trace
+* `--check` - Typecheck only
+
+== Usage in Justfile
+Recipes:
+* `validate` - export + capnp + surreal
+* `validate-eval` - eval only
+* `validate-pretty` - export + jq pretty
+* `validate-diff` - compare exports

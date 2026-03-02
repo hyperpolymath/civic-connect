@@ -1,0 +1,1 @@
+= Default Consent Capability\nStub definition.

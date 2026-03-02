@@ -1,0 +1,13 @@
+= Community Terms
+:project-name: IndieWeb2
+
+== 🤝 Participation Guidelines
+- Respect the link:CODE_OF_CONDUCT.adoc[Code of Conduct].
+- Contributions are licensed under MIT & Palimpsest v0.8.
+
+== 📜 Intellectual Property
+- All contributions must include SPDX headers.
+- Patents (if any) are licensed under Apache 2.0.
+
+== 🌐 Governance
+See link:GOVERNANCE.adoc[Project Governance].

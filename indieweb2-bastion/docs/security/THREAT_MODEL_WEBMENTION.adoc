@@ -1,0 +1,451 @@
+= Threat Model: Webmention Rate Limiting
+:toc: macro
+:toclevels: 3
+:icons: font
+:sectnums:
+
+// SPDX-FileCopyrightText: 2025 Hyperpolymath
+// SPDX-License-Identifier: MPL-2.0-or-later
+
+[abstract]
+--
+Threat model for the Webmention ingress rate limiting component of indieweb2-bastion.
+Covers attack vectors, mitigations, and residual risks for Webmention endpoint protection.
+--
+
+toc::[]
+
+== Overview
+
+=== Component Description
+
+The Webmention rate limiter is an ingress-layer security component that protects
+Webmention endpoints from abuse. It operates at the network edge, before requests
+reach application-layer processing.
+
+=== Scope
+
+[cols="1,2"]
+|===
+|In Scope |Out of Scope
+
+|Rate limiting (per-IP, per-source)
+|Content validation (HTML parsing)
+
+|Content-Type enforcement
+|Spam classification (ML-based)
+
+|Parameter presence validation
+|Source URL verification (fetch & parse)
+
+|Self-ping detection
+|Database-layer protections
+
+|Burst detection & cooldown
+|Application authentication (IndieAuth)
+|===
+
+== Assets
+
+=== Protected Assets
+
+[cols="1,2,1"]
+|===
+|Asset |Description |Criticality
+
+|Webmention Endpoints
+|`/webmention`, `/webmention.php`, `/.well-known/webmention`
+|High
+
+|Backend Processing
+|CPU/memory for mention verification
+|High
+
+|Upstream Bandwidth
+|Network capacity for source URL fetches
+|Medium
+
+|Database Resources
+|Storage for pending/verified mentions
+|Medium
+
+|Service Availability
+|Overall system uptime
+|Critical
+|===
+
+=== Trust Boundaries
+
+[source]
+----
+┌─────────────────────────────────────────────────────────────────┐
+│                         INTERNET                                 │
+│   (Untrusted - any IP can send Webmention requests)             │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│               INGRESS LAYER (This Component)                     │
+│   - Rate limiting          - Content-Type validation            │
+│   - Burst detection        - Self-ping blocking                 │
+│   - Parameter validation                                         │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │ (Validated requests only)
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    APPLICATION LAYER                             │
+│   - Source URL fetch       - HTML parsing                       │
+│   - Link verification      - Spam filtering                     │
+│   - IndieAuth validation   - Storage                            │
+└─────────────────────────────────────────────────────────────────┘
+----
+
+== Threat Actors
+
+=== TA-1: Spammer
+
+[cols="1,3"]
+|===
+|Motivation |Inject spam links into target sites via fake Webmentions
+|Capabilities |Botnets, rotating IPs, automated submission tools
+|Sophistication |Low-Medium
+|===
+
+=== TA-2: DoS Attacker
+
+[cols="1,3"]
+|===
+|Motivation |Disrupt service availability
+|Capabilities |High request volume, distributed attack infrastructure
+|Sophistication |Medium
+|===
+
+=== TA-3: Amplification Attacker
+
+[cols="1,3"]
+|===
+|Motivation |Use Webmention as amplification vector for DDoS
+|Capabilities |Crafted source URLs pointing to victim servers
+|Sophistication |Medium-High
+|===
+
+=== TA-4: Resource Exhaustion Attacker
+
+[cols="1,3"]
+|===
+|Motivation |Exhaust CPU/memory via expensive processing
+|Capabilities |Malformed payloads, large URLs, complex encodings
+|Sophistication |Medium
+|===
+
+== Attack Vectors & Mitigations
+
+=== AV-1: High-Volume Spam Flood
+
+[cols="1,3"]
+|===
+|Description |Attacker sends thousands of Webmention requests to inject spam
+|Threat Actor |TA-1
+|Impact |Database pollution, moderation overhead
+|Likelihood |High
+|===
+
+==== Mitigations
+
+[cols="1,1,2"]
+|===
+|Control |Status |Details
+
+|Per-IP Rate Limit
+|✅ Implemented
+|60 requests/minute per IP (token bucket)
+
+|Per-Source Rate Limit
+|✅ Implemented
+|10 requests/minute per source URL
+
+|Burst Detection
+|✅ Implemented
+|30s cooldown after burst activity
+|===
+
+==== Residual Risk
+
+Medium - Distributed attacks from many IPs can still accumulate spam.
+Requires application-layer spam filtering.
+
+=== AV-2: Denial of Service
+
+[cols="1,3"]
+|===
+|Description |Attacker floods endpoints to exhaust resources
+|Threat Actor |TA-2
+|Impact |Service unavailability
+|Likelihood |Medium
+|===
+
+==== Mitigations
+
+[cols="1,1,2"]
+|===
+|Control |Status |Details
+
+|Rate Limiting
+|✅ Implemented
+|Caps request processing per IP
+
+|Burst Cooldown
+|✅ Implemented
+|30s lockout after burst detection
+
+|Early Rejection
+|✅ Implemented
+|Invalid requests rejected before processing
+|===
+
+==== Residual Risk
+
+Low-Medium - Large distributed attacks may still impact availability.
+Consider upstream DDoS protection (Cloudflare, etc.).
+
+=== AV-3: Amplification Attack
+
+[cols="1,3"]
+|===
+|Description |Attacker submits Webmentions with victim server as source URL
+|Threat Actor |TA-3
+|Impact |Third-party servers DDoSed via fetch requests
+|Likelihood |Medium
+|===
+
+==== Mitigations
+
+[cols="1,1,2"]
+|===
+|Control |Status |Details
+
+|Per-Source Rate Limit
+|✅ Implemented
+|10 fetches/minute max to any source
+
+|Self-Ping Blocking
+|✅ Implemented
+|Prevents internal amplification loops
+|===
+
+==== Residual Risk
+
+Medium - Application layer must also limit concurrent source fetches.
+Consider source URL reputation scoring.
+
+=== AV-4: Content-Type Bypass
+
+[cols="1,3"]
+|===
+|Description |Attacker sends malformed Content-Type to bypass validation
+|Threat Actor |TA-1, TA-4
+|Impact |Parser confusion, potential injection
+|Likelihood |Low
+|===
+
+==== Mitigations
+
+[cols="1,1,2"]
+|===
+|Control |Status |Details
+
+|Strict Content-Type Check
+|✅ Implemented
+|Only `application/x-www-form-urlencoded` accepted
+
+|Media Type Extraction
+|✅ Implemented
+|Ignores charset/boundary parameters
+|===
+
+==== Residual Risk
+
+Very Low - Strict allowlist approach minimizes bypass risk.
+
+=== AV-5: Parameter Injection
+
+[cols="1,3"]
+|===
+|Description |Attacker omits or malforms source/target parameters
+|Threat Actor |TA-1, TA-4
+|Impact |Application errors, potential bypass
+|Likelihood |Medium
+|===
+
+==== Mitigations
+
+[cols="1,1,2"]
+|===
+|Control |Status |Details
+
+|Required Parameter Check
+|✅ Implemented
+|Rejects requests missing source or target
+
+|URL Format Validation
+|✅ Implemented
+|Validates URL structure before processing
+|===
+
+==== Residual Risk
+
+Very Low - Early validation prevents malformed requests.
+
+=== AV-6: Self-Referential Attack
+
+[cols="1,3"]
+|===
+|Description |Attacker sends Webmention where source and target are same domain
+|Threat Actor |TA-1, TA-3
+|Impact |Internal loops, resource waste
+|Likelihood |Low
+|===
+
+==== Mitigations
+
+[cols="1,1,2"]
+|===
+|Control |Status |Details
+
+|Self-Ping Blocking
+|✅ Implemented
+|Compares registrable domains of source/target
+
+|Two-Part TLD Support
+|✅ Implemented
+|Handles .co.uk, .com.au, etc.
+|===
+
+==== Residual Risk
+
+Very Low - Domain comparison prevents same-site mentions.
+
+== Security Controls Summary
+
+=== Implemented Controls
+
+[cols="1,1,2,1"]
+|===
+|Control |Type |Description |Effectiveness
+
+|Per-IP Rate Limiting
+|Preventive
+|Token bucket, 60 rpm
+|High
+
+|Per-Source Rate Limiting
+|Preventive
+|Token bucket, 10 rpm
+|High
+
+|Burst Detection
+|Detective/Preventive
+|Anomaly detection with 30s cooldown
+|Medium
+
+|Content-Type Validation
+|Preventive
+|Allowlist enforcement
+|High
+
+|Parameter Validation
+|Preventive
+|Required field + URL format
+|High
+
+|Self-Ping Blocking
+|Preventive
+|Domain comparison
+|High
+|===
+
+=== Recommended Future Controls
+
+[cols="1,1,2"]
+|===
+|Control |Priority |Rationale
+
+|IP Reputation Scoring
+|Medium
+|Block known-bad IPs proactively
+
+|Geographic Rate Limiting
+|Low
+|Limit requests from unusual geolocations
+
+|Source URL Reputation
+|Medium
+|Track domains with high spam/abuse
+
+|Adaptive Rate Limits
+|Low
+|Adjust limits based on current load
+
+|Request Signing
+|Low
+|Optional HMAC for trusted sources
+|===
+
+== Testing Requirements
+
+=== Unit Tests (Implemented)
+
+* Rate limit exhaustion
+* Source rate limiting independence
+* Content-Type validation
+* Self-ping detection
+* URL normalization
+
+=== Integration Tests (Implemented)
+
+* Full validation flow
+* Rate limit + validation combined
+
+=== Security Tests (See Test Harness)
+
+* Flood attack simulation
+* Burst detection validation
+* Bypass attempts (Content-Type variants)
+* Concurrent request handling
+
+== Incident Response
+
+=== Detection
+
+[cols="1,2"]
+|===
+|Indicator |Action
+
+|Spike in 429 responses
+|Review rate limit logs, check for attack patterns
+
+|Burst cooldowns triggered
+|Investigate source IPs, consider temporary blocks
+
+|Validation failures spike
+|Check for new attack patterns, update rules
+|===
+
+=== Response
+
+1. **Immediate**: Rate limits automatically throttle abuse
+2. **Short-term**: Review logs, add IP blocks if needed
+3. **Long-term**: Update rate limits, add new validation rules
+
+== References
+
+* link:../ARCHITECTURE.adoc[System Architecture]
+* link:../INDIEWEB_INTEGRATION.adoc[IndieWeb Integration Guide]
+* link:../../policy/curps/webmention.ncl[Webmention Policy Definition]
+* https://indieweb.org/Webmention[Webmention Specification]
+* https://indieweb.org/Webmention-brainstorming#Spam[Webmention Spam Discussion]
+
+---
+
+_Last Updated: 2025-01-21_
+_Document Version: 1.0.0_

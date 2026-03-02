@@ -1,0 +1,12 @@
+= Justfile Cookbook
+:project-name: IndieWeb2
+
+== 📖 Recipes
+- `just build`: Compile and validate manifests.
+- `just test`: Run unit tests for GraphQL DNS and SurrealDB queries.
+- `just docs`: Generate AsciiDoc documentation.
+- `just export-snapshot`: Export SurrealDB provenance graph to IPFS/IPNS.
+- `just slm-review`: Review code with Mistral SLM.
+
+== 🔧 Customisation
+Add project-specific recipes (e.g., `just deploy-bastion`) to the root `justfile`.

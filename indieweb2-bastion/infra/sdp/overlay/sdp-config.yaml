@@ -1,0 +1,6 @@
+# SDP Overlay Config
+overlay_network: sdp-net
+endpoints:
+  - name: hidden-primary
+    address: 10.0.0.1
+    policies: ["restricted", "audit-only"]

@@ -1,0 +1,454 @@
+// SPDX-License-Identifier: PMPL-1.0-or-later
+// Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <jonathan.jewell@open.ac.uk>
+= Cryptographic Algorithm Requirements - indieweb2-bastion
+:toc: macro
+:toclevels: 3
+:icons: font
+
+[abstract]
+--
+Comprehensive post-quantum + classical hybrid cryptographic standard for all indieweb2-bastion components.
+Canonical machine-readable source: `.machine_readable/CRYPTO-POLICY.scm`
+--
+
+toc::[]
+
+== Algorithm Requirements
+
+[cols="1,3,3,2,1"]
+|===
+|ID |Requirement |Algorithm |Standard |Status
+
+|CPR-001
+|Password Hashing
+|Argon2id (512 MiB / 8 iter / 4 lanes)
+|RFC 9106
+|Required
+
+|CPR-002
+|General Hashing
+|SHAKE3-512
+|FIPS 202 (SHA-3)
+|Required
+
+|CPR-003
+|Post-Quantum Signatures
+|Dilithium5-AES / ML-DSA-87
+|FIPS 204
+|Required
+
+|CPR-004
+|Post-Quantum Key Exchange
+|Kyber-1024 / ML-KEM-1024
+|FIPS 203
+|Required
+
+|CPR-005
+|Classical Signatures (hybrid)
+|Ed448 + Dilithium5 hybrid
+|RFC 8032 + FIPS 204
+|Required
+
+|CPR-006
+|Symmetric Encryption
+|XChaCha20-Poly1305
+|RFC 8439 (extended nonce)
+|Required
+
+|CPR-007
+|Key Derivation Function
+|HKDF-SHAKE512
+|RFC 5869 + FIPS 202
+|Required
+
+|CPR-008
+|Random Number Generation
+|ChaCha20-DRBG
+|NIST SP 800-90A
+|Required
+
+|CPR-009
+|Database Hashing
+|BLAKE3 + SHAKE3-512
+|BLAKE3 spec + FIPS 202
+|Required
+
+|CPR-010
+|Protocol Stack
+|QUIC + HTTP/3 + IPv6
+|RFC 9000 / RFC 9114 / RFC 8200
+|Required
+
+|CPR-011
+|Accessibility
+|N/A
+|WCAG 2.3 AAA
+|Required
+
+|CPR-012
+|Fallback Signature
+|SPHINCS+ / SLH-DSA
+|FIPS 205
+|Required
+
+|CPR-013
+|Formal Verification
+|Coq / Isabelle/HOL
+|N/A
+|Required
+
+|CPR-014
+|TLS Configuration
+|TLS 1.3 only
+|RFC 8446
+|Required
+
+|CPR-015
+|Certificate Pinning
+|DANE-TLSA
+|RFC 6698 / RFC 7671
+|Required
+
+|CPR-016
+|Blockchain Signatures
+|Ed448 + Dilithium5 hybrid
+|RFC 8032 + FIPS 204
+|Required
+
+|===
+
+== Password Hashing (CPR-001)
+
+**Algorithm:** Argon2id
+
+**Parameters:**
+
+* Memory: 512 MiB (524,288 KiB)
+* Iterations: 8
+* Parallelism: 4 lanes
+* Output: 256-bit (32 bytes)
+
+**Standard:** RFC 9106
+
+**Rationale:** Argon2id combines Argon2i (side-channel resistance) and Argon2d (GPU resistance). The 512 MiB memory parameter ensures strong resistance to ASIC/GPU brute-force attacks.
+
+== General Hashing (CPR-002)
+
+**Algorithm:** SHAKE3-512
+
+**Standard:** FIPS 202 (SHA-3 family)
+
+**Output:** 512-bit (64 bytes)
+
+**Usage:** All general-purpose hashing (content integrity, message digests, non-password hashing).
+
+**Note:** SHAKE3-512 is an extendable-output function (XOF) from the Keccak family. Use fixed 512-bit output for standard operations.
+
+== Post-Quantum Signatures (CPR-003)
+
+**Algorithm:** Dilithium5-AES (ML-DSA-87)
+
+**Standard:** FIPS 204
+
+**Parameters:**
+
+* Security level: NIST Level 5 (AES-256 equivalent)
+* Public key: 2,592 bytes
+* Signature: 4,627 bytes
+
+**Usage:** All digital signatures where post-quantum security is required without classical fallback.
+
+== Post-Quantum Key Exchange (CPR-004)
+
+**Algorithm:** Kyber-1024 (ML-KEM-1024)
+
+**Standard:** FIPS 203
+
+**Parameters:**
+
+* Security level: NIST Level 5
+* Public key: 1,568 bytes
+* Ciphertext: 1,568 bytes
+* Shared secret: 32 bytes
+
+**Usage:** All key encapsulation and key exchange operations. Replaces X25519/ECDH.
+
+== Classical Signatures — Hybrid (CPR-005)
+
+**Algorithm:** Ed448 + Dilithium5 hybrid
+
+**Standards:** RFC 8032 (Ed448) + FIPS 204 (Dilithium5)
+
+**Rationale:** Hybrid approach provides security against both classical and quantum adversaries. Both signatures MUST verify for acceptance. Ed448 provides 224-bit classical security (superior to Ed25519's 128-bit).
+
+**Usage:** Git commit signing, code signing, API authentication, DNSSEC (target).
+
+== Symmetric Encryption (CPR-006)
+
+**Algorithm:** XChaCha20-Poly1305
+
+**Standard:** RFC 8439 with extended 192-bit nonce
+
+**Parameters:**
+
+* Key: 256-bit
+* Nonce: 192-bit (extended)
+* Tag: 128-bit
+
+**Rationale:** Extended nonce eliminates nonce-reuse risk inherent in standard ChaCha20-Poly1305 (96-bit nonce). Safe for random nonce generation without counter management.
+
+== Key Derivation Function (CPR-007)
+
+**Algorithm:** HKDF-SHAKE512
+
+**Standard:** RFC 5869 instantiated with SHAKE3-512
+
+**Usage:** Deriving encryption keys, session keys, and sub-keys from master secrets. Replaces HKDF-SHA256.
+
+== Random Number Generation (CPR-008)
+
+**Algorithm:** ChaCha20-DRBG
+
+**Standard:** NIST SP 800-90A compliant
+
+**Seed:** OS entropy source (`getrandom(2)` on Linux, `SecRandomCopyBytes` on macOS)
+
+**Usage:** All cryptographic random number generation. MUST be seeded from OS entropy.
+
+== Database Hashing (CPR-009)
+
+**Algorithm:** BLAKE3 + SHAKE3-512
+
+**Standard:** BLAKE3 specification + FIPS 202
+
+**Usage:**
+
+* **BLAKE3:** Fast content hashing for database records, content-addressable storage, blockchain anchoring
+* **SHAKE3-512:** Integrity proofs, Merkle tree construction, audit trails
+
+**Rationale:** BLAKE3 provides extreme speed for frequent operations; SHAKE3-512 provides NIST-standardised integrity.
+
+== Protocol Stack (CPR-010)
+
+**Protocols:**
+
+* **Transport:** QUIC (RFC 9000)
+* **Application:** HTTP/3 (RFC 9114)
+* **Network:** IPv6 only (RFC 8200)
+
+**Terminated:**
+
+* HTTP/1.1, HTTP/2 (except as QUIC fallback during migration)
+* IPv4 (no dual-stack, no fallback)
+
+== Accessibility (CPR-011)
+
+**Standard:** WCAG 2.3 AAA
+
+All cryptographic user interfaces (key management, consent flows, signature verification) MUST meet WCAG 2.3 AAA. This includes:
+
+* Keyboard-only operation for all crypto flows
+* Screen reader compatibility for signature status
+* Sufficient contrast for security indicators
+* Plain-language explanations of cryptographic operations
+
+== Fallback Signature (CPR-012)
+
+**Algorithm:** SPHINCS+ (SLH-DSA)
+
+**Standard:** FIPS 205
+
+**Usage:** Stateless hash-based signature scheme as emergency fallback if lattice-based schemes (Dilithium/Kyber) are compromised. SPHINCS+ relies only on hash function security — no algebraic structure to attack.
+
+== Formal Verification (CPR-013)
+
+**Tools:** Coq, Isabelle/HOL
+
+All cryptographic protocol implementations MUST have:
+
+* Formal specification in Coq or Isabelle/HOL
+* Machine-checked proofs of correctness
+* Verified absence of timing side-channels (where applicable)
+
+**Note:** Formal proofs MUST NOT use `Admitted` (Coq) or `sorry` (Lean) — all proofs must be complete.
+
+== TLS Configuration (CPR-014)
+
+**Version:** TLS 1.3 only (RFC 8446)
+
+**Ciphersuites:**
+
+* `TLS_AES_256_GCM_SHA384`
+* `TLS_CHACHA20_POLY1305_SHA256`
+
+**Terminated:** TLS 1.2 and below. No fallback negotiation.
+
+== Certificate Pinning (CPR-015)
+
+**Mechanism:** DANE-TLSA (RFC 6698 / RFC 7671)
+
+DNSSEC-validated TLSA records for all service endpoints. Certificate pinning via DNS rather than HTTP-based HPKP (deprecated).
+
+== Blockchain Signatures (CPR-016)
+
+**Algorithm:** Ed448 + Dilithium5 hybrid (off-chain)
+
+**Exception:** Blockchain-native ECDSA/EdDSA accepted where the chain protocol requires specific signature schemes (e.g., Ethereum secp256k1, ICP Ed25519). Off-chain components (APIs, services, signing) MUST use the hybrid scheme.
+
+== Terminated Algorithms
+
+WARNING: The following algorithms MUST NOT be used in new code. Existing usage must be migrated per the deadlines below.
+
+[cols="2,3,2"]
+|===
+|Algorithm |Reason |Deadline
+
+|Ed25519
+|Replaced by Ed448+Dilithium5 hybrid (128-bit → 224-bit classical + PQ)
+|2026-06-01
+
+|SHA-1
+|Collision attacks demonstrated (SHAttered, 2017)
+|Immediate
+
+|MD5
+|Broken — collision attacks trivial
+|Immediate
+
+|RSA (all key sizes)
+|Quantum-vulnerable; replaced by ML-DSA-87
+|2026-06-01
+
+|X25519
+|Replaced by Kyber-1024 / ML-KEM-1024
+|2026-06-01
+
+|HKDF-SHA256
+|Replaced by HKDF-SHAKE512
+|2026-06-01
+
+|SHA-256
+|Replaced by SHAKE3-512 (general) and BLAKE3 (fast)
+|2026-09-01
+
+|ChaCha20-Poly1305
+|Replaced by XChaCha20-Poly1305 (extended nonce)
+|2026-06-01
+
+|HTTP/1.1
+|Replaced by HTTP/3 over QUIC
+|2026-06-01
+
+|IPv4
+|IPv6-only policy
+|2026-09-01
+
+|TLS 1.2
+|Replaced by TLS 1.3 only
+|Immediate
+
+|===
+
+== Implementation Status by Component
+
+[cols="2,1,3"]
+|===
+|Component |Status |Notes
+
+|graphql-dns-api (Rust)
+|Partial
+|BLAKE3 for content hashing (Phase 2); Ed25519 DNSSEC interim; SQL injection fixed
+
+|odns-proxy (Go — DEPRECATED)
+|Non-compliant
+|Go is banned; X25519+HKDF-SHA256+ChaCha20. Rewrite in Rust planned (ADR-0003)
+
+|odns-resolver (Go — DEPRECATED)
+|Non-compliant
+|Go is banned; same crypto as odns-proxy. Rewrite in Rust planned (ADR-0003)
+
+|consent-api (Deno)
+|Partial
+|Ed25519 signing; needs Ed448+Dilithium5 upgrade
+
+|webmention-rate-limiter (Rust)
+|N/A
+|No direct crypto usage; rate limiting only
+
+|policy-gate (ReScript)
+|Stub
+|Not yet implemented
+
+|Nickel configs
+|Compliant
+|Crypto policy encoded in schema.ncl/policy.ncl
+
+|DNSSEC (graphql-dns-api)
+|Interim
+|Ed25519 interim; target Ed448+Dilithium5 per CPR-005
+
+|===
+
+== Migration Timeline
+
+[cols="1,3,2,1"]
+|===
+|Phase |Description |Deadline |Status
+
+|1
+|Policy definition (this document)
+|2026-02-14
+|Complete
+
+|2
+|BLAKE3 + SHAKE3-512 for all hashing
+|2026-03-01
+|In Progress
+
+|3
+|XChaCha20-Poly1305 symmetric encryption
+|2026-04-01
+|Planned
+
+|4
+|Ed448 + Dilithium5 hybrid signatures
+|2026-06-01
+|Planned
+
+|5
+|Kyber-1024 key exchange (oDNS rewrite)
+|2026-06-01
+|Planned
+
+|6
+|QUIC / HTTP/3 / IPv6-only transport
+|2026-09-01
+|Planned
+
+|7
+|Formal verification of crypto protocols
+|2026-12-01
+|Planned
+
+|===
+
+== References
+
+* FIPS 202: SHA-3 Standard (SHAKE3-512)
+* FIPS 203: ML-KEM (Kyber)
+* FIPS 204: ML-DSA (Dilithium)
+* FIPS 205: SLH-DSA (SPHINCS+)
+* RFC 5869: HKDF
+* RFC 8032: Ed448
+* RFC 8439: ChaCha20-Poly1305
+* RFC 8446: TLS 1.3
+* RFC 9000: QUIC
+* RFC 9106: Argon2
+* RFC 9114: HTTP/3
+* NIST SP 800-90A: DRBG
+
+---
+
+_Canonical machine-readable source: `.machine_readable/CRYPTO-POLICY.scm`_
+
+_Last Updated: 2026-02-14_

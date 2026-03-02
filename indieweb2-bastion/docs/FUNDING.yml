@@ -1,0 +1,24 @@
+# Funding & Sponsorship for IndieWeb2
+
+project: IndieWeb2
+version: 0.1.0
+
+contribute:
+  sponsor: "https://gitlab.com/hyperpolymath/sponsor"
+  donate: "https://opencollective.com/hyperpolymath"
+  bounties: "https://issuehunt.io/r/hyperpolymath/indieweb2"
+
+allocation:
+  - Development time (ReScript/Deno, Podman/Wolfi, SurrealDB expertise)
+  - CI/CD infrastructure and IPFS pinning
+  - Community workshops on audit-grade web tooling
+
+sponsors:
+  - name: "AdaCore"
+    support: "GNAT compiler inspiration"
+  - name: "Open Source Collective"
+    support: "Fiscal hosting"
+
+notes:
+  licensing: "Dual-licensed under MIT and Palimpsest v0.8"
+  contact: "maintainers@indieweb2.gitlab"

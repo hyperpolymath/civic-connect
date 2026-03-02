@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "canisters": {
+    "consent": { "main": "canisters/consent/Consent.mo", "type": "motoko" },
+    "provenance": { "main": "canisters/provenance/Provenance.mo", "type": "motoko" }
+  },
+  "networks": { "local": { "bind": "127.0.0.1:8000" } }
+}

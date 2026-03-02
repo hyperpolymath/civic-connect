@@ -1,0 +1,32 @@
+= IndieWeb2 Bastion Bootstrap Guide
+
+== Purpose
+Bootstrap sets up everything needed for first run:
+* Creates required directories (.tmp, sbom, logging, products/pwa/build).
+* Installs dependencies (jq, capnproto, nickel, deno).
+* Ensures Nickel policies can be exported and validated.
+* Starts dev servers on available ports.
+
+== Commands
+* `just bootstrap` — run once to prepare environment.
+* `just validate` — export and validate Nickel policy.
+* `just policy-gate` — run ReScript validator on exported JSON.
+* `just sign-policy` — sign policy with Deno crypto.
+* `just verify-publish` — verify signature and publish to IPFS.
+* `just gui-dev` — start static PWA server (prefers port 8443, falls back to 8080).
+
+== Ports
+* Default dev server port: 8443 (TCP/HTTP).
+* If 8443 is occupied, falls back to 8080.
+* QUIC/UDP can be enabled later via Deno’s --unstable net APIs.
+
+== Dependencies
+* jq (Fedora package)
+* capnproto (Fedora package)
+* nickel (download from GitHub releases)
+* deno (install script from deno.land)
+
+== Workflow
+1. Run `just bootstrap`.
+2. Run `just all` to validate, gate, sign, publish, and start GUI.
+3. Visit http://localhost:8443 (or fallback port) to access PWA.

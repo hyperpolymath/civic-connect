@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: PMPL-1.0-or-later
+// Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <jonathan.jewell@open.ac.uk>
+= crypto/ — Cryptographic Utilities
+:toc:
+
+== Purpose
+
+Shell and Deno utilities for cryptographic operations in the indieweb2-bastion build and deployment pipeline. All utilities MUST comply with `CRYPTO-POLICY.adoc` (repository root).
+
+== Files
+
+[cols="2,2,3"]
+|===
+|File |Algorithm |Status
+
+|`shake3-512.sh`
+|SHAKE3-512 (FIPS 202) — CPR-002
+|Active (replaces shake256.sh)
+
+|`sign_policy.js`
+|Ed25519 — RFC 8032
+|DEPRECATED (CPR-005: target Ed448+Dilithium5 hybrid by 2026-06-01)
+
+|===
+
+== Algorithm Mapping
+
+[cols="2,2,2"]
+|===
+|Operation |Current |Target (per CRYPTO-POLICY.adoc)
+
+|File hashing
+|SHAKE3-512 (`shake3-512.sh`)
+|SHAKE3-512 (compliant)
+
+|Policy signing
+|Ed25519 (`sign_policy.js`)
+|Ed448+Dilithium5 hybrid (Rust replacement planned)
+
+|Content hashing
+|BLAKE3 (in graphql-dns-api)
+|BLAKE3 (compliant)
+
+|===
+
+== Migration Notes
+
+* `shake256.sh` has been replaced by `shake3-512.sh` (512-bit output, `-xoflen 64`)
+* `sign_policy.js` will be replaced by a Rust binary producing Ed448+Dilithium5 hybrid signatures
+* See `CRYPTO-POLICY.adoc` for full migration timeline
+* See `docs/adr/0003-odns-rust-rewrite.adoc` for oDNS crypto migration
+
+== Requirements
+
+* OpenSSL 3.x (for SHAKE3-512 support via `-xoflen`)
+* Deno 2.x (for `sign_policy.js` — interim only)

@@ -1,0 +1,10 @@
+= Governance
+:project-name: IndieWeb2
+
+== 🏛️ Decision-Making
+- **Maintainers**: Project stewards with bastion, oDNS, and GraphQL DNS expertise.
+- **Contributors**: Follow link:CONTRIBUTING.adoc[Contribution Guidelines].
+
+== 📜 Policies
+- **Conflict Resolution**: Mediation via maintainers (contact: maintainers@indieweb2.gitlab).
+- **Versioning**: Semantic Versioning (v0.1.0).

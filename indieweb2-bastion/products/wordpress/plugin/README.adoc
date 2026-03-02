@@ -1,0 +1,2 @@
+= IndieWeb2 WordPress Plugin
+Generates consent/indieweb manifests, pins to IPFS/IPNS, and renders provenance badges.

@@ -1,0 +1,80 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+[package]
+name = "graphql-dns-api"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["Jonathan D.A. Jewell <jonathan.jewell@open.ac.uk>"]
+description = "GraphQL DNS API with blockchain provenance for indieweb2-bastion"
+license = "PMPL-1.0-or-later"
+repository = "https://github.com/hyperpolymath/indieweb2-bastion"
+
+[dependencies]
+# GraphQL
+async-graphql = { version = "7.0", features = ["chrono", "uuid"] }
+async-graphql-axum = "7.0"
+
+# Web framework
+axum = { version = "0.8", features = ["macros"] }
+tokio = { version = "1.35", features = ["full"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+
+# Database — kv-mem default (pure Rust); enable "rocksdb" feature for persistent storage
+surrealdb = { version = "1.5", features = ["kv-mem"] }
+
+# Blockchain
+ethers = { version = "2.0", features = ["rustls", "abigen"] }
+
+# DNS/DNSSEC (trust-dns renamed to hickory-dns)
+hickory-client = "0.24"
+hickory-server = { version = "0.24", features = ["dns-over-rustls"] }
+hickory-proto = "0.24"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Utilities
+uuid = { version = "1.6", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+reqwest = { version = "0.11", features = ["json"] }
+urlencoding = "2.1"
+
+# Configuration
+dotenvy = "0.15"
+config = "0.14"
+
+# Cryptography — per CRYPTO-POLICY.adoc
+blake3 = "1.5"                   # Database hashing (BLAKE3-256) — CPR-009
+sha3 = "0.10"                    # SHAKE3-512 (FIPS 202) — CPR-002
+argon2 = "0.5"                   # Password hashing (Argon2id) — CPR-001
+chacha20poly1305 = "0.10"        # XChaCha20-Poly1305 symmetric — CPR-006
+hkdf = "0.12"                    # HKDF-SHAKE512 key derivation — CPR-007
+rand = "0.8"                     # RNG framework — CPR-008
+rand_chacha = "0.3"              # ChaCha20-DRBG — CPR-008
+base64 = "0.22"
+hex = "0.4"
+http = "1.0"                     # For CORS header types
+
+# Hybrid DNSSEC signatures — Ed448 + Dilithium5 (CPR-005)
+ed448-goldilocks-plus = "0.16"   # Classical signatures (Ed448, RFC 8032)
+pqcrypto-dilithium = "0.5"       # Post-quantum signatures (ML-DSA-87 / Dilithium5, FIPS 204)
+pqcrypto-traits = "0.3"          # Trait abstractions for pqcrypto
+
+[features]
+default = []
+rocksdb = ["surrealdb/kv-rocksdb"]
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

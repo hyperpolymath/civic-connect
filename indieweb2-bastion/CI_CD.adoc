@@ -1,0 +1,89 @@
+= CI/CD Guide - indieweb2-bastion
+:toc: macro
+
+[abstract]
+--
+CI/CD for multi-chain deployment. Rhodium Standard 0.5, Pillar 3, Section 3.3.
+--
+
+toc::[]
+
+== CI Pipeline
+
+**GitHub Actions:** `.github/workflows/`
+
+=== Smart Contract Tests
+
+[source,yaml]
+----
+# .github/workflows/contracts.yml
+name: Smart Contracts
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Run tests
+        run: forge test
+
+      - name: Gas report
+        run: forge test --gas-report
+
+      - name: Coverage
+        run: forge coverage
+
+      - name: Slither
+        run: slither contracts/
+----
+
+=== IC Tests
+
+[source,yaml]
+----
+# .github/workflows/ic.yml
+name: Internet Computer
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dfx
+        run: sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+
+      - name: Start local IC
+        run: dfx start --background
+
+      - name: Run tests
+        run: dfx test
+----
+
+== CD Pipeline
+
+**Testnet Deployment (automatic on main):**
+[source,yaml]
+----
+- name: Deploy to Sepolia
+  run: forge script script/Deploy.s.sol --rpc-url $SEPOLIA_RPC --broadcast
+----
+
+**Mainnet Deployment (manual, tagged releases):**
+* Requires multi-sig approval
+* Timelock governance (48 hours)
+* External audit required
+
+---
+
+_Last Updated: 2025-01-21 | Rhodium Standard 0.5_

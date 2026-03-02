@@ -1,0 +1,250 @@
+= Testing Guide - indieweb2-bastion
+:toc: macro
+
+[abstract]
+--
+Testing strategy for indieweb2-bastion (multi-chain platform). Rhodium Standard 0.5, Pillar 3, Section 3.2.
+--
+
+toc::[]
+
+== Testing Philosophy
+
+**Critical:** Smart contracts are immutable on mainnet - testing prevents irreversible mistakes.
+
+**Goals:**
+* Prevent fund loss
+* Ensure contract correctness
+* Verify cross-chain functionality
+* Enable confident upgrades
+
+== Test Types
+
+=== Smart Contract Unit Tests (Solidity)
+
+**Framework:** Foundry
+
+[source,solidity]
+----
+// test/IdentityRegistry.t.sol
+pragma solidity ^0.8.20;
+
+import "forge-std/Test.sol";
+import "../src/IdentityRegistry.sol";
+
+contract IdentityRegistryTest is Test {
+    IdentityRegistry public registry;
+
+    function setUp() public {
+        registry = new IdentityRegistry();
+    }
+
+    function testRegisterIdentity() public {
+        registry.registerIdentity("did:example:123", bytes32(0));
+        assertEq(registry.identities(address(this)).did, "did:example:123");
+    }
+
+    function testFailDoubleRegister() public {
+        registry.registerIdentity("did:example:123", bytes32(0));
+        registry.registerIdentity("did:example:456", bytes32(0));  // Should fail
+    }
+}
+----
+
+**Run:**
+[source,bash]
+----
+just test-contracts
+forge test
+forge test --match-test testRegisterIdentity
+----
+
+=== Fuzz Testing (Foundry)
+
+[source,solidity]
+----
+function testFuzzRegisterIdentity(string memory did) public {
+    vm.assume(bytes(did).length > 0 && bytes(did).length < 256);
+    registry.registerIdentity(did, bytes32(0));
+    assertEq(registry.identities(address(this)).did, did);
+}
+----
+
+**Run:**
+[source,bash]
+----
+forge test --fuzz-runs 10000
+----
+
+=== Internet Computer Tests (Motoko)
+
+[source,motoko]
+----
+// test/identity.test.mo
+import Debug "mo:base/Debug";
+import Identity "../src/identity";
+
+let identity = Identity.Identity();
+
+// Test registration
+let result = await identity.register("did:ic:123");
+assert(result == #ok());
+
+// Test duplicate registration
+let duplicate = await identity.register("did:ic:123");
+assert(duplicate == #err("Already registered"));
+----
+
+**Run:**
+[source,bash]
+----
+just test-ic
+dfx test
+----
+
+=== Gas Optimization Tests
+
+[source,solidity]
+----
+function testGasRegisterIdentity() public {
+    uint256 gasBefore = gasleft();
+    registry.registerIdentity("did:example:123", bytes32(0));
+    uint256 gasUsed = gasBefore - gasleft();
+
+    // Assert gas usage < threshold
+    assertLt(gasUsed, 50000);
+}
+----
+
+**Run:**
+[source,bash]
+----
+forge test --gas-report
+----
+
+=== Integration Tests (Cross-Chain)
+
+[source,javascript]
+----
+// test/integration/cross-chain.test.js
+describe('Cross-chain identity sync', () => {
+  it('syncs identity from Ethereum to Polygon', async () => {
+    // Register on Ethereum
+    await ethRegistry.registerIdentity("did:example:123", contentHash);
+
+    // Wait for bridge
+    await sleep(5000);
+
+    // Verify on Polygon
+    const polygonIdentity = await polygonRegistry.identities(address);
+    expect(polygonIdentity.did).to.equal("did:example:123");
+  });
+});
+----
+
+**Run:**
+[source,bash]
+----
+just test-integration-testnet
+npm test -- --grep "cross-chain"
+----
+
+== Security Testing
+
+=== Static Analysis
+
+[source,bash]
+----
+# Slither
+just security-slither
+slither contracts/
+
+# Mythril
+just security-mythril
+myth analyze contracts/IdentityRegistry.sol
+----
+
+=== Formal Verification
+
+[source,solidity]
+----
+// Use Certora for critical functions
+/*
+rule noDoubleRegister {
+    env e;
+    calldataarg args;
+
+    registerIdentity(e, args);
+    registerIdentity@withrevert(e, args);
+
+    assert lastReverted;
+}
+*/
+----
+
+== Coverage Requirements
+
+* **Smart contracts:** 100% for critical functions
+* **Off-chain code:** 80%+
+* **Cross-chain flows:** 100% integration tests
+
+**Run coverage:**
+[source,bash]
+----
+forge coverage
+----
+
+== Testnet Deployment
+
+**Before mainnet:**
+
+1. Deploy to Sepolia (Ethereum)
+2. Deploy to Mumbai (Polygon)
+3. Deploy to IC testnet
+4. Run full integration suite
+5. Manual testing (72 hours minimum)
+
+[source,bash]
+----
+just deploy-testnet-all
+just test-integration-testnet
+just monitor-testnet
+----
+
+== Running Tests
+
+[source,bash]
+----
+# All tests
+just test-all
+
+# By component
+just test-contracts      # Solidity
+just test-ic            # Motoko
+just test-rescript      # ReScript
+just test-infra         # Infrastructure
+
+# Security
+just test-security
+
+# Performance
+just test-gas
+----
+
+== CI/CD Testing
+
+**GitHub Actions:**
+* Unit tests on every commit
+* Integration tests on PRs
+* Testnet deployment on main branch
+* Security scans nightly
+
+== Resources
+
+* Foundry Book: https://book.getfoundry.sh/
+* Motoko Testing: https://internetcomputer.org/docs/current/motoko/main/testing
+* link:SECURITY.adoc[SECURITY.adoc]
+
+---
+
+_Last Updated: 2025-01-21 | Rhodium Standard 0.5_

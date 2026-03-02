@@ -1,0 +1,226 @@
+= Project Status - indieweb2-bastion
+:project-status: 🟡 SPECIFICATION
+:compliance-level: GOLD
+:blockers: 3 critical
+:updated: 2025-01-21
+
+== Current Status
+
+**Phase:** 🟡 **SPECIFICATION/ARCHITECTURE**
+**Compliance:** ✅ **GOLD** (documentation complete)
+**Implementation:** ❌ **0%** (no source code)
+
+== Overview
+
+indieweb2-bastion is a consent-first, multi-chain identity platform combining Ethereum/Polygon smart contracts with Internet Computer canisters. Currently a detailed specification with no implementation.
+
+== Blockers
+
+=== CRITICAL ❌
+
+1. **No smart contracts** - No Solidity implementation
+   * **Impact:** Core functionality missing
+   * **Action:** Create `contracts/IdentityRegistry.sol` and related contracts
+   * **Estimate:** 3-4 weeks for MVP
+
+2. **No Internet Computer canisters** - No Motoko implementation
+   * **Impact:** IC integration missing
+   * **Action:** Create `canisters/identity.mo` and configure `dfx.json`
+   * **Estimate:** 2-3 weeks for MVP
+
+3. **No bridge services** - No cross-chain sync
+   * **Impact:** Multi-chain coordination missing
+   * **Action:** Create Node.js bridge service to sync IC ↔ EVM
+   * **Estimate:** 2 weeks
+
+=== MEDIUM ⚠️
+
+4. **No oDNS implementation** - Privacy-preserving DNS planned but not started
+   * **Impact:** Privacy feature missing
+   * **Action:** Implement DNS proxy with encryption
+   * **Estimate:** 1 week
+
+5. **No project structure** - No foundry/dfx setup
+   * **Action:** Initialize projects (`forge init`, `dfx new`)
+   * **Estimate:** 1 hour
+
+== Implementation Sequence
+
+[cols="1,3,2,1",options="header"]
+|===
+|Step |Task |Depends On |Status
+|1 |Initialize Foundry project |None |⏳ TODO
+|2 |Create IdentityRegistry.sol |Step 1 |⏳ TODO
+|3 |Write Foundry tests |Step 2 |⏳ TODO
+|4 |Initialize IC project (dfx) |None |⏳ TODO
+|5 |Create identity.mo canister |Step 4 |⏳ TODO
+|6 |Deploy to IC testnet |Step 5 |⏳ TODO
+|7 |Create bridge service (Node.js) |Steps 3,6 |⏳ TODO
+|8 |Deploy contracts to Mumbai testnet |Step 3 |⏳ TODO
+|9 |Test cross-chain sync |Steps 7,8 |⏳ TODO
+|10 |Security audit |Steps 1-9 |⏳ TODO
+|11 |Mainnet deployment |All above |⏳ TODO
+|===
+
+== Dependencies
+
+**Blockchain Tools:**
+* Foundry - Solidity development framework
+* dfx - Internet Computer SDK
+* Hardhat (optional) - Ethereum development environment
+* Certora (planned) - Formal verification
+
+**Bridge Services:**
+* Node.js 18+
+* ethers.js / web3.js - Ethereum interaction
+* @dfinity/agent - IC interaction
+* GraphQL (planned) - Query API
+
+**Security Tools:**
+* Slither - Static analysis
+* Mythril - Symbolic execution
+* Echidna - Fuzzing
+
+**System:**
+* Node.js 18+
+* Rust (for IC builds)
+* Solidity 0.8.20+
+
+== Related Projects
+
+=== Would Benefit FROM
+
+**1. valence** - Elixir web framework
+* **Connection:** valence could power the REST API gateway for blockchain interaction
+* **Integration:** valence HTTP server → bridge services → blockchains
+* **Status:** Both projects need implementation
+* **Priority:** HIGH (architectural fit - valence built for high-throughput HTTP)
+
+**2. echomesh** - LLM preprocessing middleware
+* **Connection:** echomesh could provide intelligent contract interaction via NL queries
+* **Integration:** User NL query → echomesh → smart contract call translation
+* **Status:** Both projects in planning
+* **Priority:** LOW (future feature, not MVP)
+
+=== Would Benefit OTHERS
+
+**1. ada-loom-registry** - Package registry
+* **Connection:** indieweb2-bastion could use blockchain for package provenance
+* **Integration:** Package signatures stored on-chain for verification
+* **Status:** ada-loom-registry needs decentralized trust layer
+* **Priority:** MEDIUM (package security enhancement)
+
+=== Standalone Value
+
+**No direct dependencies required** - indieweb2-bastion is a complete identity platform that can operate independently once implemented.
+
+== Technical Architecture
+
+**Multi-Chain Design:**
+[source]
+----
+┌─────────────────┐
+│   User / DApp   │
+└────────┬────────┘
+         │
+    ┌────▼─────┐
+    │  valence │ ← REST API Gateway (planned integration)
+    │   HTTP   │
+    └────┬─────┘
+         │
+    ┌────▼──────────────────────────┐
+    │     Bridge Service (Node.js)  │
+    │  - Event listeners            │
+    │  - State sync                 │
+    │  - Retry logic                │
+    └─┬──────────────────────────┬──┘
+      │                          │
+┌─────▼──────┐          ┌───────▼────────┐
+│  Ethereum  │          │   Internet     │
+│  /Polygon  │          │   Computer     │
+│            │          │                │
+│ Solidity   │          │    Motoko      │
+│ Contracts  │          │   Canisters    │
+└────────────┘          └────────────────┘
+----
+
+**State Sync Strategy:**
+* **IC = Source of Truth** - Fast queries, low latency
+* **EVM = Immutable Record** - High security, slower but permanent
+* **Eventual Consistency** - 30-60s sync window acceptable
+
+== Security Considerations
+
+**Mainnet Immutability:**
+* Smart contracts are **PERMANENT** once deployed
+* Requires extensive testing before mainnet
+* Use proxy pattern for upgradeability
+
+**Attack Vectors to Address:**
+1. Reentrancy (use ReentrancyGuard)
+2. Front-running (use commit-reveal if needed)
+3. Gas griefing (bound loops, test with Echidna)
+4. Cross-chain sync manipulation (validate on both chains)
+
+== Next Actions
+
+**Immediate (Week 1):**
+- [ ] `forge init contracts` - Initialize Foundry project
+- [ ] `dfx new identity_canister` - Initialize IC project
+- [ ] Create `package.json` for bridge services
+- [ ] Write comprehensive README with architecture diagrams
+- [ ] Design smart contract interfaces (ABIs)
+
+**Short-term (Weeks 2-6):**
+- [ ] Implement IdentityRegistry.sol with full test suite
+- [ ] Implement identity.mo canister with IC test harness
+- [ ] Deploy to Mumbai testnet (Polygon) and IC testnet
+- [ ] Create bridge service MVP (event listening only)
+- [ ] Write integration tests
+
+**Medium-term (Months 2-3):**
+- [ ] External security audit (required for mainnet)
+- [ ] Gas optimization (target < 100k gas per registration)
+- [ ] Cross-chain sync optimization (< 30s latency)
+- [ ] oDNS privacy layer implementation
+- [ ] Mainnet deployment plan
+
+== Success Metrics
+
+[cols="1,2,1,1",options="header"]
+|===
+|Metric |Target |Current |Status
+|Smart contracts |3+ contracts |0 |❌
+|Test coverage |90%+ (contracts) |N/A |❌
+|Gas cost (register) |< 100k gas |N/A |❌
+|IC query latency (p95) |< 100ms |N/A |❌
+|Cross-chain sync |< 60s |N/A |❌
+|Documentation |Complete |✅ Complete |✅
+|Security audit |Pass |Not started |❌
+|===
+
+== WASM Status
+
+**Partial Compliance:**
+* ✅ Internet Computer: Native WASM (Motoko compiles to WASM)
+* ❌ Ethereum/Polygon: EVM bytecode (NOT WASM)
+
+**Waiver:** Waiver-2025-002 (EVM bytecode accepted as equivalent - eWASM not production-ready)
+
+== Resources
+
+**Documentation:** All Rhodium Gold docs complete
+* SECURITY.adoc (500+ lines, blockchain-specific)
+* PRIVACY.adoc (600+ lines, GDPR + blockchain immutability)
+* CONTRIBUTING.adoc, TESTING.adoc, CI_CD.adoc
+* docs/FORMAL_SPEC.adoc (600+ lines, Certora specs)
+* docs/PERFORMANCE.adoc (700+ lines, gas optimization)
+
+**Community:**
+* Repository: `/var/home/hyper/workspace/projects/to-git/_non-initiate/_rhodinised/indieweb2-bastion`
+* License: Check LICENSE file
+* Contact: See CONTRIBUTING.adoc
+
+---
+
+_Last Updated: 2025-01-21 | Rhodium Standard 0.5_

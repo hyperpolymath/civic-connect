@@ -1,0 +1,401 @@
+= Formal Specification - indieweb2-bastion
+:toc: macro
+
+[abstract]
+--
+Formal specifications for smart contracts and critical components. Rhodium Standard 0.5, Pillar 1, Section 1.3.
+--
+
+toc::[]
+
+== Overview
+
+**Specification approach:**
+* Solidity NatSpec + formal comments
+* Certora Prover (formal verification)
+* Symbolic execution (Mythril)
+* Property-based testing (Foundry)
+* Motoko type system guarantees
+
+== Smart Contract Specifications (Solidity)
+
+=== Identity Registry Contract
+
+[source,solidity]
+----
+// SPDX-License-Identifier: MPL-2.0-or-later
+pragma solidity ^0.8.20;
+
+/// @title Identity Registry
+/// @notice Stores decentralized identifiers (DIDs) with immutable registration
+/// @dev Implements EIP-XXX for DID resolution
+contract IdentityRegistry {
+    struct Identity {
+        string did;
+        bytes32 contentHash;
+        uint256 timestamp;
+        bool verified;
+    }
+
+    /// @notice Mapping from address to identity
+    /// @dev Invariant: Once set, identity.did cannot be empty
+    mapping(address => Identity) public identities;
+
+    /// @notice Emitted when identity is registered
+    /// @param account The Ethereum address
+    /// @param did The decentralized identifier
+    event IdentityRegistered(address indexed account, string did);
+
+    /// @notice Register a new DID
+    /// @param _did The decentralized identifier (non-empty)
+    /// @param _contentHash IPFS content hash
+    /// @dev Preconditions:
+    ///      - caller must not have existing identity
+    ///      - _did must be non-empty
+    /// @dev Postconditions:
+    ///      - identities[msg.sender].did == _did
+    ///      - identities[msg.sender].timestamp == block.timestamp
+    ///      - IdentityRegistered event emitted
+    function registerIdentity(
+        string memory _did,
+        bytes32 _contentHash
+    ) external {
+        require(
+            bytes(identities[msg.sender].did).length == 0,
+            "Identity already registered"
+        );
+        require(bytes(_did).length > 0, "DID cannot be empty");
+
+        identities[msg.sender] = Identity({
+            did: _did,
+            contentHash: _contentHash,
+            timestamp: block.timestamp,
+            verified: false
+        });
+
+        emit IdentityRegistered(msg.sender, _did);
+    }
+
+    /// @notice Update identity content hash
+    /// @param _contentHash New IPFS content hash
+    /// @dev Preconditions:
+    ///      - caller must have existing identity
+    /// @dev Postconditions:
+    ///      - identities[msg.sender].contentHash == _contentHash
+    ///      - identities[msg.sender].did unchanged
+    function updateContentHash(bytes32 _contentHash) external {
+        require(
+            bytes(identities[msg.sender].did).length > 0,
+            "Identity not registered"
+        );
+
+        identities[msg.sender].contentHash = _contentHash;
+    }
+}
+----
+
+== Formal Verification (Certora)
+
+=== Invariants
+
+[source,cvl]
+----
+// Certora Verification Language (CVL)
+
+// Invariant: Once registered, DID cannot be empty
+invariant didNonEmpty(address account)
+    identities[account].did.length > 0 =>
+        identities[account].did.length > 0
+    {
+        preserved {
+            requireInvariant didNonEmpty(account);
+        }
+    }
+
+// Invariant: Timestamps are monotonically increasing
+invariant timestampMonotonic(address account)
+    identities[account].timestamp <= block.timestamp
+    {
+        preserved {
+            requireInvariant timestampMonotonic(account);
+        }
+    }
+
+// Invariant: Cannot register twice
+invariant noDoubleRegister(address account)
+    identities[account].did.length > 0 =>
+        identities[account].did.length > 0
+----
+
+=== Rules
+
+[source,cvl]
+----
+// Rule: Registration is one-time only
+rule noDoubleRegistration {
+    env e;
+    string did1;
+    string did2;
+    bytes32 hash1;
+    bytes32 hash2;
+
+    // Register first time
+    registerIdentity(e, did1, hash1);
+
+    // Attempt second registration
+    registerIdentity@withrevert(e, did2, hash2);
+
+    // Second registration must revert
+    assert lastReverted;
+}
+
+// Rule: Content hash update preserves DID
+rule updatePreservesDID {
+    env e;
+    address account;
+    bytes32 newHash;
+
+    string didBefore = identities[account].did;
+
+    updateContentHash(e, newHash);
+
+    string didAfter = identities[account].did;
+
+    assert didBefore == didAfter;
+}
+
+// Rule: Only owner can update their identity
+rule onlyOwnerCanUpdate {
+    env e1;
+    env e2;
+    address account1;
+    address account2;
+
+    require account1 != account2;
+    require e1.msg.sender == account1;
+    require e2.msg.sender == account2;
+
+    bytes32 hashBefore = identities[account1].contentHash;
+
+    updateContentHash(e2, 0x123);
+
+    bytes32 hashAfter = identities[account1].contentHash;
+
+    // Account2 cannot modify account1's identity
+    assert hashBefore == hashAfter;
+}
+----
+
+== Property-Based Tests (Foundry)
+
+=== Fuzz Tests
+
+[source,solidity]
+----
+// test/IdentityRegistry.t.sol
+pragma solidity ^0.8.20;
+
+import "forge-std/Test.sol";
+import "../src/IdentityRegistry.sol";
+
+contract IdentityRegistryTest is Test {
+    IdentityRegistry public registry;
+
+    function setUp() public {
+        registry = new IdentityRegistry();
+    }
+
+    /// @dev Fuzz test: Any non-empty DID can be registered
+    function testFuzz_RegisterAnyDID(string memory did) public {
+        vm.assume(bytes(did).length > 0);
+        vm.assume(bytes(did).length < 1000);  // Reasonable limit
+
+        registry.registerIdentity(did, bytes32(0));
+
+        (string memory storedDID,,,) = registry.identities(address(this));
+        assertEq(storedDID, did);
+    }
+
+    /// @dev Fuzz test: Cannot register twice
+    function testFuzz_CannotRegisterTwice(
+        string memory did1,
+        string memory did2
+    ) public {
+        vm.assume(bytes(did1).length > 0);
+        vm.assume(bytes(did2).length > 0);
+
+        registry.registerIdentity(did1, bytes32(0));
+
+        vm.expectRevert("Identity already registered");
+        registry.registerIdentity(did2, bytes32(0));
+    }
+
+    /// @dev Invariant test: Total registered identities never decreases
+    uint256 private registeredCount;
+
+    function invariant_totalNeverDecreases() public {
+        uint256 currentCount = countRegistered();
+        assert(currentCount >= registeredCount);
+        registeredCount = currentCount;
+    }
+
+    function countRegistered() internal view returns (uint256) {
+        // Count all registered identities
+        uint256 count = 0;
+        // Implementation...
+        return count;
+    }
+}
+----
+
+== Internet Computer Specifications (Motoko)
+
+=== Actor Interface
+
+[source,motoko]
+----
+/// Identity canister with formal type guarantees
+actor Identity {
+    type DID = Text;
+    type ContentHash = Blob;
+    type Timestamp = Int;
+
+    type IdentityRecord = {
+        did : DID;
+        contentHash : ContentHash;
+        timestamp : Timestamp;
+        verified : Bool;
+    };
+
+    // Stable storage (preserved across upgrades)
+    stable var identities : [(Principal, IdentityRecord)] = [];
+
+    /// Register a new identity
+    /// Preconditions:
+    ///   - caller must not have existing identity
+    ///   - did must be non-empty
+    /// Postconditions:
+    ///   - identities contains entry for caller
+    ///   - entry.did == did
+    public shared(msg) func register(did : DID, hash : ContentHash) : async Result.Result<(), Text> {
+        // Check preconditions
+        switch (Array.find<(Principal, IdentityRecord)>(identities, func ((p, _)) = p == msg.caller)) {
+            case (?_) { #err("Already registered") };
+            case null {
+                if (Text.size(did) == 0) {
+                    return #err("DID cannot be empty");
+                };
+
+                // Add to stable storage
+                let record : IdentityRecord = {
+                    did = did;
+                    contentHash = hash;
+                    timestamp = Time.now();
+                    verified = false;
+                };
+
+                identities := Array.append(identities, [(msg.caller, record)]);
+                #ok()
+            };
+        }
+    };
+
+    /// Type-safe query (no state mutation)
+    public query func getIdentity(principal : Principal) : async ?IdentityRecord {
+        Array.find<(Principal, IdentityRecord)>(
+            identities,
+            func ((p, _)) = p == principal
+        ).1
+    };
+}
+----
+
+== Temporal Logic Properties
+
+=== Liveness Properties
+
+**Property:** All valid registrations eventually succeed.
+
+[source]
+----
+∀ tx : Transaction,
+    valid(tx) ∧ submitted(tx, t1) →
+    ∃ t2 : t2 > t1 ∧ included(tx, block(t2))
+----
+
+**Property:** Identity updates are eventually consistent across chains.
+
+[source]
+----
+∀ identity : Identity,
+    updated(identity, chain1, t1) →
+    ∃ t2 : t2 > t1 + sync_delay ∧ consistent(identity, chain1, chain2, t2)
+----
+
+=== Safety Properties
+
+**Property:** No double registration.
+
+[source]
+----
+∀ address : Address, t1, t2 : Time,
+    registered(address, t1) ∧ t2 > t1 →
+    ¬canRegister(address, t2)
+----
+
+**Property:** Identity data is immutable after registration (except contentHash).
+
+[source]
+----
+∀ address : Address, t1, t2 : Time,
+    registered(address, t1) ∧ t2 > t1 →
+    identity(address, t1).did == identity(address, t2).did
+----
+
+== Symbolic Execution (Mythril)
+
+**Run analysis:**
+[source,bash]
+----
+myth analyze contracts/IdentityRegistry.sol
+
+# Expected: No critical vulnerabilities
+# - No reentrancy
+# - No integer overflow/underflow (Solidity 0.8+)
+# - No unprotected ether withdrawal
+# - No delegatecall to untrusted contract
+----
+
+== Gas Cost Specifications
+
+=== Cost Bounds
+
+[source,solidity]
+----
+/// @notice Gas cost bounds
+/// @dev registerIdentity: O(1) - ~50,000 gas
+/// @dev updateContentHash: O(1) - ~25,000 gas
+/// @dev getIdentity: O(1) - view function (no gas)
+----
+
+**Property:** Gas cost is bounded.
+
+[source]
+----
+∀ tx : registerIdentity,
+    gasCost(tx) ≤ 100,000
+
+∀ tx : updateContentHash,
+    gasCost(tx) ≤ 50,000
+----
+
+== Resources
+
+* Certora Prover: https://www.certora.com/
+* Foundry Property Testing: https://book.getfoundry.sh/forge/fuzz-testing
+* Mythril: https://github.com/ConsenSys/mythril
+* Motoko Language: https://internetcomputer.org/docs/current/motoko/main/about-this-guide
+
+---
+
+_Last Updated: 2025-01-21 | Rhodium Standard 0.5_

@@ -1,0 +1,47 @@
+module bastion 1.0;
+
+require {
+  type container_t;
+  type http_port_t;
+  type dns_port_t;
+  type unreserved_port_t;
+  type container_var_run_t;
+  type sysfs_t;
+  type proc_t;
+  class process { fork signal sigchld transition };
+  class tcp_socket { name_bind name_connect create read write getattr setopt listen accept shutdown };
+  class udp_socket { name_bind create read write getattr setopt };
+  class file { read write open getattr };
+  class dir { search read getattr };
+}
+
+# Allow binding to HTTP ports (8080, 8443)
+allow container_t http_port_t:tcp_socket name_bind;
+allow container_t unreserved_port_t:tcp_socket name_bind;
+
+# Allow binding to DNS ports (53/tcp, 53/udp)
+allow container_t dns_port_t:tcp_socket name_bind;
+allow container_t dns_port_t:udp_socket name_bind;
+
+# Allow outbound TCP for blockchain RPC and upstream DNS
+allow container_t unreserved_port_t:tcp_socket name_connect;
+
+# Allow TCP socket operations for axum/tokio
+allow container_t container_t:tcp_socket { create read write getattr setopt listen accept shutdown };
+allow container_t container_t:udp_socket { create read write getattr setopt };
+
+# Allow reading /proc and /sys for runtime info
+allow container_t proc_t:file { read getattr open };
+allow container_t proc_t:dir { search read getattr };
+allow container_t sysfs_t:file { read getattr open };
+allow container_t sysfs_t:dir { search read getattr };
+
+# Allow fork for tokio multi-thread runtime
+allow container_t container_t:process { fork signal sigchld };
+
+# Deny ptrace (debugging/inspection)
+neverallow container_t container_t:process { transition };
+
+# Deny mount operations (handled by neverallow in base policy)
+# Deny raw sockets (not in require block = denied by default)
+# Deny module loading (not in require block = denied by default)

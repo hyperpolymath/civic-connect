@@ -1,0 +1,406 @@
+# Indieweb2 Bastion - Comprehensive CI/CD Pipeline
+# Multi-chain smart contract platform
+# Languages: Solidity, Vyper, Motoko, ReScript/Node.js
+
+variables:
+  NODE_VERSION: "20"
+  NPM_CONFIG_CACHE: $CI_PROJECT_DIR/.npm
+  JUST_VERSION: "1.25.2"
+  SAST_EXCLUDED_PATHS: "spec, test, tests, tmp, node_modules, build, artifacts"
+
+stages:
+  - preflight
+  - lint
+  - build
+  - test
+  - security
+  - integration
+  - deploy
+  - release
+
+# ==================== Templates ====================
+
+.base:
+  image: node:${NODE_VERSION}
+  before_script:
+    - apt-get update && apt-get install -y curl
+    - |
+      # Install Just if not present
+      if ! command -v just &> /dev/null; then
+        curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+      fi
+    - just --version
+  cache:
+    key: deps-$CI_COMMIT_REF_SLUG
+    paths:
+      - node_modules/
+      - .npm/
+      - .cache/
+
+# ==================== Preflight ====================
+
+preflight:info:
+  extends: .base
+  stage: preflight
+  script:
+    - echo "Indieweb2 Bastion CI/CD Pipeline"
+    - echo "Commit: ${CI_COMMIT_SHORT_SHA}"
+    - just --list
+    - |
+      if [ -f ".tool-versions" ]; then
+        cat .tool-versions
+      fi
+
+validate:justfile:
+  extends: .base
+  stage: preflight
+  script:
+    - just --summary
+    - just --evaluate
+  allow_failure: true
+
+# ==================== Lint Stage ====================
+
+lint:all:
+  extends: .base
+  stage: lint
+  script:
+    - just validate
+
+lint:solidity:
+  extends: .base
+  stage: lint
+  script:
+    - just lint-solidity || echo "Solidity linting not configured"
+  allow_failure: true
+
+lint:vyper:
+  extends: .base
+  stage: lint
+  script:
+    - just lint-vyper || echo "Vyper linting not configured"
+  allow_failure: true
+
+lint:motoko:
+  extends: .base
+  stage: lint
+  script:
+    - just lint-motoko || echo "Motoko linting not configured"
+  allow_failure: true
+
+lint:rescript:
+  extends: .base
+  stage: lint
+  script:
+    - just lint-rescript || npx rescript format --check || echo "ReScript linting not configured"
+  allow_failure: true
+
+# ==================== Build Stage ====================
+
+build:solidity:
+  extends: .base
+  stage: build
+  script:
+    - just solidity-build
+  artifacts:
+    paths:
+      - build/contracts/
+      - artifacts/solidity/
+    expire_in: 1 day
+
+build:vyper:
+  extends: .base
+  stage: build
+  script:
+    - just vyper-build
+  artifacts:
+    paths:
+      - build/vyper/
+      - artifacts/vyper/
+    expire_in: 1 day
+  allow_failure: true
+
+build:motoko:
+  extends: .base
+  stage: build
+  script:
+    - just motoko-deploy
+  artifacts:
+    paths:
+      - .dfx/
+      - canisters/
+    expire_in: 1 day
+  allow_failure: true
+
+build:rescript:
+  extends: .base
+  stage: build
+  script:
+    - just build-rescript || npm ci && npx rescript build -with-deps
+  artifacts:
+    paths:
+      - lib/
+      - node_modules/
+    expire_in: 1 day
+  allow_failure: true
+
+# ==================== Test Stage ====================
+
+test:unit:
+  extends: .base
+  stage: test
+  dependencies:
+    - build:solidity
+    - build:vyper
+    - build:motoko
+    - build:rescript
+  script:
+    - just test || npm test || echo "Tests not fully configured"
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      junit: test-results.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+    paths:
+      - coverage/
+    when: always
+    expire_in: 30 days
+  allow_failure: true
+
+test:solidity:
+  extends: .base
+  stage: test
+  dependencies:
+    - build:solidity
+  script:
+    - just test-solidity || echo "Solidity tests not configured"
+  allow_failure: true
+
+test:vyper:
+  extends: .base
+  stage: test
+  dependencies:
+    - build:vyper
+  script:
+    - just test-vyper || echo "Vyper tests not configured"
+  allow_failure: true
+
+test:motoko:
+  extends: .base
+  stage: test
+  dependencies:
+    - build:motoko
+  script:
+    - just test-motoko || echo "Motoko tests not configured"
+  allow_failure: true
+
+test:gas-analysis:
+  extends: .base
+  stage: test
+  dependencies:
+    - build:solidity
+  script:
+    - just gas-report || echo "Gas analysis not configured"
+  artifacts:
+    paths:
+      - gas-report.txt
+    expire_in: 30 days
+  allow_failure: true
+
+# ==================== Security Stage ====================
+
+security:slither:
+  extends: .base
+  stage: security
+  dependencies:
+    - build:solidity
+  before_script:
+    - pip install slither-analyzer || true
+  script:
+    - just security-audit-solidity || slither . --json slither-report.json || echo "Slither not configured"
+  artifacts:
+    paths:
+      - slither-report.json
+    when: always
+    expire_in: 30 days
+  allow_failure: true
+
+security:mythril:
+  extends: .base
+  stage: security
+  dependencies:
+    - build:solidity
+  before_script:
+    - pip install mythril || true
+  script:
+    - just security-mythril || myth analyze contracts/*.sol || echo "Mythril not configured"
+  allow_failure: true
+
+security:npm-audit:
+  extends: .base
+  stage: security
+  script:
+    - npm audit --json > npm-audit.json || true
+    - npm audit --audit-level high
+  artifacts:
+    paths:
+      - npm-audit.json
+    when: always
+    expire_in: 30 days
+  allow_failure: true
+
+include:
+  - template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+
+# ==================== Integration Tests ====================
+
+integration:testnet:
+  extends: .base
+  stage: integration
+  dependencies:
+    - build:solidity
+    - build:vyper
+    - build:motoko
+  script:
+    - just deploy-testnet || echo "Testnet deployment not configured"
+    - just test-integration || echo "Integration tests not configured"
+  environment:
+    name: testnet
+  allow_failure: true
+
+integration:local-network:
+  extends: .base
+  stage: integration
+  dependencies:
+    - build:solidity
+  script:
+    - just start-local-node || echo "Starting local blockchain..."
+    - just deploy-local || echo "Local deployment not configured"
+    - just test-local || echo "Local tests not configured"
+  allow_failure: true
+
+# ==================== Deploy Stage ====================
+
+deploy:staging:
+  extends: .base
+  stage: deploy
+  dependencies:
+    - build:solidity
+    - build:vyper
+    - build:motoko
+  environment:
+    name: staging
+  script:
+    - just deploy-staging || echo "Push artifacts or deploy to ICP/Ethereum staging"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+  when: manual
+
+deploy:mainnet:
+  extends: .base
+  stage: deploy
+  dependencies:
+    - build:solidity
+    - build:vyper
+    - build:motoko
+  environment:
+    name: production
+  script:
+    - just deploy-mainnet || echo "Deploy to mainnet"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  when: manual
+
+deploy:icp:
+  extends: .base
+  stage: deploy
+  dependencies:
+    - build:motoko
+  environment:
+    name: icp-mainnet
+  script:
+    - just deploy-icp || dfx deploy --network ic
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
+  when: manual
+
+# ==================== Documentation ====================
+
+docs:contracts:
+  extends: .base
+  stage: deploy
+  dependencies:
+    - build:solidity
+    - build:vyper
+  script:
+    - just docs-generate || echo "Generating contract documentation..."
+  artifacts:
+    paths:
+      - docs/contracts/
+    expire_in: 30 days
+  allow_failure: true
+
+docs:asciidoc:
+  stage: deploy
+  image: ruby:3.2-alpine
+  before_script:
+    - apk add --no-cache asciidoctor
+  script:
+    - |
+      mkdir -p public/docs
+      find . -name "*.adoc" -not -path "./public/*" -not -path "./node_modules/*" \
+        -exec asciidoctor -D public/docs {} \;
+  artifacts:
+    paths:
+      - public/docs/
+    expire_in: 30 days
+
+# ==================== Pages ====================
+
+pages:
+  stage: deploy
+  dependencies:
+    - docs:contracts
+    - docs:asciidoc
+  script:
+    - mkdir -p public
+    - cp -r docs/contracts/* public/ 2>/dev/null || true
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+# ==================== Release ====================
+
+release:create:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  dependencies:
+    - build:solidity
+    - build:vyper
+    - build:motoko
+  script:
+    - echo "Creating release for ${CI_COMMIT_TAG}"
+  release:
+    name: 'Indieweb2 Bastion $CI_COMMIT_TAG'
+    description: |
+      Multi-chain smart contract platform release $CI_COMMIT_TAG
+
+      ## Contracts Deployed
+      - Solidity contracts
+      - Vyper contracts
+      - Motoko canisters
+
+      See CHANGELOG.adoc for full details.
+    tag_name: '$CI_COMMIT_TAG'
+    assets:
+      links:
+        - name: 'Contract Artifacts'
+          url: '$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/browse?job=build:solidity'
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'

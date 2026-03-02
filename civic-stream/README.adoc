@@ -1,0 +1,11 @@
+= civic_stream
+
+This is a hyperpolymath project repository.
+
+== Status
+
+This repository is under active development.
+
+== License
+
+See LICENSE file for details.

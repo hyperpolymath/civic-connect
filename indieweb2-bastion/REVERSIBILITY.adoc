@@ -1,0 +1,482 @@
+= Reversibility and Rollback Procedures - indieweb2-bastion
+:toc: macro
+:toclevels: 3
+:icons: font
+
+[abstract]
+--
+Blockchain-specific rollback procedures and upgrade patterns for indieweb2-bastion. **IMPORTANT:** Mainnet smart contract deployments are IRREVERSIBLE. This document covers upgrade patterns, not true rollback. Required by Rhodium Standard 0.5 with blockchain-specific adaptations (Waiver-2025-006).
+--
+
+toc::[]
+
+== ⚠️ CRITICAL: Blockchain Immutability
+
+**Smart contracts deployed to mainnet CANNOT be rolled back.**
+
+This document provides:
+
+* ✅ **Repository/Code Rollback:** Fully reversible (git, npm, source code)
+* ✅ **Testnet Rollback:** Fully reversible (redeploy at will)
+* ⚠️ **Mainnet Upgrade Patterns:** Proxy contracts, timelocks, emergency pause
+* ❌ **Mainnet State Rollback:** IMPOSSIBLE (blockchain immutability guarantee)
+
+**Rhodium Adaptation:** Waiver-2025-006 acknowledges blockchain reality. REVERSIBILITY.adoc documents upgrade strategies instead of rollback for mainnet.
+
+== Quick Reference
+
+[source,bash]
+----
+# Repository Rollback
+git revert <commit>
+git checkout v1.2.3
+
+# npm Rollback
+npm install @myorg/contracts@1.2.3
+
+# Testnet Redeploy (fully reversible)
+just deploy-sepolia --version v1.2.3
+just deploy-mumbai --version v1.2.3
+
+# Mainnet Upgrade (NOT rollback)
+just upgrade-mainnet-proxy --impl v1.3.0  # Via proxy pattern
+just pause-contract --emergency           # Emergency pause
+
+# Frontend Rollback
+just rollback-frontend v1.2.3
+----
+
+== Repository Rollback (Fully Reversible)
+
+=== Git Rollback
+
+[source,bash]
+----
+# Revert commit
+git revert <commit-hash>
+git push origin main
+
+# Roll back to tag
+git checkout v1.2.3
+git checkout -b rollback-v1.2.3
+git push origin rollback-v1.2.3
+----
+
+**Time:** 2-5 minutes | **Data Loss:** None
+
+=== npm Package Rollback
+
+[source,bash]
+----
+# Revert to specific version
+npm install @myorg/indieweb2-contracts@1.2.3
+
+# Or via package.json
+echo '"@myorg/indieweb2-contracts": "1.2.3"' >> package.json
+npm install
+
+# Verify
+npm list @myorg/indieweb2-contracts
+----
+
+**Time:** 1-3 minutes | **Data Loss:** None
+
+== Testnet Rollback (Fully Reversible)
+
+**Testnets allow unlimited redeployment - treat as fully reversible.**
+
+=== Redeploy Previous Version
+
+[source,bash]
+----
+# Sepolia (Ethereum testnet)
+just deploy-sepolia --version v1.2.3 --force
+
+# Mumbai (Polygon testnet)
+just deploy-mumbai --version v1.2.3 --force
+
+# IC Testnet
+dfx deploy --network ic-test --mode reinstall
+----
+
+**Time:** 5-15 minutes (compile + deploy)
+**Cost:** Minimal (testnet ETH/MATIC free from faucets)
+**Data Loss:** Testnet state reset (acceptable)
+
+=== Testnet State Reset
+
+[source,bash]
+----
+# Complete testnet reset
+just reset-testnet-sepolia
+
+# What it does:
+# 1. Deploy fresh contracts
+# 2. Initialize with seed data
+# 3. Reset frontend to point to new addresses
+----
+
+**Time:** 10-20 minutes | **Use Case:** Major breaking changes
+
+== Mainnet: Upgrade Patterns (NOT Rollback)
+
+**⚠️ Mainnet deployments are PERMANENT. Use upgrade patterns, not rollback.**
+
+=== Proxy Pattern Upgrade
+
+**EIP-1967 Transparent Proxy** (Ethereum/Polygon)
+
+[source,solidity]
+----
+// ProxyAdmin can upgrade implementation
+contract TransparentUpgradeableProxy {
+    address implementation;  // Points to current logic
+    address admin;           // Can change implementation
+}
+
+// Upgrade to new implementation
+proxyAdmin.upgrade(proxyAddress, newImplementationAddress);
+----
+
+**Upgrade Command:**
+
+[source,bash]
+----
+# Compile new implementation
+just compile-contracts
+
+# Deploy new implementation (does NOT affect proxy)
+just deploy-implementation-v1.3.0 --network mainnet
+
+# Upgrade proxy to point to new implementation
+just upgrade-proxy --impl v1.3.0 --network mainnet
+
+# Verify upgrade
+just verify-proxy-implementation --network mainnet
+----
+
+**Time:** 10-30 minutes (including verification)
+**Gas Cost:** ~100k-500k gas (~$20-$100 at 50 gwei)
+**Reversibility:** Can upgrade to previous implementation address
+
+=== Timelock Governance Upgrade
+
+**Delayed upgrade with cancellation window:**
+
+[source,solidity]
+----
+// Queue upgrade (48-hour delay)
+timelock.queueTransaction(
+    proxy,
+    0,  // value
+    "upgradeTo(address)",
+    newImplementation,
+    eta  // execution time (now + 48 hours)
+);
+
+// Cancel if issues found
+timelock.cancelTransaction(...);
+
+// Execute after delay
+timelock.executeTransaction(...);
+----
+
+**Timeline:**
+
+* T+0: Queue upgrade transaction
+* T+48h: Execution window opens
+* T+0 to T+48h: Cancellation possible if issues found
+* T+48h+: Execute upgrade
+
+**Safety:** 48-hour window to detect issues and cancel
+
+=== Emergency Pause
+
+**Pausable contracts for critical bugs:**
+
+[source,solidity]
+----
+// Pause contract (stop all operations)
+contract.pause();  // Only owner/admin
+
+// Unpause after fix deployed
+contract.unpause();
+----
+
+**Use Cases:**
+
+* Critical security vulnerability discovered
+* Exploit in progress
+* Unexpected behavior detected
+
+**Limitations:** Only stops NEW operations, cannot reverse past transactions
+
+== Internet Computer: Canister Upgrades
+
+**IC canisters support upgrades with stable memory:**
+
+[source,bash]
+----
+# Upgrade canister (preserves stable memory)
+dfx canister install --mode upgrade valence_backend
+
+# Or via management canister
+dfx canister upgrade valence_backend --wasm new_version.wasm
+
+# Rollback: redeploy previous WASM
+dfx canister install --mode upgrade valence_backend --wasm v1.2.3.wasm
+----
+
+**Stable Memory Strategy:**
+
+[source,motoko]
+----
+stable var users : [(Principal, User)] = [];
+
+system func preupgrade() {
+    // Save state to stable memory
+    users := Trie.toArray(usersMap);
+}
+
+system func postupgrade() {
+    // Restore state from stable memory
+    usersMap := Trie.fromArray(users);
+}
+----
+
+**Reversibility:** Can redeploy previous WASM if stable memory layout compatible
+
+== Frontend Rollback (Fully Reversible)
+
+=== ReScript Frontend Rollback
+
+[source,bash]
+----
+# Roll back deployment
+vercel rollback production --to <deployment-id>
+
+# Or redeploy previous version
+git checkout v1.2.3
+just build-frontend
+just deploy-frontend-production
+----
+
+**Time:** 5-10 minutes (CDN propagation)
+**Downtime:** None (atomic deployment)
+**Data Loss:** None
+
+=== Contract Address Updates
+
+**If contract addresses changed:**
+
+[source,typescript]
+----
+// config/contracts.ts
+export const CONTRACTS = {
+  ethereum: {
+    proxy: "0x123...",  // Revert to old address
+    implementation: "0x456...",
+  },
+  polygon: {
+    proxy: "0x789...",
+  },
+};
+----
+
+**Deployment:**
+
+[source,bash]
+----
+# Update config
+git checkout v1.2.3 config/contracts.ts
+
+# Rebuild and deploy
+npm run build
+just deploy-frontend
+----
+
+== Cross-Chain Bridge Rollback
+
+**⚠️ Cross-chain transactions are IRREVERSIBLE once confirmed on both chains.**
+
+=== Prevention (No Rollback Possible)
+
+* Test thoroughly on testnets
+* Use small amounts for first mainnet bridge
+* Implement emergency pause on bridge contracts
+* Monitor bridge transactions in real-time
+
+=== Mitigation for Stuck Transactions
+
+[source,bash]
+----
+# Check bridge status
+just check-bridge-status --tx <tx-hash>
+
+# If stuck on source chain: Speed up with higher gas
+cast send --gas-price 100gwei ...
+
+# If stuck on destination: Contact bridge operator (Synapse, Hop, etc.)
+----
+
+**Recovery Time:** Hours to days (depends on bridge operator)
+
+== Irreversible Operations
+
+=== Mainnet Smart Contract Operations (❌ CANNOT ROLLBACK)
+
+1. **Contract Deployment**
+   - **Once deployed, address is permanent**
+   - **Mitigation:** Proxy pattern, thorough testing, security audits
+
+2. **Token Transfers**
+   - **Blockchain transactions are final**
+   - **Mitigation:** Multi-sig wallets, timelocks, transaction limits
+
+3. **State Changes (votes, stakes, claims)**
+   - **On-chain state is immutable history**
+   - **Mitigation:** Compensating transactions, governance proposals
+
+4. **Contract Self-Destruct** (deprecated in newer Solidity)
+   - **Destroys contract permanently**
+   - **Mitigation:** DO NOT USE `selfdestruct`, use pausable + upgradeable instead
+
+=== Cross-Chain Operations (❌ CANNOT ROLLBACK)
+
+1. **Bridge Transactions**
+   - **Assets locked on source, minted on destination**
+   - **Mitigation:** Testnet rehearsal, emergency pause, monitoring
+
+2. **Oracle Price Updates**
+   - **Once consumed by contracts, cannot undo**
+   - **Mitigation:** Time-weighted averages, multiple oracles, deviation checks
+
+== Testing and Validation
+
+=== Testnet Upgrade Drills
+
+[source,bash]
+----
+# Monthly drill: Sepolia testnet
+just deploy-sepolia v1.3.0
+just test-sepolia
+just upgrade-sepolia-proxy v1.4.0
+just test-sepolia
+just verify-upgrade-sepolia
+
+# Measure time: Target <30 minutes for full upgrade
+----
+
+=== Mainnet Upgrade Checklist
+
+**Pre-Upgrade:**
+
+* [ ] Security audit completed
+* [ ] Testnet deployment successful (Sepolia, Mumbai)
+* [ ] Upgrade timelock queued (48h advance notice)
+* [ ] Monitoring alerts configured
+* [ ] Rollback plan documented (previous implementation address)
+* [ ] Multi-sig signers notified and available
+
+**During Upgrade:**
+
+* [ ] Execute upgrade transaction
+* [ ] Verify new implementation address
+* [ ] Run post-upgrade validation tests
+* [ ] Monitor error rates and gas usage
+* [ ] Check frontend contract interactions
+
+**Post-Upgrade:**
+
+* [ ] Document upgrade in CHANGELOG.adoc
+* [ ] Update contract addresses in documentation
+* [ ] Notify users of upgrade
+* [ ] Monitor for 24 hours
+* [ ] Create ADR for architectural changes
+
+=== Disaster Recovery: Pause and Fix
+
+**If critical bug discovered post-deployment:**
+
+[source,bash]
+----
+# 1. Emergency pause (stops further damage)
+just emergency-pause-mainnet
+
+# 2. Deploy fixed implementation
+just deploy-implementation-v1.3.1-hotfix
+
+# 3. Upgrade via timelock (or emergency multisig if configured)
+just upgrade-proxy-emergency v1.3.1-hotfix
+
+# 4. Unpause after verification
+just unpause-mainnet
+
+# 5. Post-mortem and audit
+just create-incident-report
+----
+
+**Recovery Time:** 4-72 hours (depending on governance delays)
+
+== Monitoring and Alerts
+
+=== Automated Rollback Triggers
+
+**⚠️ Smart contracts CANNOT auto-rollback. Alerts trigger manual review.**
+
+**Alert Conditions:**
+
+* Unusual gas consumption (>2x normal)
+* Failed transaction rate >10%
+* Unexpected events emitted
+* Balance discrepancies
+* Oracle price deviation >5%
+
+**Action:** Page on-call engineer, prepare emergency pause
+
+== Cost Estimates
+
+[cols="2,1,1,1"]
+|===
+|Operation |Ethereum Mainnet |Polygon |Internet Computer
+
+|Deploy New Contract
+|~$200-$2000
+|~$1-$10
+|~$1
+
+|Upgrade Proxy Implementation
+|~$50-$100
+|~$0.10-$1
+|~$0.50
+
+|Emergency Pause
+|~$20-$50
+|~$0.05-$0.20
+|~$0.10
+
+|Unpause
+|~$20-$50
+|~$0.05-$0.20
+|~$0.10
+
+|===
+
+*Costs at 50 gwei gas price (Ethereum) and $2000 ETH*
+
+== References
+
+* link:https://eips.ethereum.org/EIPS/eip-1967[EIP-1967 Proxy Standard]
+* link:https://docs.openzeppelin.com/contracts/4.x/api/proxy[OpenZeppelin Proxy Docs]
+* link:https://internetcomputer.org/docs/current/developer-docs/backend/motoko/upgrades[IC Canister Upgrades]
+* link:.rhodium/WAIVER.adoc[Waiver-2025-006] - Blockchain REVERSIBILITY Adaptation
+* link:docs/adr/0002-multi-chain-architecture.adoc[ADR-0002: Multi-Chain Architecture]
+
+---
+
+_This document complies with Rhodium Standard 0.5, Pillar 1, Section 2.1.5 (Reversibility) with blockchain-specific adaptations per Waiver-2025-006._
+
+_**Reality Check:** Mainnet smart contracts are immutable by design. This document focuses on upgrade patterns and mitigation strategies rather than true rollback._
+
+_Last Updated: 2025-01-21_
+_Repository: indieweb2-bastion (Blockchain: Ethereum/Polygon/IC)_

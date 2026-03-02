@@ -1,0 +1,133 @@
+= IndieWeb2
+
+image:https://img.shields.io/badge/License-MPL_2.0-blue.svg[MPL-2.0-or-later,link="https://opensource.org/licenses/MPL-2.0"]
+image:https://img.shields.io/badge/Philosophy-Palimpsest-indigo.svg[Palimpsest,link="https://github.com/hyperpolymath/palimpsest-license"]
+
+== License & Philosophy
+
+This project must declare **MPL-2.0-or-later** for platform/tooling compatibility.
+
+Philosophy: **Palimpsest**. The Palimpsest-MPL (PMPL) text is provided in `license/PMPL-1.0.txt`, and the canonical source is the palimpsest-license repository.
+
+
+:project-name: IndieWeb2
+:project-description: A consent-first, audit-grade bastion and oDNS system with GraphQL DNS and SurrealDB provenance.
+:language: ReScript, Deno, Ada 2022 (for tooling inspiration)
+:version: 0.1.0
+:repo-url: https://gitlab.com/hyperpolymath/indieweb2
+:default-shell: Bash
+
+== 🌟 IndieWeb2
+IndieWeb2 is a next-generation framework for building audit-grade, consent-aware, and provenance-rich web infrastructure.
+It combines hardened bastion ingress, IPv6-native oblivious DNS, GraphQL DNS APIs, and SurrealDB provenance graphs.
+
+== 🚀 Quick Start
+
+Run:
+
+  just bootstrap
+  just all
+
+This will:
+* Create directories
+* Install jq, capnproto, nickel, deno
+* Validate Nickel policies
+* Run ReScript policy gate
+* Sign and publish policies
+* Start GUI/PWA server on port 8443 (or fallback to 8080)
+
+Check ports with:
+
+  ss -ltn | grep 8443
+
+If blocked, the Justfile automatically falls back to 8080.
+
+=== Prerequisites
+
+These will be checked and installed automatically by `just bootstrap` unless you already have them:
+
+* **stapeln** container toolchain: **cerro-torre** (build/sign), **selur** (IPC seal), **vordr** (runtime), **selur-compose** (orchestration) — with Wolfi/Distroless base images
+* **Nickel** (policy language and contracts)
+* **Cap’n Proto** (schema/provenance serialization)
+* **jq** (JSON formatting and diffs)
+* **Deno runtime** (for signing, publishing, static server, and crypto utilities)
+* **SurrealDB** (provenance graph and audit trail)
+* **IPFS daemon** (content‑addressed storage and snapshot rehydration)
+
+== Notes
+* `just bootstrap` will create required directories and attempt to install jq, capnproto, nickel, and deno.
+* stapeln toolchain (cerro-torre, selur, vordr), SurrealDB, and IPFS should be installed and running separately; bootstrap will check and warn if missing.
+* The GUI/PWA dev server defaults to port 8443 (TCP). If that port is occupied, it falls back to 8080.
+  For QUIC/HTTP3 testing, you can enable Deno’s `--unstable` net APIs and bind to a UDP port in the well‑known range.
+
+== Capabilities
+
+* link:docs/capabilities/maintainer.adoc[Maintainer]
+* link:docs/capabilities/trusted_contributor.adoc[Trusted Contributor]
+* link:docs/capabilities/default-consent.adoc[Default Consent]
+
+=== Installation
+[source,bash]
+----
+git clone https://gitlab.com/hyperpolymath/indieweb2
+cd indieweb2-bastion
+just build
+----
+
+== 📖 Basic Usage
+[source,bash]
+----
+templater init
+templater publish
+templater verify
+----
+
+*For Bash scripts, see link:docs/SCRIPTS.adoc[Bash Scripts].*
+*For other shells (Nu, Zsh, Fish), see link:docs/SCRIPTS.adoc[Alternative Shell Scripts].*
+
+== 🏗️ Project Structure
+/
+├── bastion/          # Hardened ingress gateway configs
+├── odns/             # Oblivious DNS proxy/resolver
+├── graphql-dns/      # GraphQL DNS API
+├── surrealdb/        # Provenance graph schema + exports
+├── docs/             # Documentation
+├── scripts/          # Automation scripts
+├── infra/            # Container manifests (stapeln/cerro-torre)
+└── licenses/         # Licensing information
+
+== 📝 Licensing
+This project is dual-licensed under:
+- link:licenses/LICENSE-MIT.txt[MIT]
+- link:licenses/LICENSE-PALIMPSEST.txt[Palimpsest v0.8]
+
+See link:licenses/README.adoc[Licensing Overview].
+
+== 💰 Funding
+Support this project: link:docs/FUNDING.adoc[Contribute or Sponsor].
+
+== 🤝 Community
+- link:docs/COMMUNITY_TERMS.adoc[Community Terms]
+- link:docs/CODE_OF_CONDUCT.adoc[Code of Conduct]
+- link:docs/GOVERNANCE.adoc[Governance]
+
+== 🛠️ Contributing
+We use the *Tri-Perimeter Contribution Framework* to balance openness with architectural integrity.
+See link:docs/CONTRIBUTING.adoc[Contribution Guidelines].
+
+== 📂 Documentation
+- link:docs/ARCHITECTURE.adoc[Architecture]
+* link:docs/BOOTSTRAP.adoc[Bootstrap Guide]
+- link:CHANGELOG.adoc[Changelog]
+- link:docs/justfile-cookbook.adoc[Justfile Cookbook]
+* link:docs/NICKEL.adoc[Nickel Rituals]
+* link:docs/PREREQUISITES.adoc[Prerequisites]
+
+== 🗺️ Roadmap
+See link:docs/ROADMAP.adoc[Project Roadmap].
+
+== 🌍 Impact
+See link:docs/IMPACT.adoc[Impact Statement].
+
+== 🤖 SLM Integration
+This project supports link:slm/README.adoc[Mistral SLM] for local AI tasks such as code review and documentation generation.

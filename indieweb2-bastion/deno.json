@@ -1,0 +1,12 @@
+{
+  "tasks": {
+    "build": "deno run -A npm:rescript build",
+    "clean": "deno run -A npm:rescript clean",
+    "validate": "deno run --allow-read src/PolicyGateCLI.res.mjs"
+  },
+  "nodeModulesDir": "auto",
+  "imports": {
+    "rescript": "npm:rescript@^12.1.0",
+    "@rescript/runtime": "npm:@rescript/runtime@^12.1.0"
+  }
+}

@@ -1,0 +1,30 @@
+= IndieWeb2 Bastion Prerequisites
+
+== Purpose
+This document lists all dependencies and runtime services required before running the Bastion pipeline.
+
+== Dependencies
+These will be checked and installed automatically by `just bootstrap` unless already present:
+
+* **jq** — JSON formatting and diffs
+* **capnproto** — schema/provenance serialization
+* **nickel** — policy language and contracts
+* **deno** — runtime for signing, publishing, static server, crypto utilities
+
+== External Services
+These must be installed and running separately:
+
+* **stapeln toolchain** — cerro-torre (build/sign), selur (IPC seal), vordr (runtime), selur-compose (orchestration) — with Wolfi/Distroless base images
+* **SurrealDB** — provenance graph and audit trail
+* **IPFS daemon** — content‑addressed storage and snapshot rehydration
+
+== Networking
+* **Default dev server port:** 8443 (TCP/HTTP).
+* **Fallback port:** 8080 if 8443 is occupied.
+* **QUIC/UDP support:** optional, via Deno’s `--unstable` net APIs. Bind to UDP port 8443 or fallback to 8080.
+* **Firewall guidance:** TCP ports should be closed unless actively serving. UDP ports for QUIC can be opened only when needed, then closed again. This aligns with SDP principles: “deny by default, allow by policy.”
+
+== Workflow
+1. Run `just bootstrap` to install tools and create directories.
+2. Run `just all` to validate, gate, sign, publish, and start GUI.
+3. Visit http://localhost:8443 (or fallback port) for PWA.

@@ -1,0 +1,258 @@
+= Onboarding - indieweb2-bastion
+:toc: macro
+
+[abstract]
+--
+Fast-track onboarding for indieweb2-bastion contributors. Target: <2 hours. Rhodium Standard 0.5, Pillar 1, Section 2.1.6.
+--
+
+toc::[]
+
+== Quick Start (2 Hour Path)
+
+**Goal:** Deploy to testnet in under 2 hours.
+
+**What you'll do:**
+1. Setup: Install tools (45 min)
+2. Build: Compile all components (30 min)
+3. Deploy: Testnet deployment (30 min)
+4. Verify: Test the stack (15 min)
+
+== Prerequisites
+
+* Git, Deno 2.x, stapeln toolchain (cerro-torre, selur, vordr)
+* MetaMask wallet (for blockchain interaction)
+* Testnet ETH (Sepolia faucet)
+
+== Step 1: Setup (45 min)
+
+=== Clone Repository
+
+[source,bash]
+----
+git clone https://github.com/yourorg/indieweb2-bastion.git
+cd indieweb2-bastion
+----
+
+=== Install Tools
+
+[source,bash]
+----
+# Bootstrap (installs Nickel, Deno, jq, capnp, etc.)
+just bootstrap
+
+# ReScript + Hardhat
+npm install
+
+# Verify
+nickel --version
+deno --version
+npx hardhat --version
+----
+
+=== Setup Environment
+
+[source,bash]
+----
+# Copy template
+cp .env.example .env
+
+# Edit .env
+SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_KEY
+PRIVATE_KEY=your_testnet_private_key
+----
+
+== Step 2: Build (30 min)
+
+=== Compile Components
+
+[source,bash]
+----
+# Validate Nickel policy
+just validate
+
+# Build ReScript frontend
+just rescript-build
+
+# Compile smart contracts
+just compile-contracts
+
+# Build policy WASM
+just build-policy-wasm
+----
+
+**Expected:** All builds successful
+
+== Step 3: Deploy Testnet (30 min)
+
+=== Start Local Services
+
+[source,bash]
+----
+# Start SurrealDB
+just start-surrealdb
+
+# Start oDNS components
+just start-odns-proxy
+just start-odns-resolver
+----
+
+=== Deploy Smart Contracts
+
+[source,bash]
+----
+# Deploy to Sepolia
+just deploy-sepolia
+
+# Note contract addresses in output
+----
+
+=== Deploy Full Stack
+
+[source,bash]
+----
+# Deploy all components to testnet
+just deploy-testnet
+----
+
+== Step 4: Verify (15 min)
+
+=== Health Checks
+
+[source,bash]
+----
+$ just health-check
+✓ Bastion gateway: healthy
+✓ oDNS proxy: responding
+✓ GraphQL API: responding
+✓ SurrealDB: connected
+✓ Sepolia contracts: verified
+----
+
+=== Test Identity Registration
+
+[source,bash]
+----
+# Connect MetaMask to Sepolia
+# Register identity via GraphQL API
+
+curl -X POST https://localhost:443/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "mutation { registerIdentity(did: \"did:example:123\", contentHash: \"0xabc...\") { id } }"}'
+----
+
+=== Test oDNS Query
+
+[source,bash]
+----
+# Query via oDNS
+dig @localhost -p 853 +tls example.com
+----
+
+**Success!** You've deployed the full stack. 🎉
+
+== Making Changes
+
+=== ReScript Frontend
+
+**File:** `src/components/ConsentBanner.res`
+
+[source,rescript]
+----
+// Edit component
+@react.component
+let make = (~onAccept, ~onReject) => {
+  // Your changes
+}
+----
+
+**Rebuild:**
+[source,bash]
+----
+just rescript-build
+----
+
+=== Smart Contracts
+
+**File:** `contracts/Identity.sol`
+
+**Edit contract:**
+[source,solidity]
+----
+function registerIdentity(string memory _did) external {
+  // Your changes
+}
+----
+
+**Test and deploy:**
+[source,bash]
+----
+just test-contracts
+just deploy-sepolia
+----
+
+=== Nickel Policy
+
+**File:** `policy/curps/policy.ncl`
+
+**Edit policy:**
+[source,nickel]
+----
+{
+  consent_required = true,
+  tracking_allowed = false,
+}
+----
+
+**Validate and rebuild:**
+[source,bash]
+----
+just validate
+just build-policy-wasm
+----
+
+== Contribution Workflow
+
+[source,bash]
+----
+git checkout -b feature-name
+
+# Make changes
+# ...
+
+# Validate
+just validate
+just test-contracts
+
+# Commit
+git commit -m "feat: description"
+git push origin feature-name
+
+# Create PR on GitHub
+----
+
+== Common Issues
+
+**"Nickel not found"**
+→ Run: `just bootstrap`
+
+**"Sepolia deployment failed"**
+→ Check: RPC URL, private key, testnet ETH balance
+
+**"oDNS not starting"**
+→ Check: HPKE keys exist in `policy/runner/crypto/`
+
+**"Contract verification failed"**
+→ Etherscan API key in `.env`
+
+== Resources
+
+* link:ARCHITECTURE.adoc[Architecture Documentation]
+* link:cookbook.adoc[Cookbook (recipes)]
+* link:../REVERSIBILITY.adoc[Rollback Procedures]
+* link:https://nickel-lang.org/[Nickel Language]
+* link:https://hardhat.org/getting-started[Hardhat Docs]
+
+---
+
+_Last Updated: 2025-01-21 | Rhodium Standard 0.5_

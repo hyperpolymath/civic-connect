@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <jonathan.jewell@open.ac.uk>
+
+[package]
+name = "odns-common"
+description = "Shared crypto and protocol for oDNS proxy/resolver (Kyber-1024 + XChaCha20-Poly1305)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+pqcrypto-kyber = { workspace = true }
+pqcrypto-dilithium = { workspace = true }
+pqcrypto-traits = { workspace = true }
+ed448-goldilocks-plus = { workspace = true }
+chacha20poly1305 = { workspace = true }
+hkdf = { workspace = true }
+sha3 = { workspace = true }
+rand = { workspace = true }
+base64 = { workspace = true }
+pqcrypto-sphincsplus = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }

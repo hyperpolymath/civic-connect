@@ -1,0 +1,38 @@
+= Contributing to IndieWeb2
+:project-name: IndieWeb2
+
+== 🛠️ Tri-Perimeter Contribution Framework
+This project uses a *three-tiered contribution model*:
+
+=== 🔒 Perimeter 1: Core Systems (Maintainers Only)
+- **Scope**: Bastion ingress, oDNS core, GraphQL DNS schema, provenance export routines.
+- **Languages**: ReScript, Deno, Nickel, stapeln configs
+- **Access**: Restricted to maintainers.
+- **Contribution Path**: Direct commits with full SPDX and compliance coverage.
+
+=== 🧠 Perimeter 2: Expert Extensions
+- **Scope**: Custom DNS record adapters, SurrealDB queries, browser extension components.
+- **Languages**: ReScript, WASM, SurrealQL
+- **Access**: Trusted contributors.
+- **Contribution Path**:
+  1. Apply via `.github/ISSUE_TEMPLATE/expert-contributor.yml`.
+  2. Submit PRs under `extensions/` or `formatters/`.
+  3. Include unit tests, documentation, and SPDX headers.
+
+=== 🌱 Perimeter 3: Community Sandbox
+- **Scope**: Documentation, test cases, example manifests.
+- **Languages**: Shell, Markdown, AsciiDoc, JSON.
+- **Access**: Open to all.
+- **Contribution Path**:
+  1. Fork the repository.
+  2. Add contributions under `docs/`, `tests/`, or `examples/`.
+  3. Run `just validate` locally.
+  4. Submit a pull request.
+
+== 📐 Coding Conventions
+- Indent with 2 spaces (ReScript standard).
+- Use SPDX headers in all source files.
+- Prefer AsciiDoc for structured documentation.
+
+== 🤝 Code of Conduct
+All contributors must follow our link:CODE_OF_CONDUCT.adoc[Code of Conduct].

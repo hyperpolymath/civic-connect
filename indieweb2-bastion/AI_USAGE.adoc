@@ -1,0 +1,125 @@
+= AI Tool Usage Disclosure - indieweb2-bastion
+:toc: macro
+:toclevels: 2
+:icons: font
+
+[abstract]
+--
+Complete disclosure of AI tools, language models, and automated assistance used in the development and documentation of this blockchain project, as required by Rhodium Standard 0.5 (Pillar 4, Section 2.4.3).
+--
+
+toc::[]
+
+== Purpose of This Document
+
+This document provides transparent disclosure of all AI and LLM usage in the development of indieweb2-bastion, a multi-chain blockchain project with smart contracts and Web3 integrations.
+
+== AI Tools Used
+
+=== Claude Code (Anthropic Claude Sonnet 4.5)
+
+**Tool:** Claude Code CLI v0.x
+**Model:** claude-sonnet-4-5-20250929
+**Usage Period:** 2025-01-20 to present
+
+**Primary Use Cases:**
+
+1. **Infrastructure Setup** (Extensive)
+   * Generated multi-chain CI/CD pipelines (Ethereum, Polygon, Internet Computer)
+   * Created 4 Nickel configuration files with blockchain-specific stages
+   * Generated smart contract testing and deployment automation
+   * Created .tool-versions for Solidity, Node.js, dfx (IC SDK)
+   * Generated 40+ dotfiles for multi-chain development
+
+2. **Rhodium Compliance Documentation** (Extensive)
+   * Created .rhodium/LEVEL, WAIVER.adoc (6 waivers including blockchain-specific), compliance.json
+   * Documented smart contract deployment irreversibility constraints
+   * Created blockchain-specific REVERSIBILITY.adoc guidance (upgrade patterns, not rollback)
+   * Generated this AI_USAGE.adoc
+
+3. **Blockchain-Specific Considerations**
+   * Documented testnet vs mainnet rollback differences
+   * Created proxy pattern upgrade documentation templates
+   * Generated carbon reporting considerations for PoS chains
+   * Created SLSA attestation strategy for smart contract bytecode
+
+**Human Oversight:** All infrastructure reviewed by blockchain specialist. Smart contract code 100% human-written with security audit requirements.
+
+**Code Quality:** Generated infrastructure tested on testnets before mainnet consideration.
+
+== AI-Generated vs Human-Written Content
+
+=== 100% AI-Generated (Reviewed by Human)
+
+* Multi-chain CI/CD pipeline configurations
+* Nickel configuration files
+* .rhodium/ compliance structure with blockchain adaptations
+* Infrastructure automation scripts
+* This AI_USAGE.adoc
+
+=== 100% Human-Written (NEVER AI-Generated)
+
+* **All smart contract code** (Solidity, Vyper, Motoko)
+* Security-critical contract logic
+* Cryptographic implementations
+* Token economics and governance mechanisms
+* Deployment scripts (reviewed, not generated)
+* Audit findings and remediation
+
+== Blockchain-Specific AI Limitations
+
+=== Smart Contract Development
+
+**POLICY:** AI tools are NEVER used for smart contract code generation due to:
+
+* Financial risk of bugs (immutable deployments)
+* Security audit requirements
+* Gas optimization needs (AI may generate inefficient code)
+* Legal liability concerns
+
+**AI Usage Restricted To:** Infrastructure, documentation, testing scaffolding only.
+
+=== Immutability Constraints
+
+AI-generated REVERSIBILITY.adoc documents upgrade patterns, not rollback:
+
+* Mainnet deployments are irreversible
+* Proxy patterns (EIP-1967, Diamond Standard) for upgradeability
+* Human review ensures upgrade safety mechanisms
+
+== Training Data Considerations
+
+**Blockchain-Specific Concerns:**
+
+* AI trained on public smart contracts (may include vulnerable code patterns)
+* Mitigation: Human security review, third-party audits
+* No proprietary contract logic shared with AI
+
+== Ethical Considerations
+
+=== Financial Risk Disclosure
+
+* AI-generated infrastructure only; no financial logic
+* Smart contracts independently audited
+* Testnet testing mandatory before mainnet
+
+=== Carbon Footprint
+
+* AI usage for infrastructure documentation: ~0.3kg CO2
+* Blockchain runtime carbon (PoS chains) tracked separately
+* Testnet usage carbon measured with CodeCarbon
+
+== Contact
+
+Questions about AI usage:
+
+* Open an issue with label: `ai-transparency`
+* For smart contract security: See SECURITY.adoc
+* Audit reports: docs/audits/
+
+---
+
+_This document complies with Rhodium Standard 0.5, Pillar 4 (Inclusive), Section 2.4.3 (AI Disclosure), with blockchain-specific risk disclosures._
+
+_Last Updated: 2025-01-21_
+_Repository: indieweb2-bastion (Blockchain/Smart Contracts)_

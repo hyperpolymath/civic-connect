@@ -1,0 +1,40 @@
+{
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "architectures": ["SCMP_ARCH_X86_64", "SCMP_ARCH_AARCH64"],
+  "syscalls": [
+    {
+      "names": [
+        "read", "write", "close", "fstat", "lseek", "mmap", "mprotect",
+        "munmap", "brk", "rt_sigaction", "rt_sigprocmask", "rt_sigreturn",
+        "ioctl", "pread64", "pwrite64", "readv", "writev", "access",
+        "pipe", "select", "sched_yield", "mremap", "madvise",
+        "nanosleep", "clock_nanosleep", "clock_gettime", "clock_getres",
+        "exit_group", "exit", "futex", "set_robust_list",
+        "get_robust_list", "epoll_create1", "epoll_ctl", "epoll_wait",
+        "epoll_pwait", "eventfd2", "timerfd_create", "timerfd_settime",
+        "signalfd4", "openat", "newfstatat", "fcntl",
+        "getdents64", "statx", "getrandom",
+        "socket", "connect", "bind", "listen", "accept4",
+        "sendto", "recvfrom", "sendmsg", "recvmsg",
+        "shutdown", "getsockname", "getpeername",
+        "setsockopt", "getsockopt",
+        "clone", "clone3", "execve", "wait4", "getpid", "gettid",
+        "getuid", "getgid", "geteuid", "getegid",
+        "sigaltstack", "arch_prctl", "set_tid_address",
+        "rseq", "prlimit64", "sched_getaffinity",
+        "pipe2", "dup", "dup2", "dup3",
+        "poll", "ppoll", "tgkill"
+      ],
+      "action": "SCMP_ACT_ALLOW"
+    },
+    {
+      "names": ["ptrace", "mount", "umount2", "pivot_root",
+                "init_module", "finit_module", "delete_module",
+                "reboot", "swapon", "swapoff", "kexec_load",
+                "create_module", "acct", "settimeofday",
+                "sethostname", "setdomainname"],
+      "action": "SCMP_ACT_ERRNO",
+      "comment": "Explicitly deny dangerous syscalls"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+= Code of Conduct
+:project-name: IndieWeb2
+
+== Principles
+- Respect contributors and their boundaries.
+- No harassment, discrimination, or exclusion.
+- Honor audit-grade transparency and consent-first design.
+
+== Enforcement
+Violations may result in warnings, bans, or revocation of contributor status.
+
+== Contact
+maintainers@indieweb2.gitlab

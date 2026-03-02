@@ -1,0 +1,11 @@
+= Changelog
+:project-name: IndieWeb2
+
+== 📅 Releases
+=== [Unreleased]
+- Added NuShell script support.
+- Implemented SDP overlay configs.
+- Improved SurrealDB export routines.
+
+=== [v0.1.0] - 2025-11-16
+- Initial release with bastion ingress, oDNS MVP, GraphQL DNS schema, SurrealDB provenance graph.

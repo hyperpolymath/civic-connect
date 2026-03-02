@@ -1,0 +1,43 @@
+= WASM Compliance Status - indieweb2-bastion
+:toc: macro
+
+[abstract]
+--
+WebAssembly compliance for multi-chain platform. Rhodium Standard 0.5, Pillar 3, Section 3.1.
+--
+
+toc::[]
+
+== Current Status
+
+**Compliance Level:** ⚠️ **Partial**
+
+=== Per-Chain Compliance
+
+**✅ Internet Computer:**
+* **WASM:** Native (Motoko compiles to WASM)
+* **Status:** Fully compliant
+
+**❌ Ethereum/Polygon:**
+* **Bytecode:** EVM bytecode (NOT WASM)
+* **Status:** Non-compliant (by design)
+
+== WASM Strategy
+
+See link:docs/adr/0002-multi-chain-architecture.adoc[ADR-0002: Multi-Chain Architecture] for details.
+
+**Rationale for partial compliance:**
+
+1. **Internet Computer** uses WASM natively (canisters)
+2. **EVM chains** use EVM bytecode (industry standard)
+3. **No viable EVM→WASM path** without breaking compatibility
+
+== Waivers
+
+**Current waiver:** Waiver-2025-002 (EVM bytecode accepted as equivalent to WASM for blockchain deployment)
+
+**Justification:** EVM bytecode is the industry-standard compilation target for Ethereum smart contracts. WASM support on EVM is experimental (eWASM), not production-ready.
+
+---
+
+_Last Updated: 2025-01-21 | Rhodium Standard 0.5_

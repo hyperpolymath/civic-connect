@@ -1,0 +1,21 @@
+= Mistral SLM Integration
+:project-name: IndieWeb2
+
+== 🤖 Overview
+This directory contains resources for integrating **Mistral 7B** into IndieWeb2:
+- Local, offline AI tasks (e.g., code review, autocommenting).
+- Privacy-preserving operations for sensitive manifests and provenance graphs.
+
+== 📂 Structure
+- prompts/: ReScript and GraphQL DNS review templates.
+- data/: Example provenance graphs for fine-tuning.
+- models/: Quantized Mistral 7B (`mistral-7b.Q4_K_M.gguf`).
+- scripts/: `inference.sh`, `fine-tune.sh`.
+
+== 🚀 Usage
+- **Inference**: `just slm-inference --prompt "Review this GraphQL schema:"`
+- **Fine-tuning**: `just slm-fine-tune --data slm/data/provenance.jsonl`
+
+== 📜 Ethical Guidelines
+- Comply with link:../licenses/README.adoc[licensing terms].
+- Avoid biased outputs; see link:../docs/IMPACT.adoc[Impact Statement].
