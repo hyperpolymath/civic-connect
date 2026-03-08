@@ -21,6 +21,6 @@
   },
   "homepage": "https://gitlab.com/maa-framework/2-web-protocols/indieweb2-bastion#readme",
   "dependencies": {
-    "rescript": "^12.1.0"
+    "rescript": "^12.0.0"
   }
 }
