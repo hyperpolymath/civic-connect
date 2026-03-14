@@ -46,7 +46,7 @@ toc::[]
 
 === Preferred Reporting Method
 
-**Email:** jonathan.jewell@open.ac.uk
+**Email:** j.d.a.jewell@open.ac.uk
 
 **Subject line:** `[SECURITY] indieweb2-bastion - Brief description`
 
@@ -143,7 +143,7 @@ Use checks-effects-interactions pattern:
 
 **We follow responsible disclosure:**
 
-1. **Private report** to jonathan.jewell@open.ac.uk
+1. **Private report** to j.d.a.jewell@open.ac.uk
 2. **Confirmation** and severity assessment
 3. **Fix development** in private branch
 4. **Security advisory** drafted (with CVE for mainnet)
@@ -382,7 +382,7 @@ WARNING: The following algorithms MUST NOT be used in new code.
 == Contact
 
 **Security Team:**
-* Email: jonathan.jewell@open.ac.uk
+* Email: j.d.a.jewell@open.ac.uk
 * PGP: https://example.com/pgp-key.asc
 
 **Maintainers:**

@@ -305,7 +305,7 @@ Week 2:
 civicconnect/
 ├── README.md                   # Start here
 ├── CHANGELOG.md               # Track changes
-├── LICENSE                    # TBD (AGPLv3 or Apache 2.0)
+├── LICENSE                    # PMPL-1.0-or-later
 ├── CONTRIBUTING.md            # How to contribute
 ├── CODE_OF_CONDUCT.md         # Community standards
 │
@@ -566,7 +566,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
-TBD (AGPLv3 or Apache 2.0)
+PMPL-1.0-or-later
 ```
 
 ---

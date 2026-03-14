@@ -6,29 +6,29 @@
 [source,bibtex]
 ----
 @software{civic-connect_2025,
-  author = {Polymath, Hyper},
+  author = {Jewell, Jonathan D.A.},
   title = {Civic-Connect},
   year = {2025},
-  url = {https://github.com/hyperpolymath/Civic-Connect},
-  license = {AGPL-3.0-or-later}
+  url = {https://github.com/hyperpolymath/civic-connect},
+  license = {PMPL-1.0-or-later}
 }
 ----
 
 == Harvard Style
 
-Polymath, H. (2025) _Civic-Connect_ [Computer software]. Available at: https://github.com/hyperpolymath/Civic-Connect
+Jewell, J.D.A. (2025) _Civic-Connect_ [Computer software]. Available at: https://github.com/hyperpolymath/civic-connect
 
 == OSCOLA
 
-Hyper Polymath, 'Civic-Connect' (2025) <https://github.com/hyperpolymath/Civic-Connect>
+Jonathan D.A. Jewell, 'Civic-Connect' (2025) <https://github.com/hyperpolymath/civic-connect>
 
 == MLA
 
-Polymath, Hyper. "Civic-Connect." 2025, github.com/hyperpolymath/Civic-Connect.
+Jewell, Jonathan D.A. "Civic-Connect." 2025, github.com/hyperpolymath/civic-connect.
 
 == APA 7
 
-Polymath, H. (2025). _Civic-Connect_ [Computer software]. GitHub. https://github.com/hyperpolymath/Civic-Connect
+Jewell, J.D.A. (2025). _Civic-Connect_ [Computer software]. GitHub. https://github.com/hyperpolymath/civic-connect
 
 == See Also
 

@@ -1,5 +1,5 @@
 = Civic-Connect
-Jonathan D.A. Jewell <jonathan.jewell@open.ac.uk>
+Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 :toc: macro
 :icons: font
 :source-highlighter: rouge
@@ -100,4 +100,4 @@ This bootstraps dependencies (jq, capnproto, nickel, deno), validates Nickel pol
 
 SPDX-License-Identifier: PMPL-1.0-or-later
 
-Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <jonathan.jewell@open.ac.uk>
+Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>

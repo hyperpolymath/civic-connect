@@ -8,7 +8,7 @@
     (languages (rust rescript deno nickel guile-scheme))
     (deprecated-languages (go))
     (license "PMPL-1.0-or-later")
-    (author "Jonathan D.A. Jewell <jonathan.jewell@open.ac.uk>"))
+    (author "Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>"))
   (architecture-decisions
     (adr "0001" "Multi-chain blockchain architecture" "accepted")
     (adr "0002" "SurrealDB for DNS record graph storage" "accepted")
