@@ -10,6 +10,7 @@
 //   RNG:       ChaCha20-DRBG via OsRng              — CPR-008
 //   Sigs:      Ed448 + Dilithium5 hybrid            — CPR-005
 
+#![forbid(unsafe_code)]
 pub mod crypto;
 pub mod protocol;
 pub mod signatures;

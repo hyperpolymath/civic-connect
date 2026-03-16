@@ -8,6 +8,7 @@
 //! - SurrealDB graph storage
 //! - Reverse DNS lookups
 
+#![forbid(unsafe_code)]
 use async_graphql::{http::GraphiQLSource, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{

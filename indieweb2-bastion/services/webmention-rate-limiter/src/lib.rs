@@ -13,6 +13,7 @@
 //! - Self-ping blocking (same domain source/target)
 //! - Burst detection with cooldown
 
+#![forbid(unsafe_code)]
 pub mod config;
 pub mod handlers;
 pub mod limiter;

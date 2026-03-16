@@ -11,6 +11,7 @@
 // FIPS 203: ML-KEM / Kyber-1024 key encapsulation
 // CRYPTO-POLICY.adoc: Full cryptographic requirements
 
+#![forbid(unsafe_code)]
 use std::fs;
 use std::sync::Arc;
 
