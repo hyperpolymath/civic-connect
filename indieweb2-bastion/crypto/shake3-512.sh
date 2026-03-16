@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: PMPL-1.0-or-later
-# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <jonathan.jewell@open.ac.uk>
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 #
 # SHAKE3-512 hash utility (FIPS 202) — per CRYPTO-POLICY.adoc CPR-002
 # Outputs 512-bit (64-byte) SHAKE3-512 digest of the given file.
