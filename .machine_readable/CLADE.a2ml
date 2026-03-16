@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# Clade declaration — part of the gv-clade-index registry
+# See: https://github.com/hyperpolymath/gv-clade-index
+
+[identity]
+uuid = "7c4439ce-bdf6-522f-9096-5312c0650efb"
+primary-forge = "github"
+primary-owner = "hyperpolymath"
+canonical-name = "civic-connect"
+prefixed-name = "ap-civic-connect"
+
+[clade]
+primary = "ap"
+secondary = []
+assigned = "2026-03-16"
+rationale = ""
+
+[forges]
+github = "hyperpolymath/civic-connect"
+gitlab = "hyperpolymath/civic-connect"
+bitbucket = "hyperpolymath/civic-connect"
+
+[lineage]
+type = "standalone"
+parent = "Civic engagement platform"
+born = "2026-03-16"
