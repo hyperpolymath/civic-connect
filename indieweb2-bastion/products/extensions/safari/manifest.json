@@ -1,6 +1,0 @@
-{
-  "name": "IndieWeb2",
-  "version": "0.1.0",
-  "description": "Consent & provenance badges with browser-native LLM fallback",
-  "manifest_version": 3
-}
