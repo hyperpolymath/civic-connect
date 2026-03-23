@@ -14,9 +14,6 @@ solidity 0.8.24
 # Python for Vyper
 python 3.11.8
 
-# Just command runner
-just 1.25.2
-
 # Nickel configuration
 nickel 1.4.0
 
