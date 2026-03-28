@@ -1,0 +1,30 @@
+{
+  "groove_version": "1",
+  "service_id": "civic-connect",
+  "service_version": "0.1.0",
+  "capabilities": {
+    "voice": {
+      "type": "voice",
+      "description": "Civic engagement voice communication via Groove",
+      "protocol": "websocket",
+      "endpoint": "/voice-groove",
+      "requires_auth": true,
+      "panel_compatible": true
+    },
+    "text": {
+      "type": "text",
+      "description": "Civic discussion and deliberation channels",
+      "protocol": "websocket",
+      "endpoint": "/text",
+      "requires_auth": true,
+      "panel_compatible": true
+    }
+  },
+  "consumes": ["integrity", "octad-storage"],
+  "endpoints": {
+    "health": "/health",
+    "groove": "/.well-known/groove"
+  },
+  "health": "/health",
+  "applicability": ["individual", "team", "massive-open"]
+}
