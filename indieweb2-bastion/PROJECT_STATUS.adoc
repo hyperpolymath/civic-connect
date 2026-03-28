@@ -217,7 +217,7 @@ indieweb2-bastion is a consent-first, multi-chain identity platform combining Et
 * docs/PERFORMANCE.adoc (700+ lines, gas optimization)
 
 **Community:**
-* Repository: `/var/home/hyper/workspace/projects/to-git/_non-initiate/_rhodinised/indieweb2-bastion`
+* Repository: `/var$HOME/workspace/projects/to-git/_non-initiate/_rhodinised/indieweb2-bastion`
 * License: Check LICENSE file
 * Contact: See CONTRIBUTING.adoc
 

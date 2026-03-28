@@ -35,7 +35,7 @@ is a bare-bones token with no identity/registry logic matching the project's sta
 ## TASK 1: Fix SQL Injection in `graphql-dns-api/src/db.rs` query_records()
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/db.rs` lines 119-147
+- `/var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/db.rs` lines 119-147
 
 **Problem:**
 The `query_records` function builds SQL queries using string formatting with unsanitized
@@ -68,7 +68,7 @@ if let Some(ref name) = name {
 
 **Verification:**
 ```bash
-cd /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api
+cd /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api
 cargo build 2>&1 | tail -5
 cargo test 2>&1 | tail -20
 # Verify no string formatting with user input in query_records:
@@ -81,7 +81,7 @@ grep -n "format!(\".*'{}'" src/db.rs
 ## TASK 2: Implement DNSSEC RRSIG Signing (Currently Returns "RRSIG_PLACEHOLDER")
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/dnssec.rs` lines 96-107, 110-113
+- `/var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/dnssec.rs` lines 96-107, 110-113
 
 **Problem:**
 `sign_record()` on line 96 returns `Ok("RRSIG_PLACEHOLDER".to_string())` -- it does not
@@ -110,7 +110,7 @@ public keys are stored, so signing is impossible).
 
 **Verification:**
 ```bash
-cd /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api
+cd /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api
 cargo build 2>&1 | tail -5
 cargo test -- dnssec 2>&1
 # Verify placeholder is gone:
@@ -125,7 +125,7 @@ grep -n "Ok(true)" src/dnssec.rs
 ## TASK 3: Fix Hardcoded "identity:unknown" in GraphQL Resolvers
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/resolvers.rs` lines 162-164, 311-315, 330-332
+- `/var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/resolvers.rs` lines 162-164, 311-315, 330-332
 
 **Problem:**
 Identity extraction in three places falls back to `"identity:unknown"`:
@@ -160,7 +160,7 @@ from the request.
 
 **Verification:**
 ```bash
-cd /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api
+cd /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api
 cargo build 2>&1 | tail -5
 # Verify "identity:unknown" no longer silently used for critical operations:
 grep -c "identity:unknown" src/resolvers.rs
@@ -172,7 +172,7 @@ grep -c "identity:unknown" src/resolvers.rs
 ## TASK 4: Implement execute_mutation (Currently a No-Op)
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/resolvers.rs` lines 340-354
+- `/var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/resolvers.rs` lines 340-354
 
 **Problem:**
 The `execute_mutation` resolver contains a TODO comment on line 350:
@@ -196,7 +196,7 @@ Add a match statement that dispatches based on `mutation_name` and processes the
 
 **Verification:**
 ```bash
-cd /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api
+cd /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api
 cargo build 2>&1 | tail -5
 # Verify TODO is resolved:
 grep -n "TODO.*execute the mutation" src/resolvers.rs
@@ -208,7 +208,7 @@ grep -n "TODO.*execute the mutation" src/resolvers.rs
 ## TASK 5: Fix IPv6 Reverse DNS Implementation
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/resolvers.rs` lines 395-408
+- `/var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/resolvers.rs` lines 395-408
 
 **Problem:**
 The `ip_to_reverse_name()` function has a broken IPv6 implementation on line 399:
@@ -234,7 +234,7 @@ So `2001:db8::1` should become `1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.
 
 **Verification:**
 ```bash
-cd /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api
+cd /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api
 cargo build 2>&1 | tail -5
 # Add a unit test or run:
 cargo test -- reverse 2>&1
@@ -248,8 +248,8 @@ grep -n "replace.*':'" src/resolvers.rs
 ## TASK 6: Replace Stub Justfile with Working Build/Test Commands
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/Justfile` (all lines)
-- `/var/mnt/eclipse/repos/indieweb2-bastion/justfile` (all lines -- note: TWO justfiles exist)
+- `/var$REPOS_DIR/indieweb2-bastion/Justfile` (all lines)
+- `/var$REPOS_DIR/indieweb2-bastion/justfile` (all lines -- note: TWO justfiles exist)
 
 **Problem:**
 Both `Justfile` (capital J) and `justfile` (lowercase j) exist. The capital-J `Justfile`
@@ -281,7 +281,7 @@ the license policy (should be `PMPL-1.0-or-later`).
 
 **Verification:**
 ```bash
-cd /var/mnt/eclipse/repos/indieweb2-bastion
+cd /var$REPOS_DIR/indieweb2-bastion
 ls -la justfile Justfile 2>&1
 # Should show only one justfile after fix
 just --list 2>&1 | head -20
@@ -295,10 +295,10 @@ grep "SPDX" justfile
 ## TASK 7: Rewrite oDNS Proxy/Resolver from Go to Rust (BANNED Language)
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/odns-proxy/main.go` (310 lines)
-- `/var/mnt/eclipse/repos/indieweb2-bastion/odns-proxy/go.mod`
-- `/var/mnt/eclipse/repos/indieweb2-bastion/odns-resolver/main.go` (278 lines)
-- `/var/mnt/eclipse/repos/indieweb2-bastion/odns-resolver/go.mod`
+- `/var$REPOS_DIR/indieweb2-bastion/odns-proxy/main.go` (310 lines)
+- `/var$REPOS_DIR/indieweb2-bastion/odns-proxy/go.mod`
+- `/var$REPOS_DIR/indieweb2-bastion/odns-resolver/main.go` (278 lines)
+- `/var$REPOS_DIR/indieweb2-bastion/odns-resolver/go.mod`
 
 **Problem:**
 Go is a BANNED language per the `.claude/CLAUDE.md` language policy. The replacement is Rust.
@@ -323,12 +323,12 @@ skeleton with TODO stubs that compile.
 **Verification:**
 ```bash
 # After full port:
-cd /var/mnt/eclipse/repos/indieweb2-bastion/odns-proxy-rs
+cd /var$REPOS_DIR/indieweb2-bastion/odns-proxy-rs
 cargo build 2>&1 | tail -5
-cd /var/mnt/eclipse/repos/indieweb2-bastion/odns-resolver-rs
+cd /var$REPOS_DIR/indieweb2-bastion/odns-resolver-rs
 cargo build 2>&1 | tail -5
 # Verify Go code removed:
-find /var/mnt/eclipse/repos/indieweb2-bastion -name "*.go" | wc -l
+find /var$REPOS_DIR/indieweb2-bastion -name "*.go" | wc -l
 # Should be 0
 ```
 
@@ -337,10 +337,10 @@ find /var/mnt/eclipse/repos/indieweb2-bastion -name "*.go" | wc -l
 ## TASK 8: Implement Browser Extensions (All Four Are Identical 7-Line Stubs)
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/products/extensions/chrome/src/content.js`
-- `/var/mnt/eclipse/repos/indieweb2-bastion/products/extensions/firefox/src/content.js`
-- `/var/mnt/eclipse/repos/indieweb2-bastion/products/extensions/edge/src/content.js`
-- `/var/mnt/eclipse/repos/indieweb2-bastion/products/extensions/safari/src/content.js`
+- `/var$REPOS_DIR/indieweb2-bastion/products/extensions/chrome/src/content.js`
+- `/var$REPOS_DIR/indieweb2-bastion/products/extensions/firefox/src/content.js`
+- `/var$REPOS_DIR/indieweb2-bastion/products/extensions/edge/src/content.js`
+- `/var$REPOS_DIR/indieweb2-bastion/products/extensions/safari/src/content.js`
 
 **Problem:**
 All four browser extension content scripts are identical 7-line stubs that only check
@@ -372,11 +372,11 @@ minimum:
 ```bash
 # Verify the extensions are no longer identical stubs:
 for ext in chrome firefox edge safari; do
-  wc -l /var/mnt/eclipse/repos/indieweb2-bastion/products/extensions/$ext/src/content.js
+  wc -l /var$REPOS_DIR/indieweb2-bastion/products/extensions/$ext/src/content.js
 done
 # Each should be > 7 lines
 # Verify no LLM detection code:
-grep -l "edgeLLM" /var/mnt/eclipse/repos/indieweb2-bastion/products/extensions/*/src/content.js
+grep -l "edgeLLM" /var$REPOS_DIR/indieweb2-bastion/products/extensions/*/src/content.js
 # Should return zero files
 ```
 
@@ -385,7 +385,7 @@ grep -l "edgeLLM" /var/mnt/eclipse/repos/indieweb2-bastion/products/extensions/*
 ## TASK 9: Implement IPFS Rehydration (Currently a 9-Line Stub)
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/deno/ipfs/rehydrate.js` (9 lines)
+- `/var$REPOS_DIR/indieweb2-bastion/deno/ipfs/rehydrate.js` (9 lines)
 
 **Problem:**
 The rehydration script is a stub that prints "Would fetch snapshot from <cid>" and exits:
@@ -408,10 +408,10 @@ This is referenced in `test/Justfile` as part of the test pipeline.
 **Verification:**
 ```bash
 # Verify TODO is resolved:
-grep -n "TODO" /var/mnt/eclipse/repos/indieweb2-bastion/deno/ipfs/rehydrate.js
+grep -n "TODO" /var$REPOS_DIR/indieweb2-bastion/deno/ipfs/rehydrate.js
 # Should return zero lines
 # Verify it handles missing args:
-cd /var/mnt/eclipse/repos/indieweb2-bastion
+cd /var$REPOS_DIR/indieweb2-bastion
 deno run deno/ipfs/rehydrate.js 2>&1
 # Should print usage and exit 2
 ```
@@ -421,7 +421,7 @@ deno run deno/ipfs/rehydrate.js 2>&1
 ## TASK 10: Fix Stub ERC20 Contract -- Should Be Identity Registry
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/contracts/ERC20.sol` (22 lines)
+- `/var$REPOS_DIR/indieweb2-bastion/contracts/ERC20.sol` (22 lines)
 
 **Problem:**
 The Solidity contract is a minimal ERC20 token ("IndieWeb2 Token") with only `transfer()`.
@@ -452,9 +452,9 @@ Option B aligns with the project's stated purpose.
 **Verification:**
 ```bash
 # After implementation, check for events and proper functions:
-grep -c "event" /var/mnt/eclipse/repos/indieweb2-bastion/contracts/ERC20.sol
+grep -c "event" /var$REPOS_DIR/indieweb2-bastion/contracts/ERC20.sol
 # Should be >= 2
-grep -c "function" /var/mnt/eclipse/repos/indieweb2-bastion/contracts/ERC20.sol
+grep -c "function" /var$REPOS_DIR/indieweb2-bastion/contracts/ERC20.sol
 # Should be >= 4
 ```
 
@@ -463,7 +463,7 @@ grep -c "function" /var/mnt/eclipse/repos/indieweb2-bastion/contracts/ERC20.sol
 ## TASK 11: Fix CURPS Policy Capabilities (All Set to "stub")
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/policy/curps/policy.ncl` lines 12-14
+- `/var$REPOS_DIR/indieweb2-bastion/policy/curps/policy.ncl` lines 12-14
 
 **Problem:**
 All three capability definitions are set to the string literal `"stub"`:
@@ -489,11 +489,11 @@ The capability documents in `docs/capabilities/` are also stubs (single-line fil
 
 **Verification:**
 ```bash
-grep -c '"stub"' /var/mnt/eclipse/repos/indieweb2-bastion/policy/curps/policy.ncl
+grep -c '"stub"' /var$REPOS_DIR/indieweb2-bastion/policy/curps/policy.ncl
 # Should be 0
 # Verify capability docs are no longer stubs:
 for f in maintainer.adoc trusted_contributor.adoc default-consent.adoc; do
-  wc -l /var/mnt/eclipse/repos/indieweb2-bastion/docs/capabilities/$f
+  wc -l /var$REPOS_DIR/indieweb2-bastion/docs/capabilities/$f
 done
 # Each should be > 1 line
 ```
@@ -503,7 +503,7 @@ done
 ## TASK 12: Fix PWA Service Worker (2-Line No-Op)
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/products/pwa/src/service-worker.js` (2 lines)
+- `/var$REPOS_DIR/indieweb2-bastion/products/pwa/src/service-worker.js` (2 lines)
 
 **Problem:**
 The service worker is:
@@ -524,9 +524,9 @@ push notifications. For a PWA to be functional, the service worker needs a cachi
 
 **Verification:**
 ```bash
-grep -c "addEventListener.*fetch" /var/mnt/eclipse/repos/indieweb2-bastion/products/pwa/src/service-worker.js
+grep -c "addEventListener.*fetch" /var$REPOS_DIR/indieweb2-bastion/products/pwa/src/service-worker.js
 # Should be >= 1
-wc -l /var/mnt/eclipse/repos/indieweb2-bastion/products/pwa/src/service-worker.js
+wc -l /var$REPOS_DIR/indieweb2-bastion/products/pwa/src/service-worker.js
 # Should be > 2
 ```
 
@@ -535,7 +535,7 @@ wc -l /var/mnt/eclipse/repos/indieweb2-bastion/products/pwa/src/service-worker.j
 ## TASK 13: Fix SBOM Generator (Returns Hardcoded Stub JSON)
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/sbom/generate.sh`
+- `/var$REPOS_DIR/indieweb2-bastion/sbom/generate.sh`
 
 **Problem:**
 The SBOM generator outputs a hardcoded stub:
@@ -553,7 +553,7 @@ This produces a fake SBOM that provides no supply chain information.
 
 **Verification:**
 ```bash
-grep -c '"stub"' /var/mnt/eclipse/repos/indieweb2-bastion/sbom/generate.sh
+grep -c '"stub"' /var$REPOS_DIR/indieweb2-bastion/sbom/generate.sh
 # Should be 0
 ```
 
@@ -562,7 +562,7 @@ grep -c '"stub"' /var/mnt/eclipse/repos/indieweb2-bastion/sbom/generate.sh
 ## TASK 14: Fix Motoko Canister Compilation Errors
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/protocols/icp/canisters/consent/Consent.mo`
+- `/var$REPOS_DIR/indieweb2-bastion/protocols/icp/canisters/consent/Consent.mo`
 
 **Problem:**
 The `Consent.mo` canister has compilation issues:
@@ -588,7 +588,7 @@ The `Consent.mo` canister has compilation issues:
 
 **Verification:**
 ```bash
-cd /var/mnt/eclipse/repos/indieweb2-bastion/protocols/icp
+cd /var$REPOS_DIR/indieweb2-bastion/protocols/icp
 # If dfx is installed:
 dfx build 2>&1 | tail -10
 # Otherwise check syntax manually:
@@ -601,7 +601,7 @@ grep -n "Trie.Empty\|Empty : ()" canisters/consent/Consent.mo
 ## TASK 15: Add Tests for Consent API (Deno Service Has Zero Tests)
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/services/consent-api/mod.ts` (255 lines)
+- `/var$REPOS_DIR/indieweb2-bastion/services/consent-api/mod.ts` (255 lines)
 
 **Problem:**
 The consent API is a complete Deno HTTP service with SurrealDB integration but has
@@ -609,7 +609,7 @@ zero test files. The handler function, consent storage, operation checking, and 
 are all untested.
 
 **What to do:**
-1. Create `/var/mnt/eclipse/repos/indieweb2-bastion/services/consent-api/mod_test.ts`.
+1. Create `/var$REPOS_DIR/indieweb2-bastion/services/consent-api/mod_test.ts`.
 2. Test the HTTP handler for each route:
    - POST /consent -- stores preferences, returns 201
    - GET /consent/:identity -- returns consent record or 404
@@ -623,7 +623,7 @@ are all untested.
 
 **Verification:**
 ```bash
-cd /var/mnt/eclipse/repos/indieweb2-bastion/services/consent-api
+cd /var$REPOS_DIR/indieweb2-bastion/services/consent-api
 deno test mod_test.ts 2>&1 | tail -20
 ```
 
@@ -632,7 +632,7 @@ deno test mod_test.ts 2>&1 | tail -20
 ## TASK 16: Fix WordPress Plugin `add_user_meta_field` Call (Undefined Function)
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/wordpress/indieweb2-consent.php` line 65-68
+- `/var$REPOS_DIR/indieweb2-bastion/wordpress/indieweb2-consent.php` line 65-68
 
 **Problem:**
 The `register_settings()` method calls `add_user_meta_field()` on lines 65-68:
@@ -655,10 +655,10 @@ Replace the four `add_user_meta_field()` calls with either:
 
 **Verification:**
 ```bash
-grep -n "add_user_meta_field" /var/mnt/eclipse/repos/indieweb2-bastion/wordpress/indieweb2-consent.php
+grep -n "add_user_meta_field" /var$REPOS_DIR/indieweb2-bastion/wordpress/indieweb2-consent.php
 # Should return zero lines after fix
 # Verify PHP syntax:
-php -l /var/mnt/eclipse/repos/indieweb2-bastion/wordpress/indieweb2-consent.php 2>&1
+php -l /var$REPOS_DIR/indieweb2-bastion/wordpress/indieweb2-consent.php 2>&1
 # Should say "No syntax errors detected"
 ```
 
@@ -667,7 +667,7 @@ php -l /var/mnt/eclipse/repos/indieweb2-bastion/wordpress/indieweb2-consent.php 
 ## TASK 17: Fix CorsLayer::permissive() in Production GraphQL Server
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/main.rs` line 147
+- `/var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/main.rs` line 147
 
 **Problem:**
 The GraphQL server uses `CorsLayer::permissive()` which allows ANY origin to make
@@ -682,7 +682,7 @@ a security vulnerability. Any website could send GraphQL mutations to the API.
 
 **Verification:**
 ```bash
-cd /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api
+cd /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api
 cargo build 2>&1 | tail -5
 grep -n "permissive" src/main.rs
 # Should return zero lines (or only in a conditional "*" branch)
@@ -693,7 +693,7 @@ grep -n "permissive" src/main.rs
 ## TASK 18: Fix `base64::encode` Deprecation in dnssec.rs
 
 **Files:**
-- `/var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/dnssec.rs` lines 35, 44
+- `/var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/dnssec.rs` lines 35, 44
 
 **Problem:**
 `base64::encode()` was deprecated in base64 crate 0.22 (which is the version in
@@ -715,7 +715,7 @@ let zsk_public = STANDARD.encode(zsk_pair.public_key().as_ref());
 
 **Verification:**
 ```bash
-cd /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api
+cd /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api
 cargo build 2>&1 | grep -i "deprecat"
 # Should return zero lines
 grep "base64::encode" src/dnssec.rs
@@ -732,41 +732,41 @@ After completing all tasks, run the following comprehensive check:
 
 ```bash
 echo "=== 1. Rust crates build ==="
-cd /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api && cargo build 2>&1 | tail -3
-cd /var/mnt/eclipse/repos/indieweb2-bastion/services/webmention-rate-limiter && cargo build 2>&1 | tail -3
+cd /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api && cargo build 2>&1 | tail -3
+cd /var$REPOS_DIR/indieweb2-bastion/services/webmention-rate-limiter && cargo build 2>&1 | tail -3
 
 echo "=== 2. Rust tests pass ==="
-cd /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api && cargo test 2>&1 | tail -5
-cd /var/mnt/eclipse/repos/indieweb2-bastion/services/webmention-rate-limiter && cargo test 2>&1 | tail -5
+cd /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api && cargo test 2>&1 | tail -5
+cd /var$REPOS_DIR/indieweb2-bastion/services/webmention-rate-limiter && cargo test 2>&1 | tail -5
 
 echo "=== 3. No SQL injection ==="
-grep -rn "format!(.*'{}'.*)" /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/db.rs | grep -v "^$" || echo "PASS: No format-string SQL"
+grep -rn "format!(.*'{}'.*)" /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/db.rs | grep -v "^$" || echo "PASS: No format-string SQL"
 
 echo "=== 4. No stubs in production code ==="
 grep -rn '"stub"\|RRSIG_PLACEHOLDER\|identity:unknown' \
-  /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/ \
-  /var/mnt/eclipse/repos/indieweb2-bastion/policy/curps/policy.ncl \
+  /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/ \
+  /var$REPOS_DIR/indieweb2-bastion/policy/curps/policy.ncl \
   2>/dev/null || echo "PASS: No stubs"
 
 echo "=== 5. No banned languages ==="
-find /var/mnt/eclipse/repos/indieweb2-bastion -name "*.go" -not -path "*/.git/*" | wc -l
+find /var$REPOS_DIR/indieweb2-bastion -name "*.go" -not -path "*/.git/*" | wc -l
 # Should be 0 after TASK 7
 
 echo "=== 6. License headers correct ==="
-grep -rn "AGPL-3.0" /var/mnt/eclipse/repos/indieweb2-bastion/justfile /var/mnt/eclipse/repos/indieweb2-bastion/Justfile 2>/dev/null || echo "PASS: No AGPL in justfiles"
+grep -rn "AGPL-3.0" /var$REPOS_DIR/indieweb2-bastion/justfile /var$REPOS_DIR/indieweb2-bastion/Justfile 2>/dev/null || echo "PASS: No AGPL in justfiles"
 
 echo "=== 7. WordPress plugin syntax ==="
-php -l /var/mnt/eclipse/repos/indieweb2-bastion/wordpress/indieweb2-consent.php 2>&1
+php -l /var$REPOS_DIR/indieweb2-bastion/wordpress/indieweb2-consent.php 2>&1
 
 echo "=== 8. No TODO/FIXME in critical paths ==="
 grep -rn "TODO\|FIXME" \
-  /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/resolvers.rs \
-  /var/mnt/eclipse/repos/indieweb2-bastion/graphql-dns-api/src/dnssec.rs \
-  /var/mnt/eclipse/repos/indieweb2-bastion/deno/ipfs/rehydrate.js \
+  /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/resolvers.rs \
+  /var$REPOS_DIR/indieweb2-bastion/graphql-dns-api/src/dnssec.rs \
+  /var$REPOS_DIR/indieweb2-bastion/deno/ipfs/rehydrate.js \
   2>/dev/null || echo "PASS: No TODOs in critical paths"
 
 echo "=== 9. Deno consent API tests ==="
-cd /var/mnt/eclipse/repos/indieweb2-bastion/services/consent-api
+cd /var$REPOS_DIR/indieweb2-bastion/services/consent-api
 ls mod_test.ts 2>/dev/null && deno test mod_test.ts 2>&1 | tail -5 || echo "FAIL: No test file"
 
 echo "=== DONE ==="
