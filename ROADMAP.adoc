@@ -1,22 +1,77 @@
 // SPDX-License-Identifier: PMPL-1.0-or-later
-= Civic Connect Roadmap
+= Civic-Connect Roadmap
+:author: Jonathan D.A. Jewell
+:revdate: 2026-03-29
 
-== Current Status
+== Current State
 
-Initial development phase.
+Civic-Connect is a privacy-first civic engagement platform with three layers:
+IndieWeb2 Bastion (hardened ingress), Civic-Stream (government API integration),
+and CivicConnect Vision (gamified participation, planning stage).
 
-== Milestones
+Key capabilities delivered:
 
-=== v0.1.0 - Foundation
-* [ ] Core functionality
-* [ ] Basic documentation
-* [ ] CI/CD pipeline
+* IndieWeb2 Bastion:
+** GraphQL DNS API (Rust/Axum, port 8443) -- 70% complete
+** Oblivious DNS (Rust/Tokio, port 853/8853)
+** Consent API (Deno, port 443)
+** Policy Gate (ReScript + Deno, 9 validators)
+** 13 crypto policy requirements (CPR-001 through CPR-013)
+** Post-quantum crypto: Kyber-1024 KEM, Dilithium5 signatures, SPHINCS+ fallback
+** Hybrid signatures: Ed448 + Dilithium5 dual-sign
+** Zero-knowledge DNS (server never sees plaintext queries)
+* Civic-Stream: government API integration (40% complete)
+* SurrealDB provenance graph
+* Stapeln container deployment (cerro-torre build/sign, selur-compose)
 
-=== v1.0.0 - Stable Release
-* [ ] Full feature set
-* [ ] Comprehensive tests
-* [ ] Production ready
+== v0.5.0 -- IndieWeb2 Bastion Hardening (In Progress)
 
-== Future Directions
+* [x] Oblivious DNS implementation (odns-rs)
+* [x] 13 crypto policy requirements defined (CRYPTO-POLICY.adoc)
+* [x] CPR-001: Argon2id (512MiB/8it/4ln)
+* [x] CPR-002: SHAKE3-512 (FIPS 202)
+* [x] CPR-003: Dilithium5-AES (ML-DSA-87)
+* [x] CPR-004: Kyber-1024 (ML-KEM-1024)
+* [x] CPR-005: Ed448+Dilithium5 hybrid signatures
+* [x] CPR-006: XChaCha20-Poly1305
+* [x] CPR-007: HKDF-SHA3-512
+* [x] CPR-008: ChaCha20-DRBG
+* [x] CPR-009: BLAKE3 + SHAKE3-512
+* [x] CPR-012: SPHINCS+ fallback
+* [x] Policy Gate with 9 validators
+* [x] SurrealDB provenance graph
+* [ ] GraphQL DNS API completion (70% -> 100%)
+* [ ] Fix panic paths from security scan (graphql-dns-api, odns-rs)
+* [ ] Fix command injection in scripts/interactive_tidy.sh
+* [ ] Remove node_modules from indieweb2-bastion (Deno only)
 
-_To be determined based on community feedback._
+== v0.7.0 -- Transport and Accessibility
+
+* [ ] CPR-010: QUIC + HTTP/3 + IPv6 transport
+* [ ] CPR-011: WCAG 2.3 AAA accessibility
+
+== v0.8.0 -- Formal Verification
+
+* [ ] CPR-013: Coq/Isabelle verification of crypto primitives
+
+== v1.0.0 -- Civic-Stream Production
+
+* [ ] Government API endpoints expansion (40% -> 80%)
+* [ ] Stream processing pipeline hardened
+* [ ] End-to-end integration tests (Bastion -> Stream -> SurrealDB)
+* [ ] Production container deployment
+
+== v2.0.0 -- CivicConnect Vision (Planning)
+
+* [ ] Leveling system (Levels 0-5) for civic participation
+* [ ] Verified event attendance (QR + ed25519 signatures)
+* [ ] E2E encrypted messaging (Signal protocol)
+* [ ] Mentor matching and cross-regional coordination
+* [ ] Privacy-preserving location (H3 geohashing)
+* [ ] Blockchain integration (Ethereum, Polygon, Internet Computer)
+
+== Future
+
+* Self-hosted deployment documentation
+* IPFS content-addressed storage integration
+* Smart contract layer (Solidity + Motoko)
