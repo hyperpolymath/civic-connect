@@ -8,6 +8,6 @@
   "nodeModulesDir": "auto",
   "imports": {
     "rescript": "^12.0.0",
-    "@rescript/runtime": "npm:@rescript/runtime@^12.1.0"
+    "@rescript/runtime": "npm:@rescript/runtime@^12.2.0"
   }
 }
