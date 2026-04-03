@@ -33,9 +33,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 
 # Metrics
-prometheus = "0.13"
-# Security fix: override transitive protobuf to patch CVE-2025-53605
-protobuf = "3.7"
+prometheus = "0.14"
 
 # Error handling
 thiserror = "1.0"

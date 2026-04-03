@@ -66,6 +66,10 @@ ed448-goldilocks-plus = "0.16"   # Classical signatures (Ed448, RFC 8032)
 pqcrypto-dilithium = "0.5"       # Post-quantum signatures (ML-DSA-87 / Dilithium5, FIPS 204)
 pqcrypto-traits = "0.3"          # Trait abstractions for pqcrypto
 
+# Security overrides for transitive dependencies
+lru = "0.16.3"
+jsonwebtoken = "10"
+
 [features]
 default = []
 rocksdb = ["surrealdb/kv-rocksdb"]
