@@ -1,6 +1,6 @@
 # Test & Benchmark Requirements
 
-## CRG Grade: C (achieved 2026-04-04)
+## CRG Grade: C — ACHIEVED 2026-04-04
 
 CRG C requires: unit + smoke + build + P2P (property-based) + E2E + reflexive + contract + aspect tests + benchmarks baselined.
 
