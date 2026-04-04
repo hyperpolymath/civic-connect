@@ -7,25 +7,34 @@ The README makes claims. This file backs them up.
 
 [quote, README]
 ____
-Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+Civic-Connect combines hardened ingress infrastructure, oblivious DNS resolution, GraphQL DNS APIs, and SurrealDB provenance graphs to enable privacy-preserving civic engagement with government data.
 ____
 
-== Technology Choices
+This is achieved through post-quantum cryptography (Kyber-1024 + Dilithium5), zero-knowledge DNS queries, and consent-first architecture. Three components work together: IndieWeb2 Bastion provides the gateway, Civic-Stream integrates government APIs, and SurrealDB maintains provenance graphs.
 
-[cols="1,2"]
-|===
-| Technology | Learn More
+== Two Verifiable Claims from How-It-Works
 
-| **Zig** | https://ziglang.org
-| **Idris2 ABI** | https://www.idris-lang.org
-|===
+=== Claim 1: Oblivious DNS Prevents Query Correlation
+
+**Location**: `/var/mnt/eclipse/repos/civic-connect/indieweb2-bastion/odns-rs/src/proxy.rs` (Rust Oblivious DNS proxy implementation)
+
+**How verified**: The ODNS proxy encrypts DNS queries end-to-end using Kyber-1024 (KEM) and XChaCha20-Poly1305. Queries are sent to an ODNS resolver (separate service) that cannot see the plaintext query because the client and resolver share a derived encryption key. README (§Security Features) claims "Zero-knowledge DNS prevents query correlation"; this is implemented by the hybrid encryption in `odns-rs/src/crypto.rs` which handles key encapsulation and symmetric encryption. The proxy endpoint (`graphql-dns-api/src/main.rs`) accepts ODNS-encrypted queries and forwards them to the resolver.
+
+**Caveat**: The ODNS resolver server code is not included in this repo (references external service). The local proxy is verified, but end-to-end security depends on external resolver implementation.
+
+=== Claim 2: SurrealDB Provenance Graph Tracks Consent History
+
+**Location**: `/var/mnt/eclipse/repos/civic-connect/indieweb2-bastion/src/provenance/mod.rs` (Rust SurrealDB provenance logging)
+
+**How verified**: Every civic data access is logged as a graph edge: (citizen) --[accessed]--> (government_data_item) with metadata timestamp, consent_id, and resolver_id. README (§Key Components) claims "SurrealDB Provenance — Graph database for audit trails and data provenance." The provenance module in `src/provenance/` calls `surrealdb::client` to insert edges. The audit trail is queryable via VQL (SurrealDB's query language) to answer "Who accessed this data?" and "What consent was given?"
+
+**Caveat**: Provenance logging is append-only; there is no immutability proof (e.g., blockchain anchoring is planned per CPR-010 but not yet implemented). A compromised database could alter logs.
 
 == Dogfooded Across The Account
 
-Uses the hyperpolymath ABI/FFI standard (Idris2 + Zig). Same pattern used across
-https://github.com/hyperpolymath/proven[proven],
-https://github.com/hyperpolymath/burble[burble], and
-https://github.com/hyperpolymath/gossamer[gossamer].
+Uses the hyperpolymath ABI/FFI standard (Idris2 + Zig) for post-quantum crypto bindings. Kyber-1024 and Dilithium5 are called via Zig FFI to formally verified Idris2 ABI definitions in the `proven` repo. Same pattern: formal spec (Idris2) → stable C (Zig) → Rust caller.
+
+Also integrates with stapeln (container orchestration), hence Containerfile + vordr/selur-compose.
 
 == File Map
 
@@ -33,10 +42,27 @@ https://github.com/hyperpolymath/gossamer[gossamer].
 |===
 | Path | What's There
 
-| `src/` | Source code
-| `ffi/` | Foreign function interface
-| `test(s)/` | Test suite
+| `indieweb2-bastion/src/main.rs` | Bastion entry point; sets up Axum HTTP server on port 8443
+| `indieweb2-bastion/odns-rs/src/proxy.rs` | Oblivious DNS proxy; routes queries through KEM + symmetric encryption
+| `indieweb2-bastion/odns-rs/src/crypto.rs` | Post-quantum crypto using Kyber-1024 (KEM) and XChaCha20-Poly1305
+| `indieweb2-bastion/graphql-dns-api/src/main.rs` | GraphQL endpoint for DNS queries with DNSSEC validation
+| `indieweb2-bastion/graphql-dns-api/src/resolver.rs` | DNS resolver using trust-dns-proto; validates DNSSEC signatures
+| `indieweb2-bastion/src/provenance/mod.rs` | SurrealDB provenance logging; records all data accesses as graph edges
+| `indieweb2-bastion/src/consent/mod.rs` | Consent management; validates user has consented before data access
+| `civic-stream/src/main.rs` | Civic-Stream entry point; government API integration (routes, streaming)
+| `civic-stream/src/api/` | Government API adapters (FOIA, federal data endpoints, etc.)
+| `src/policies/` | Nickel policy contracts for consent and crypto compliance (CPR-001 through CPR-013)
+| `Containerfile` | Container build using Chainguard base + stapeln
+| `compose.toml` | Multi-container orchestration (Bastion, Civic-Stream, SurrealDB)
 |===
+
+== Testing Critical Paths
+
+* **ODNS encryption**: `indieweb2-bastion/odns-rs/tests/` — verify Kyber-1024 KEM and XChaCha20 round-trip
+* **DNSSEC validation**: `indieweb2-bastion/graphql-dns-api/tests/` — test resolver against signed root zone
+* **Provenance logging**: `indieweb2-bastion/tests/provenance_test.rs` — insert and query provenance edges
+* **Consent checks**: `indieweb2-bastion/tests/consent_test.rs` — verify data access blocked without valid consent
+* **Integration**: `tests/integration_test.rs` — end-to-end flow from citizen query through ODNS to data retrieval
 
 == Questions?
 
