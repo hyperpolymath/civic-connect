@@ -10,5 +10,16 @@ status = "active"
 
 [project-context]
 name = "civic-connect"
-completion-percentage = 0
+completion-percentage = 25
 phase = "In development"
+crg-grade = "C"
+crg-grade-achieved = "2026-04-04"
+
+[test-coverage]
+unit-tests = "present (inline in src)"
+property-tests = "present (proptest, odns-rs + webmention-rate-limiter)"
+e2e-tests = "present (odns pipeline + webmention flow)"
+aspect-tests = "present (security invariants, odns-rs)"
+benchmarks = "present (criterion, odns-rs + webmention-rate-limiter)"
+integration-tests = "present (webmention + graphql-dns-api)"
+fuzz-tests = "placeholder only (FAKE-FUZZ)"

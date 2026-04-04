@@ -52,3 +52,8 @@ hickory-proto = "0.24"
 tokio-rustls = "0.26"
 rustls = "0.23"
 rustls-pemfile = "2"
+
+
+# Property-based testing (available to all workspace members as dev-deps)
+proptest = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
