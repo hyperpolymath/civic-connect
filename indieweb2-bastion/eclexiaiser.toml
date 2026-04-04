@@ -5,15 +5,16 @@
 name = "indieweb2-bastion"
 
 [[functions]]
-name = "process_batch"
-source = "src/batch.rs"
-energy-budget-mj = 50.0
-carbon-budget-mg = 10.0
+name = "validateAll"
+source = "src/PolicyGate.res"
+energy-budget-mj = 20.0
+carbon-budget-mg = 4.0
 
 [[functions]]
-name = "render_page"
-source = "src/web.rs"
-energy-budget-mj = 5.0
+name = "validateCryptoCompliance"
+source = "src/PolicyGate.res"
+energy-budget-mj = 15.0
+carbon-budget-mg = 3.0
 
 [carbon]
 provider = "static"
