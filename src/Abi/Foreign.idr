@@ -5,10 +5,10 @@
 ||| implementation. It ensures that decentralized data streams are 
 ||| handled with strict type safety at the FFI boundary.
 
-module CIVIC_CONNECT.ABI.Foreign
+module Abi.Foreign
 
-import CIVIC_CONNECT.ABI.Types
-import CIVIC_CONNECT.ABI.Layout
+import Abi.Types
+import Abi.Layout
 
 %default total
 
