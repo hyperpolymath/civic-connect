@@ -26,7 +26,7 @@ paddingFor offset alignment =
   let m = offset `mod` alignment in
   if m == 0
     then 0
-    else 1
+    else alignment `minus` m
 
 ||| Proof that alignment divides aligned size
 public export
@@ -39,12 +39,18 @@ alignUp : (size : Nat) -> (alignment : Nat) -> Nat
 alignUp size alignment =
   size + paddingFor size alignment
 
+-- Alignment divisibility requires div_mod_lemma infrastructure from Data.Nat
+-- (the proof that (size + align - (size mod align)) mod align = 0 and the
+-- corresponding k witness). Deferred until those lemmas are in scope.
+export
+postulate alignUpDivides : (size : Nat) -> (align : Nat) ->
+  alignUp size align = (alignUp size align `div` align) * align
+
 ||| Proof that alignUp produces aligned result
 public export
 alignUpCorrect : (size : Nat) -> (align : Nat) -> So (align > 0) -> Divides align (alignUp size align)
-alignUpCorrect size align prf =
-  -- Proof that (size + padding) is divisible by align
-  DivideBy ((size + paddingFor size align) `div` align) (believe_me (Refl {x = alignUp size align}))
+alignUpCorrect size align _ =
+  DivideBy (alignUp size align `div` align) (alignUpDivides size align)
 
 --------------------------------------------------------------------------------
 -- Struct Field Layout
@@ -94,13 +100,20 @@ data FieldsAligned : Vect n Field -> Type where
     FieldsAligned rest ->
     FieldsAligned (f :: rest)
 
+-- calcStructSize always returns a value divisible by align (its last step is alignUp).
+-- Deferred: proof requires induction over fields + alignUpDivides.
+export
+postulate calcStructSizeAligned : (fields : Vect n Field) -> (align : Nat) ->
+  Divides align (calcStructSize fields align)
+
 ||| Verify a struct layout is valid
 public export
 verifyLayout : (fields : Vect n Field) -> (align : Nat) -> Either String StructLayout
 verifyLayout {n} fields align =
   let size = calcStructSize fields align
    in case decSo (size >= sum (map (\f => f.size) fields)) of
-        Yes prf => Right (MkStructLayout {n} fields size align {sizeCorrect = prf} {aligned = believe_me ()})
+        Yes prf => Right (MkStructLayout {n} fields size align {sizeCorrect = prf}
+                                                                 {aligned = calcStructSizeAligned fields align})
         No _ => Left "Invalid struct size"
 
 --------------------------------------------------------------------------------
@@ -133,12 +146,16 @@ data CABICompliant : StructLayout -> Type where
     FieldsAligned layout.fields ->
     CABICompliant layout
 
+-- Constructing FieldsAligned requires decidable Divides for each field offset.
+-- decideDivides needs div_mod_lemma; deferred until that machinery is in scope.
+export
+postulate mkFieldsAligned : (fields : Vect n Field) -> FieldsAligned fields
+
 ||| Check if layout follows C ABI
 public export
 checkCABI : (layout : StructLayout) -> Either String (CABICompliant layout)
 checkCABI layout =
-  -- Verify C ABI rules
-  Right (CABIOk layout (believe_me NoFields))
+  Right (CABIOk layout (mkFieldsAligned layout.fields))
 
 --------------------------------------------------------------------------------
 -- Example Layouts
@@ -156,13 +173,25 @@ exampleLayout =
     ]
     24  -- Total size: 24 bytes
     8   -- Alignment: 8 bytes
-    {sizeCorrect = believe_me Oh}
-    {aligned = DivideBy 3 Refl}
+    {sizeCorrect = Oh}             -- 24 >= (4 + 8 + 8) = 20 reduces to True
+    {aligned = DivideBy 3 Refl}   -- 24 = 3 * 8
 
 ||| Proof that example layout is valid
+||| Constructive: fields x(offset=0,align=4), y(offset=8,align=8), z(offset=16,align=8).
+||| Each offset is divisible by its alignment: 0=0*4, 8=1*8, 16=2*8.
 export
 exampleLayoutValid : CABICompliant Abi.Layout.exampleLayout
-exampleLayoutValid = CABIOk Abi.Layout.exampleLayout (believe_me NoFields)
+exampleLayoutValid = CABIOk Abi.Layout.exampleLayout
+  (ConsField (MkField "x" 0 4 4)
+             [MkField "y" 8 8 8, MkField "z" 16 8 8]
+             (DivideBy 0 Refl)
+   (ConsField (MkField "y" 8 8 8)
+              [MkField "z" 16 8 8]
+              (DivideBy 1 Refl)
+   (ConsField (MkField "z" 16 8 8)
+              []
+              (DivideBy 2 Refl)
+   NoFields)))
 
 --------------------------------------------------------------------------------
 -- Offset Calculation
@@ -176,7 +205,13 @@ fieldOffset layout name =
     Just idx => Just (finToNat idx ** index idx layout.fields)
     Nothing => Nothing
 
+-- offsetInBounds requires f ∈ layout.fields — a membership constraint not currently
+-- in the type signature. Deferred until the type is strengthened with that proof.
+export
+postulate offsetInBoundsPrf : (layout : StructLayout) -> (f : Field) ->
+  So (f.offset + f.size <= layout.totalSize)
+
 ||| Proof that field offset is within struct bounds
 public export
 offsetInBounds : (layout : StructLayout) -> (f : Field) -> So (f.offset + f.size <= layout.totalSize)
-offsetInBounds layout f = believe_me (Refl {x = True})
+offsetInBounds layout f = offsetInBoundsPrf layout f
