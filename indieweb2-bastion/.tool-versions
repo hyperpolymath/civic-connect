@@ -1,31 +1,22 @@
 # ASDF tool versions for Indieweb2 Bastion
 # Multi-chain smart contract platform
 # Languages: Solidity, Vyper, Motoko, ReScript, Deno
-
 # Node.js for build tools and ReScript
-nodejs 20.11.1
-
+nodejs 25.6.1
 # Deno runtime
 deno 1.43.0
-
 # Solidity compiler
 solidity 0.8.24
-
 # Python for Vyper
 python 3.11.8
-
 # Nickel configuration
 nickel 1.4.0
-
 # Cap'n Proto for data serialization
 capnp 0.10.4
-
 # SurrealDB for data storage
 surrealdb 1.5.0
-
 # Shell
 bash 5.2.15
-
 # Additional blockchain tools
 # dfx (Internet Computer) - install via dfxvm
 # foundry (Ethereum) - install via foundryup
