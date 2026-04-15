@@ -55,7 +55,7 @@ sha3 = "0.10"                    # SHAKE3-512 (FIPS 202) — CPR-002
 argon2 = "0.5"                   # Password hashing (Argon2id) — CPR-001
 chacha20poly1305 = "0.10"        # XChaCha20-Poly1305 symmetric — CPR-006
 hkdf = "0.12"                    # HKDF-SHAKE512 key derivation — CPR-007
-rand = "0.9"                     # RNG framework — CPR-008
+rand = "0.10"                     # RNG framework — CPR-008
 rand_chacha = "0.3"              # ChaCha20-DRBG — CPR-008
 base64 = "0.22"
 hex = "0.4"
@@ -67,7 +67,7 @@ pqcrypto-dilithium = "0.5"       # Post-quantum signatures (ML-DSA-87 / Dilithiu
 pqcrypto-traits = "0.3"          # Trait abstractions for pqcrypto
 
 # Security overrides for transitive dependencies
-lru = "0.16.4"
+lru = "0.17.0"
 jsonwebtoken = "10"
 
 [features]
