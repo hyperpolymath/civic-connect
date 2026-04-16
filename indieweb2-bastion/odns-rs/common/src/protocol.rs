@@ -59,10 +59,10 @@ mod tests {
     async fn framed_roundtrip() {
         let data = b"hello, oDNS";
         let mut buf = Vec::new();
-        write_framed(&mut buf, data).await.unwrap();
+        write_framed(&mut buf, data).await.expect("TODO: handle error");
 
         let mut cursor = std::io::Cursor::new(buf);
-        let result = read_framed(&mut cursor).await.unwrap();
+        let result = read_framed(&mut cursor).await.expect("TODO: handle error");
         assert_eq!(result, data);
     }
 
