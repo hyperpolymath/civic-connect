@@ -164,10 +164,10 @@ mod tests {
         let (pk, sk) = generate_keypair();
         let plaintext = b"example.com A query";
 
-        let encrypted = encrypt_query(plaintext, &pk).unwrap();
+        let encrypted = encrypt_query(plaintext, &pk).expect("TODO: handle error");
         assert!(encrypted.len() >= OVERHEAD);
 
-        let decrypted = decrypt_query(&encrypted, &sk).unwrap();
+        let decrypted = decrypt_query(&encrypted, &sk).expect("TODO: handle error");
         assert_eq!(decrypted, plaintext);
     }
 
@@ -176,7 +176,7 @@ mod tests {
         let (pk, _sk) = generate_keypair();
         let (_pk2, sk2) = generate_keypair();
 
-        let encrypted = encrypt_query(b"secret query", &pk).unwrap();
+        let encrypted = encrypt_query(b"secret query", &pk).expect("TODO: handle error");
         let result = decrypt_query(&encrypted, &sk2);
         assert!(result.is_err());
     }
@@ -191,11 +191,11 @@ mod tests {
     fn key_serialization_roundtrip() {
         let (pk, sk) = generate_keypair();
 
-        let pk2 = public_key_from_bytes(pk.as_bytes()).unwrap();
-        let sk2 = secret_key_from_bytes(sk.as_bytes()).unwrap();
+        let pk2 = public_key_from_bytes(pk.as_bytes()).expect("TODO: handle error");
+        let sk2 = secret_key_from_bytes(sk.as_bytes()).expect("TODO: handle error");
 
-        let encrypted = encrypt_query(b"test", &pk2).unwrap();
-        let decrypted = decrypt_query(&encrypted, &sk2).unwrap();
+        let encrypted = encrypt_query(b"test", &pk2).expect("TODO: handle error");
+        let decrypted = decrypt_query(&encrypted, &sk2).expect("TODO: handle error");
         assert_eq!(decrypted, b"test");
     }
 }

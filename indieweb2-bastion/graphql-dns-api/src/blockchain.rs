@@ -120,7 +120,7 @@ impl BlockchainClient {
     pub async fn verify_hash(&self, tx_hash: &str, expected_hash: &str) -> Result<bool> {
         let tx: Transaction = self
             .provider
-            .get_transaction(tx_hash.parse::<TxHash>().unwrap())
+            .get_transaction(tx_hash.parse::<TxHash>().expect("TODO: handle error"))
             .await
             .map_err(|e| AppError::Blockchain(e.to_string()))?
             .ok_or_else(|| AppError::Blockchain("Transaction not found".to_string()))?;
@@ -143,7 +143,7 @@ impl BlockchainClient {
     pub async fn get_receipt(&self, tx_hash: &str) -> Result<TransactionReceipt> {
         let receipt = self
             .provider
-            .get_transaction_receipt(tx_hash.parse::<TxHash>().unwrap())
+            .get_transaction_receipt(tx_hash.parse::<TxHash>().expect("TODO: handle error"))
             .await
             .map_err(|e| AppError::Blockchain(e.to_string()))?
             .ok_or_else(|| AppError::Blockchain("Transaction receipt not found".to_string()))?;

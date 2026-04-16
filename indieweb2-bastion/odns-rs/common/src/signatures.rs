@@ -211,7 +211,7 @@ mod tests {
         let msg = b"test message for hybrid signature";
 
         let sig = hybrid_sign(msg, &kp);
-        let pk = kp.public_key().unwrap();
+        let pk = kp.public_key().expect("TODO: handle error");
 
         assert!(hybrid_verify(msg, &sig, &pk).is_ok());
     }
@@ -220,7 +220,7 @@ mod tests {
     fn hybrid_rejects_wrong_message() {
         let kp = generate_hybrid_keypair();
         let sig = hybrid_sign(b"original", &kp);
-        let pk = kp.public_key().unwrap();
+        let pk = kp.public_key().expect("TODO: handle error");
 
         let result = hybrid_verify(b"tampered", &sig, &pk);
         assert!(result.is_err());
@@ -232,7 +232,7 @@ mod tests {
         let kp2 = generate_hybrid_keypair();
 
         let sig = hybrid_sign(b"test", &kp1);
-        let pk2 = kp2.public_key().unwrap();
+        let pk2 = kp2.public_key().expect("TODO: handle error");
 
         let result = hybrid_verify(b"test", &sig, &pk2);
         assert!(result.is_err());
@@ -241,12 +241,12 @@ mod tests {
     #[test]
     fn public_key_serialization_roundtrip() {
         let kp = generate_hybrid_keypair();
-        let pk = kp.public_key().unwrap();
+        let pk = kp.public_key().expect("TODO: handle error");
 
         let bytes = pk.to_bytes();
         assert_eq!(bytes.len(), HYBRID_PK_LEN);
 
-        let pk2 = HybridPublicKey::from_bytes(&bytes).unwrap();
+        let pk2 = HybridPublicKey::from_bytes(&bytes).expect("TODO: handle error");
         assert_eq!(pk.ed448_vk.to_bytes(), pk2.ed448_vk.to_bytes());
         assert_eq!(pk.dil5_pk.as_bytes(), pk2.dil5_pk.as_bytes());
     }
@@ -260,8 +260,8 @@ mod tests {
         let bytes = sig.to_bytes();
         assert_eq!(bytes.len(), HYBRID_SIG_LEN);
 
-        let sig2 = HybridSignature::from_bytes(&bytes).unwrap();
-        let pk = kp.public_key().unwrap();
+        let sig2 = HybridSignature::from_bytes(&bytes).expect("TODO: handle error");
+        let pk = kp.public_key().expect("TODO: handle error");
         assert!(hybrid_verify(msg, &sig2, &pk).is_ok());
     }
 }
