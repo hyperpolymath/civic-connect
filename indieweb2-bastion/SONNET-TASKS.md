@@ -249,7 +249,7 @@ grep -n "replace.*':'" src/resolvers.rs
 
 **Files:**
 - `/var$REPOS_DIR/indieweb2-bastion/Justfile` (all lines)
-- `/var$REPOS_DIR/indieweb2-bastion/justfile` (all lines -- note: TWO justfiles exist)
+- `/var$REPOS_DIR/indieweb2-bastion/justfile` (all lines -- note: TWO Justfiles exist)
 
 **Problem:**
 Both `Justfile` (capital J) and `justfile` (lowercase j) exist. The capital-J `Justfile`
@@ -269,7 +269,7 @@ Additionally, the SPDX header in both Justfiles says `PMPL-1.0-or-later` which v
 the license policy (should be `PMPL-1.0-or-later`).
 
 **What to do:**
-1. Delete one of the two duplicate justfiles (keep `justfile` lowercase per convention).
+1. Delete one of the two duplicate Justfiles (keep `justfile` lowercase per convention).
 2. Replace the stub recipes with actual commands:
    - `build`: `cd graphql-dns-api && cargo build` + `cd services/webmention-rate-limiter && cargo build`
    - `test`: `cd graphql-dns-api && cargo test` + `cd services/webmention-rate-limiter && cargo test`
@@ -277,16 +277,16 @@ the license policy (should be `PMPL-1.0-or-later`).
    - `fmt`: `cd graphql-dns-api && cargo fmt` + `cd services/webmention-rate-limiter && cargo fmt`
    - `clean`: `cd graphql-dns-api && cargo clean` + `cd services/webmention-rate-limiter && cargo clean`
 3. Fix the SPDX header from `PMPL-1.0-or-later` to `PMPL-1.0-or-later`.
-4. Integrate the `test/Justfile` recipes into the main justfile as sub-recipes.
+4. Integrate the `test/Justfile` recipes into the main Justfile as sub-recipes.
 
 **Verification:**
 ```bash
 cd /var$REPOS_DIR/indieweb2-bastion
-ls -la justfile Justfile 2>&1
-# Should show only one justfile after fix
+ls -la Justfile Justfile 2>&1
+# Should show only one Justfile after fix
 just --list 2>&1 | head -20
 # Should show real recipes, not stubs
-grep "SPDX" justfile
+grep "SPDX" Justfile
 # Should show PMPL-1.0-or-later, NOT PMPL-1.0-or-later
 ```
 
@@ -753,7 +753,7 @@ find /var$REPOS_DIR/indieweb2-bastion -name "*.go" -not -path "*/.git/*" | wc -l
 # Should be 0 after TASK 7
 
 echo "=== 6. License headers correct ==="
-grep -rn "AGPL-3.0" /var$REPOS_DIR/indieweb2-bastion/justfile /var$REPOS_DIR/indieweb2-bastion/Justfile 2>/dev/null || echo "PASS: No AGPL in justfiles"
+grep -rn "AGPL-3.0" /var$REPOS_DIR/indieweb2-bastion/justfile /var$REPOS_DIR/indieweb2-bastion/Justfile 2>/dev/null || echo "PASS: No AGPL in Justfiles"
 
 echo "=== 7. WordPress plugin syntax ==="
 php -l /var$REPOS_DIR/indieweb2-bastion/wordpress/indieweb2-consent.php 2>&1
