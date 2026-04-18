@@ -12,7 +12,7 @@ status = "active"
 name = "civic-connect"
 completion-percentage = 25
 phase = "In development"
-crg-grade = "C"
+crg-grade = "E"
 crg-grade-achieved = "2026-04-04"
 
 [test-coverage]
