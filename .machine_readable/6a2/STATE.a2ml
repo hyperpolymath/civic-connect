@@ -15,6 +15,12 @@ phase = "In development"
 crg-grade = "E"
 crg-grade-achieved = "2026-04-04"
 
+[dogfooding-status]
+# Populated 2026-04-19 against real on-disk integrations. Each entry must
+# resolve to a grep-hit in the cited path.
+# Note: civic-connect stays E per AI-WORK §3a; dogfood evidence alone does not lift E->D.
+boj-server-mcp = "2026-04-19 — civic-connect-mcp cartridge (422 LOC: 50 Idris2 ABI Protocol.idr + 124 adapter.zig + 125 FFI zig + 53 mod.js + 70 build scripts). Path: boj-server/cartridges/civic-connect-mcp/"
+
 [test-coverage]
 unit-tests = "present (inline in src)"
 property-tests = "present (proptest, odns-rs + webmention-rate-limiter)"
