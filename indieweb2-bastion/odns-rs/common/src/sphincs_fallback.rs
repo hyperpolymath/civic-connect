@@ -147,7 +147,7 @@ mod tests {
 
         let pk_restored = public_key_from_bytes(&pk_bytes);
         assert!(pk_restored.is_ok());
-        assert_eq!(pk_restored.expect("TODO: handle error").as_bytes(), kp.pk.as_bytes());
+        assert_eq!(pk_restored.unwrap().as_bytes(), kp.pk.as_bytes());
     }
 
     #[test]
