@@ -43,7 +43,7 @@ sha3 = "0.10"
 pqcrypto-sphincsplus = "0.7"
 
 # RNG (ChaCha20-DRBG — CPR-008)
-rand = "0.9"
+rand = "0.10"
 
 # DNS protocol
 hickory-proto = "0.24"
