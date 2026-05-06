@@ -67,7 +67,7 @@ pqcrypto-dilithium = "0.5"       # Post-quantum signatures (ML-DSA-87 / Dilithiu
 pqcrypto-traits = "0.3"          # Trait abstractions for pqcrypto
 
 # Security overrides for transitive dependencies
-lru = "0.17.0"
+lru = "0.18.0"
 jsonwebtoken = "10"
 
 [features]
