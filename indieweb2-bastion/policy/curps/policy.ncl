@@ -1,6 +1,6 @@
 # IndieWeb2 CURPS policy — v0.1 strict
 # SPDX-FileCopyrightText: 2025 Hyperpolymath
-# SPDX-License-Identifier: PMPL-1.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 
 let schema = import "./schema.ncl"
 let webmention = import "./webmention.ncl"

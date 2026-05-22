@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 //! Data models for DNS records and blockchain provenance
 
 use async_graphql::{Enum, InputObject, SimpleObject, ID};

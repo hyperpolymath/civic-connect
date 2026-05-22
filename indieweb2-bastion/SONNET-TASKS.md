@@ -265,8 +265,8 @@ The lowercase `justfile` has the same content (identical file). Neither actually
 or tests anything. Meanwhile `test/Justfile` has real recipes that reference the actual
 toolchain (nickel, rescript, deno).
 
-Additionally, the SPDX header in both Justfiles says `PMPL-1.0-or-later` which violates
-the license policy (should be `PMPL-1.0-or-later`).
+Additionally, the SPDX header in both Justfiles says `MPL-2.0` which violates
+the license policy (should be `MPL-2.0`).
 
 **What to do:**
 1. Delete one of the two duplicate Justfiles (keep `justfile` lowercase per convention).
@@ -276,7 +276,7 @@ the license policy (should be `PMPL-1.0-or-later`).
    - `lint`: `cd graphql-dns-api && cargo clippy` + `cd services/webmention-rate-limiter && cargo clippy`
    - `fmt`: `cd graphql-dns-api && cargo fmt` + `cd services/webmention-rate-limiter && cargo fmt`
    - `clean`: `cd graphql-dns-api && cargo clean` + `cd services/webmention-rate-limiter && cargo clean`
-3. Fix the SPDX header from `PMPL-1.0-or-later` to `PMPL-1.0-or-later`.
+3. Fix the SPDX header from `MPL-2.0` to `MPL-2.0`.
 4. Integrate the `test/Justfile` recipes into the main Justfile as sub-recipes.
 
 **Verification:**
@@ -287,7 +287,7 @@ ls -la Justfile Justfile 2>&1
 just --list 2>&1 | head -20
 # Should show real recipes, not stubs
 grep "SPDX" Justfile
-# Should show PMPL-1.0-or-later, NOT PMPL-1.0-or-later
+# Should show MPL-2.0, NOT MPL-2.0
 ```
 
 ---

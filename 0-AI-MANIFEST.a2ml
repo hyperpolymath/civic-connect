@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: PMPL-1.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 # 0-AI-MANIFEST — AI Agent Entry Point for civic-connect
 # Last updated: 2026-02-20
 
@@ -28,7 +28,7 @@
 # 5. Consent must be explicit and auditable for all data processing
 # 6. Self-hosted infrastructure only — no cloud provider dependencies
 # 7. Chainguard wolfi-base images for all containers
-# 8. PMPL-1.0-or-later license on all original code
+# 8. MPL-2.0 license on all original code
 
 # Repository Structure
 # ====================

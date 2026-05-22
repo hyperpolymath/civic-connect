@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2025 Hyperpolymath
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 
 //! Security tests for Webmention rate limiter.
 //!

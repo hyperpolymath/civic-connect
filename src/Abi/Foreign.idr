@@ -1,4 +1,4 @@
--- SPDX-License-Identifier: PMPL-1.0-or-later
+-- SPDX-License-Identifier: MPL-2.0
 ||| CIVIC-CONNECT — FFI Bridge Declarations
 |||
 ||| This module defines the formal bridge to the native civic-connect

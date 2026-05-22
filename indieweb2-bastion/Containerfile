@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: PMPL-1.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 # Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 #
 # Build: cerro-torre build -f Containerfile -t indieweb2-bastion:latest .
@@ -28,7 +28,7 @@ FROM cgr.dev/chainguard/static:latest
 LABEL maintainer="Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>"
 LABEL version="0.2.0"
 LABEL org.opencontainers.image.source="https://github.com/hyperpolymath/indieweb2-bastion"
-LABEL org.opencontainers.image.licenses="PMPL-1.0-or-later"
+LABEL org.opencontainers.image.licenses="MPL-2.0"
 
 COPY --from=build /build/graphql-dns-api/target/release/graphql-dns-api /usr/local/bin/graphql-dns-api
 COPY --from=build /build/services/webmention-rate-limiter/target/release/webmention-rate-limiter /usr/local/bin/webmention-rate-limiter

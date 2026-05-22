@@ -6,8 +6,8 @@
  * Version: 0.1.0
  * Author: Hyperpolymath
  * Author URI: https://hyperpolymath.org
- * License: PMPL-1.0-or-later
- * SPDX-License-Identifier: PMPL-1.0-or-later
+ * License: MPL-2.0
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 if (!defined('ABSPATH')) {

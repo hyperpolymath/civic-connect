@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: PMPL-1.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 # CI/CD Configuration for Indieweb2 Bastion
 # Multi-chain smart contract CI pipeline
 

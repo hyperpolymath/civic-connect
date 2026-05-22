@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: PMPL-1.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 # GraphQL schema for indieweb2-bastion DNS API
 # Full DNS RR coverage with DNSSEC support
 # Nickel CURPS policy integration for governance

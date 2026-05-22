@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: PMPL-1.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 # Nickel: command/spec matrix for multi-shell generation (consumed by Deno JS)
 let Command = { name | string, description | string, steps | list string }
 let ShellTarget = { shell | string, ext | string, shebang | string, template | string }

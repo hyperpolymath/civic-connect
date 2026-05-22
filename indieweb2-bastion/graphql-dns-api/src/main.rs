@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 //! GraphQL DNS API server for indieweb2-bastion
 //!
 //! Features:

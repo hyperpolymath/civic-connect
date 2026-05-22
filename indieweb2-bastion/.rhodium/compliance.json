@@ -127,7 +127,7 @@
       "requirements": {
         "osi_license": {
           "status": "compliant",
-          "details": "PMPL-1.0-or-later (Palimpsest License)"
+          "details": "MPL-2.0 (Palimpsest License)"
         },
         "code_of_conduct": {
           "status": "partial",
