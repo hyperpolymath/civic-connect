@@ -94,3 +94,11 @@ deps/
 .cache/
 build/
 dist/
+
+# npm-avoidant (standards#67): estate JS-runtime policy is Deno>Bun>pnpm>npm.
+package-lock.json
+**/package-lock.json
+bun.lockb
+yarn.lock
+pnpm-lock.yaml
+.npmrc
