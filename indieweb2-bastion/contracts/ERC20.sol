@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MPL-2.0
 // ERC-20 token for IndieWeb2 platform provenance anchoring.
 // Based on EIP-20 standard (https://eips.ethereum.org/EIPS/eip-20).
 pragma solidity ^0.8.20;

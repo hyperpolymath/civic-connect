@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MPL-2.0
 # DNS record registry for on-chain provenance anchoring.
 # @version ^0.3.10
 

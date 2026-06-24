@@ -5,7 +5,7 @@
 :sectnums:
 
 // SPDX-FileCopyrightText: 2025 Hyperpolymath
-// SPDX-License-Identifier: MPL-2.0-or-later
+// SPDX-License-Identifier: CC-BY-SA-4.0
 
 [abstract]
 --
