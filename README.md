@@ -14,7 +14,7 @@ Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 Privacy-first civic engagement platform with government API integration, post-quantum secure DNS, and provenance-grade audit infrastructure.
 
 image:https://img.shields.io/badge/RSR-Certified-gold[RSR Certified,link=https://github.com/hyperpolymath/rhodium-standard-repositories]
-image:https://img.shields.io/badge/License-PMPL--1.0-blue.svg[License: PMPL-1.0,link="https://github.com/hyperpolymath/palimpsest-license"]
+image:https://img.shields.io/badge/License-MPL--2.0-blue.svg[License: PMPL-1.0,link="https://github.com/hyperpolymath/palimpsest-license"]
 
 toc::[]
 
@@ -100,6 +100,6 @@ This bootstraps dependencies (jq, capnproto, nickel, deno), validates Nickel pol
 
 == License
 
-SPDX-License-Identifier: MPL-2.0
+SPDX-License-Identifier: CC-BY-SA-4.0
 
 Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
