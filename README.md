@@ -1,105 +1,127 @@
-[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/hyperpolymath)
+<!--
+SPDX-License-Identifier: CC-BY-SA-4.0
+SPDX-FileCopyrightText: 2025-2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+-->
 
-= Civic-Connect
-Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
-:toc: macro
-:icons: font
-:source-highlighter: rouge
-:experimental:
-:url-github: https://github.com/hyperpolymath/civic-connect
-:url-gitlab: https://gitlab.com/hyperpolymath/civic-connect
-:url-bitbucket: https://bitbucket.org/hyperpolymath-dev/civic-connect
-:url-codeberg: https://codeberg.org/hyperpolymath/civic-connect
+Privacy-first civic engagement platform with government API integration,
+post-quantum secure DNS, and provenance-grade audit infrastructure.
 
-Privacy-first civic engagement platform with government API integration, post-quantum secure DNS, and provenance-grade audit infrastructure.
+[![RSR Certified](https://img.shields.io/badge/RSR-Certified-gold)](https://github.com/hyperpolymath/rhodium-standard-repositories)
+[![License: MPL-2.0](https://img.shields.io/badge/License-MPL--2.0-blue.svg)](https://www.mozilla.org/MPL/2.0/)
 
-image:https://img.shields.io/badge/RSR-Certified-gold[RSR Certified,link=https://github.com/hyperpolymath/rhodium-standard-repositories]
-image:https://img.shields.io/badge/License-MPL--2.0-blue.svg[License: PMPL-1.0,link="https://github.com/hyperpolymath/palimpsest-license"]
+<div id="toc">
 
-toc::[]
+</div>
 
-== Overview
+# Overview
 
-Civic-Connect combines hardened ingress infrastructure, oblivious DNS resolution, GraphQL DNS APIs, and SurrealDB provenance graphs to enable privacy-preserving civic engagement with government data.
+Civic-Connect combines hardened ingress infrastructure, oblivious DNS
+resolution, GraphQL DNS APIs, and SurrealDB provenance graphs to enable
+privacy-preserving civic engagement with government data.
 
-=== Key Components
+## Key Components
 
-* **IndieWeb2 Bastion** — Hardened ingress gateway with consent-first architecture
-* **Oblivious DNS (odns-rs)** — Post-quantum encrypted DNS proxy/resolver (Kyber-1024 + Dilithium5)
-* **GraphQL DNS API** — DNSSEC-signed DNS queries via GraphQL (Rust/Axum)
-* **Civic-Stream** — Government API integration and stream processing
-* **SurrealDB Provenance** — Graph database for audit trails and data provenance
-* **IPFS Storage** — Content-addressed snapshots with rehydration
-* **Nickel Policies** — Machine-checkable consent and crypto compliance contracts
+- **IndieWeb2 Bastion** — Hardened ingress gateway with consent-first
+  architecture
 
-=== Security Features
+- **Oblivious DNS (odns-rs)** — Post-quantum encrypted DNS
+  proxy/resolver (Kyber-1024 + Dilithium5)
 
-* Post-quantum cryptography: Kyber-1024 (KEM), Dilithium5 (signatures), SPHINCS+ (fallback)
-* Hybrid signatures: Ed448 + Dilithium5 dual-sign for quantum-resistant + classical assurance
-* Zero-knowledge DNS: Oblivious DNS prevents query correlation
-* Provenance anchoring: Ethereum, Polygon, and Internet Computer for tamper-evidence
+- **GraphQL DNS API** — DNSSEC-signed DNS queries via GraphQL
+  (Rust/Axum)
 
-== Architecture
+- **Civic-Stream** — Government API integration and stream processing
 
-See link:TOPOLOGY.md[TOPOLOGY.md] for a visual architecture map and completion dashboard.
+- **SurrealDB Provenance** — Graph database for audit trails and data
+  provenance
 
-```
-Users / Citizens (GUI / PWA / API Clients)
-            │
-            ▼
-    IndieWeb2 Bastion (Hardened Ingress, oDNS)
-            │
-            ▼
-    Civic-Stream (Government API Integration)
-            │
-            ▼
-    Data Layer (SurrealDB Graph + IPFS)
-```
+- **IPFS Storage** — Content-addressed snapshots with rehydration
 
-== Quick Start
+- **Nickel Policies** — Machine-checkable consent and crypto compliance
+  contracts
 
-[source,bash]
-----
+## Security Features
+
+- Post-quantum cryptography: Kyber-1024 (KEM), Dilithium5 (signatures),
+  SPHINCS+ (fallback)
+
+- Hybrid signatures: Ed448 + Dilithium5 dual-sign for
+  quantum-resistant + classical assurance
+
+- Zero-knowledge DNS: Oblivious DNS prevents query correlation
+
+- Provenance anchoring: Ethereum, Polygon, and Internet Computer for
+  tamper-evidence
+
+# Architecture
+
+See <a href="TOPOLOGY.md" class="md">TOPOLOGY</a> for a visual
+architecture map and completion dashboard.
+
+    Users / Citizens (GUI / PWA / API Clients)
+                │
+                ▼
+        IndieWeb2 Bastion (Hardened Ingress, oDNS)
+                │
+                ▼
+        Civic-Stream (Government API Integration)
+                │
+                ▼
+        Data Layer (SurrealDB Graph + IPFS)
+
+# Quick Start
+
+```bash
 cd indieweb2-bastion
 just bootstrap
 just all
-----
+```
 
-This bootstraps dependencies (jq, capnproto, nickel, deno), validates Nickel policies, runs the ReScript policy gate, and starts the GUI/PWA server on port 8443.
+This bootstraps dependencies (jq, capnproto, nickel, deno), validates
+Nickel policies, runs the ReScript policy gate, and starts the GUI/PWA
+server on port 8443.
 
-=== Prerequisites
+## Prerequisites
 
-* **Rust** (nightly) — Core services
-* **Deno** — Consent API, policy gate runtime
-* **Nickel** — Policy contracts
-* **SurrealDB** — Provenance graph
-* **IPFS** — Content-addressed storage
-* **stapeln toolchain** — cerro-torre, selur, vordr, selur-compose
+- **Rust** (nightly) — Core services
 
-== Technology Stack
+- **Deno** — Consent API, policy gate runtime
 
-[cols="1,3"]
-|===
-| Language | Purpose
+- **Nickel** — Policy contracts
 
-| Rust | odns-rs, graphql-dns-api, webmention-limiter
-| ReScript | Policy gate (9 validators), UI components
-| Deno | Consent API, signing, publishing, static server
-| Nickel | Policy contracts and validation
-| Solidity | Smart contracts (Ethereum/Polygon)
-| Motoko | Internet Computer canisters
-|===
+- **SurrealDB** — Provenance graph
 
-== Documentation
+- **IPFS** — Content-addressed storage
 
-* link:TOPOLOGY.md[Architecture Topology & Completion Dashboard]
-* link:docs/planning/HANDOVER_SUMMARY.md[CivicConnect Vision & Handover]
-* link:docs/planning/RSR_COMPLIANCE.md[RSR Compliance Guide]
-* link:indieweb2-bastion/CRYPTO-POLICY.adoc[Cryptographic Policy (13 CPR requirements)]
-* link:indieweb2-bastion/README.adoc[IndieWeb2 Bastion Documentation]
+- **stapeln toolchain** — cerro-torre, selur, vordr, selur-compose
 
-== License
+# Technology Stack
+
+| Language | Purpose                                         |
+|----------|-------------------------------------------------|
+| Rust     | odns-rs, graphql-dns-api, webmention-limiter    |
+| ReScript | Policy gate (9 validators), UI components       |
+| Deno     | Consent API, signing, publishing, static server |
+| Nickel   | Policy contracts and validation                 |
+| Solidity | Smart contracts (Ethereum/Polygon)              |
+| Motoko   | Internet Computer canisters                     |
+
+# Documentation
+
+- [Architecture Topology & Completion Dashboard](TOPOLOGY.md)
+
+- [CivicConnect Vision & Handover](docs/planning/HANDOVER_SUMMARY.md)
+
+- [RSR Compliance Guide](docs/planning/RSR_COMPLIANCE.md)
+
+- [Cryptographic Policy (13 CPR
+  requirements)](indieweb2-bastion/CRYPTO-POLICY.adoc)
+
+- [IndieWeb2 Bastion Documentation](indieweb2-bastion/README.adoc)
+
+# License
 
 SPDX-License-Identifier: CC-BY-SA-4.0
 
-Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
+Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
+\<[j.d.a.jewell@open.ac](j.d.a.jewell@open.ac).uk\>
