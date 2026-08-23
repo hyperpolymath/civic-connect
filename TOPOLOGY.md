@@ -23,7 +23,7 @@
                         │        │     ┌───────────┘             │
                         │  ┌─────┴─────┴───────────────────────┐ │
                         │  │ Consent API   Policy Gate         │ │
-                        │  │ (Deno)        (ReScript + Deno)   │ │
+                        │  │ (Deno)        (AffineScript + Deno)   │ │
                         │  └───────────────────────────────────┘ │
                         └────────────────────┬───────────────────┘
                                              │
@@ -50,7 +50,7 @@
                         ┌─────────────────────────────────────────┐
                         │          REPO INFRASTRUCTURE            │
                         │  Stapeln Toolchain  .machine_readable/  │
-                        │  Justfile / Nix     Nickel Policies     │
+                        │  Justfile / Guix     Nickel Policies     │
                         └─────────────────────────────────────────┘
 
                         ┌─────────────────────────────────────────┐
@@ -73,7 +73,7 @@ INDIEWEB2 BASTION
   DNSSEC Hybrid Signing             ██████████ 100%    Ed448+Dilithium5
   GraphQL DNS API                   ███████░░░  70%    Standard endpoints, needs QUIC
   Consent API (Deno)                ████████░░  80%    Port 443, production
-  Policy Gate (ReScript)            ████████░░  80%    9 validators, crypto compliance
+  Policy Gate (AffineScript)            ████████░░  80%    9 validators, crypto compliance
   Webmention Rate Limiter           ██████░░░░  60%    Rust, needs completion
   PQ Crypto Integration             ████████░░  80%    Kyber + Dilithium5 integrated
   Smart Contracts                   ██████░░░░  60%    Solidity + Motoko functional

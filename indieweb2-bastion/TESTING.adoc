@@ -221,7 +221,7 @@ just test-all
 # By component
 just test-contracts      # Solidity
 just test-ic            # Motoko
-just test-rescript      # ReScript
+just test-affinescript      # AffineScript
 just test-infra         # Infrastructure
 
 # Security

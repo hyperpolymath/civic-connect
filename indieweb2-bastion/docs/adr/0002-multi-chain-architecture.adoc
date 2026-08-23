@@ -39,7 +39,7 @@ Multi-chain strategy impacts:
 * **Ethereum/Polygon:** Solidity 0.8.x (primary), Vyper 0.3.x (security-critical contracts)
 * **Internet Computer:** Motoko 0.10.x (WASM-native)
 
-**Frontend:** ReScript 11.0.1 (compiles to JavaScript, WASM-capable)
+**Frontend:** AffineScript 11.0.1 (compiles to JavaScript, WASM-capable)
 
 == Alternatives Considered
 
@@ -113,7 +113,7 @@ Multi-chain strategy impacts:
 
 === Frontend Stack
 
-* **Language:** ReScript 11.0.1 (strong typing, WASM-capable)
+* **Language:** AffineScript 11.0.1 (strong typing, WASM-capable)
 * **Web3 Integration:** ethers.js (Ethereum/Polygon), @dfinity/agent (IC)
 * **Wallet Integration:** MetaMask (EVM), Internet Identity (IC)
 
@@ -155,7 +155,7 @@ Multi-chain strategy impacts:
 
 * ✅ **Internet Computer:** Motoko compiles to WASM natively (COMPLIANT)
 * ⚠️ **Ethereum/Polygon:** Solidity/Vyper compile to EVM bytecode, NOT WASM
-* ⚠️ **Frontend:** ReScript can compile to WASM (planned)
+* ⚠️ **Frontend:** AffineScript can compile to WASM (planned)
 
 **Waiver:** Waiver-2025-003 until 2025-09-01
 

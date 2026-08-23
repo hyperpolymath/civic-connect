@@ -9,7 +9,7 @@ contribute:
   bounties: "https://issuehunt.io/r/hyperpolymath/indieweb2"
 
 allocation:
-  - Development time (ReScript/Deno, Podman/Wolfi, SurrealDB expertise)
+  - Development time (AffineScript/Deno, Podman/Wolfi, SurrealDB expertise)
   - CI/CD infrastructure and IPFS pinning
   - Community workshops on audit-grade web tooling
 

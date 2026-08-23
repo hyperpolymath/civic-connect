@@ -6,7 +6,7 @@
 
 The PROJECT_STATUS.adoc itself admits "Implementation: 0% (no source code)" but that is
 outdated -- there IS real code now: a Rust GraphQL DNS API, a Rust webmention rate limiter,
-a Deno consent API, Go oDNS proxy/resolver, ReScript policy gate, Motoko IC canisters,
+a Deno consent API, Go oDNS proxy/resolver, AffineScript policy gate, Motoko IC canisters,
 Solidity/Vyper contracts, and a WordPress plugin. However, significant portions are stubs,
 placeholders, or have critical gaps: DNSSEC signing is a placeholder, the oDNS components
 are in a BANNED language (Go), browser extensions are identical 7-line stubs, mobile apps
@@ -24,8 +24,8 @@ is a bare-bones token with no identity/registry logic matching the project's sta
 4. Do NOT change the license headers.
 5. If a task says "line N", verify line N still matches before editing.
 6. Build commands: `cargo build` (in graphql-dns-api/ or services/webmention-rate-limiter/),
-   `npx rescript build` (in root for ReScript), `deno check` (for .ts files).
-7. Test commands: `cargo test` (Rust crates), no test runner exists for ReScript or Deno
+   `npx affinescript build` (in root for AffineScript), `deno check` (for .ts files).
+7. Test commands: `cargo test` (Rust crates), no test runner exists for AffineScript or Deno
    consent API yet.
 8. The oDNS proxy/resolver are Go code -- per language policy Go is BANNED and must be
    rewritten in Rust. This is a large task and may be deferred.
@@ -263,7 +263,7 @@ test:
 
 The lowercase `justfile` has the same content (identical file). Neither actually builds
 or tests anything. Meanwhile `test/Justfile` has real recipes that reference the actual
-toolchain (nickel, rescript, deno).
+toolchain (nickel, affinescript, deno).
 
 Additionally, the SPDX header in both Justfiles says `MPL-2.0` which violates
 the license policy (should be `MPL-2.0`).
@@ -366,7 +366,7 @@ minimum:
    - Shows a small badge/icon indicating webmention support
 2. Use a shared source file for common logic, with browser-specific manifest differences.
 3. Note: Per language policy, these should use JavaScript (not TypeScript) since they are
-   browser extensions where ReScript compilation is not practical for content scripts.
+   browser extensions where AffineScript compilation is not practical for content scripts.
 
 **Verification:**
 ```bash
@@ -549,7 +549,7 @@ This produces a fake SBOM that provides no supply chain information.
 1. Use `cargo sbom` or `cyclonedx-rust-cargo` for the Rust crates.
 2. Use `deno info --json` for the Deno consent API dependencies.
 3. Merge outputs into a single CycloneDX or SPDX SBOM.
-4. Include the ReScript/npm dependencies from `package-lock.json`.
+4. Include the AffineScript/npm dependencies from `package-lock.json`.
 
 **Verification:**
 ```bash

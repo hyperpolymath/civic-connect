@@ -35,7 +35,7 @@
               +---------------------------------------------+
               |           Policy Layer                       |
               |                                             |
-              |  policy-gate (ReScript + Deno)              |
+              |  policy-gate (AffineScript + Deno)              |
               |    9 validators, crypto compliance          |
               |  policy/curps/schema.ncl   (Nickel)         |
               |  policy/curps/policy.ncl   (crypto policy)  |
@@ -100,7 +100,7 @@ Verify:  Both MUST pass --> Ok(())   |
 | odns-rs/sphincs_fallback | Complete    | `██████████` | 100% |
 | consent-api (Deno)       | Production  | `████████░░` | 80%  |
 | webmention-limiter       | Partial     | `██████░░░░` | 60%  |
-| policy-gate (ReScript)   | Functional  | `████████░░` | 80%  |
+| policy-gate (AffineScript)   | Functional  | `████████░░` | 80%  |
 | crypto-policy (scheme)   | Defined     | `██████████` | 100% |
 | Nickel policy configs    | Complete    | `██████████` | 100% |
 | smart contracts          | Functional  | `██████░░░░` | 60%  |
@@ -136,7 +136,7 @@ Verify:  Both MUST pass --> Ok(())   |
 | pqcrypto-sphincsplus | 0.7     | SPHINCS+ / SLH-DSA fallback (CPR-012)|
 | tokio                | 1.x     | Async runtime                        |
 | rustls               | 0.23    | TLS 1.3 (proxy)                      |
-| rescript             | 12.1    | Policy-gate (compiled via Deno)      |
+| affinescript             | 12.1    | Policy-gate (compiled via Deno)      |
 | nickel               | -       | Policy contracts                     |
 | deno                 | 2.x     | Consent API + policy-gate runtime    |
 

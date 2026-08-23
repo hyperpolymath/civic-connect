@@ -15,7 +15,7 @@ Key capabilities delivered:
 ** GraphQL DNS API (Rust/Axum, port 8443) -- 70% complete
 ** Oblivious DNS (Rust/Tokio, port 853/8853)
 ** Consent API (Deno, port 443)
-** Policy Gate (ReScript + Deno, 9 validators)
+** Policy Gate (AffineScript + Deno, 9 validators)
 ** 13 crypto policy requirements (CPR-001 through CPR-013)
 ** Post-quantum crypto: Kyber-1024 KEM, Dilithium5 signatures, SPHINCS+ fallback
 ** Hybrid signatures: Ed448 + Dilithium5 dual-sign

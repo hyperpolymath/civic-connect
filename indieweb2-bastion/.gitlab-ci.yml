@@ -1,6 +1,6 @@
 # Indieweb2 Bastion - Comprehensive CI/CD Pipeline
 # Multi-chain smart contract platform
-# Languages: Solidity, Vyper, Motoko, ReScript/Node.js
+# Languages: Solidity, Vyper, Motoko, AffineScript/Node.js
 
 variables:
   NODE_VERSION: "20"
@@ -88,11 +88,11 @@ lint:motoko:
     - just lint-motoko || echo "Motoko linting not configured"
   allow_failure: true
 
-lint:rescript:
+lint:affinescript:
   extends: .base
   stage: lint
   script:
-    - just lint-rescript || npx rescript format --check || echo "ReScript linting not configured"
+    - just lint-affinescript || npx affinescript format --check || echo "AffineScript linting not configured"
   allow_failure: true
 
 # ==================== Build Stage ====================
@@ -132,11 +132,11 @@ build:motoko:
     expire_in: 1 day
   allow_failure: true
 
-build:rescript:
+build:affinescript:
   extends: .base
   stage: build
   script:
-    - just build-rescript || npm ci && npx rescript build -with-deps
+    - just build-affinescript || npm ci && npx affinescript build -with-deps
   artifacts:
     paths:
       - lib/
@@ -153,7 +153,7 @@ test:unit:
     - build:solidity
     - build:vyper
     - build:motoko
-    - build:rescript
+    - build:affinescript
   script:
     - just test || npm test || echo "Tests not fully configured"
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'

@@ -375,7 +375,7 @@ WARNING: The following algorithms MUST NOT be used in new code. Existing usage m
 |N/A
 |No direct crypto usage; rate limiting only
 
-|policy-gate (ReScript)
+|policy-gate (AffineScript)
 |Stub
 |Not yet implemented
 

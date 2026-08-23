@@ -41,7 +41,7 @@ cd indieweb2-bastion
 # Bootstrap (installs Nickel, Deno, jq, capnp, etc.)
 just bootstrap
 
-# ReScript + Hardhat
+# AffineScript + Hardhat
 npm install
 
 # Verify
@@ -71,8 +71,8 @@ PRIVATE_KEY=your_testnet_private_key
 # Validate Nickel policy
 just validate
 
-# Build ReScript frontend
-just rescript-build
+# Build AffineScript frontend
+just affinescript-build
 
 # Compile smart contracts
 just compile-contracts
@@ -153,11 +153,11 @@ dig @localhost -p 853 +tls example.com
 
 == Making Changes
 
-=== ReScript Frontend
+=== AffineScript Frontend
 
 **File:** `src/components/ConsentBanner.res`
 
-[source,rescript]
+[source,affinescript]
 ----
 // Edit component
 @react.component
@@ -169,7 +169,7 @@ let make = (~onAccept, ~onReject) => {
 **Rebuild:**
 [source,bash]
 ----
-just rescript-build
+just affinescript-build
 ----
 
 === Smart Contracts

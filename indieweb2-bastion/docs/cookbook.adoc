@@ -19,7 +19,7 @@ just bootstrap
 just validate
 
 # Build and deploy
-just rescript-build
+just affinescript-build
 just build-policy-wasm
 just deploy-testnet
 
@@ -73,19 +73,19 @@ just deploy-sepolia
 
 **Output:** `.tmp/policy.pretty.json`
 
-== ReScript Frontend
+== AffineScript Frontend
 
-=== `just rescript-build`
+=== `just affinescript-build`
 
-**Purpose:** Compile ReScript to JavaScript
+**Purpose:** Compile AffineScript to JavaScript
 
 **What it does:**
-* Runs `npx rescript build`
+* Runs `npx affinescript build`
 * Compiles `.res` files to `.bs.js`
 
-=== `just rescript-clean`
+=== `just affinescript-clean`
 
-**Purpose:** Clean ReScript build artifacts
+**Purpose:** Clean AffineScript build artifacts
 
 == Policy Engine (WASM)
 

@@ -65,7 +65,7 @@ toc::[]
 4. **Environment:**
    - Blockchain network (Ethereum mainnet, Polygon, Internet Computer)
    - Solidity/Motoko version
-   - Node.js/ReScript versions
+   - Node.js/AffineScript versions
    - Contract addresses
 5. **Proof of Concept:** Transaction hashes, contract calls, screenshots
 6. **Suggested Fix:** If known

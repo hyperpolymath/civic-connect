@@ -118,8 +118,8 @@ jobs:
           fi
       - name: Type coverage
         run: |
-          if [ -f "rescript.json" ]; then
-            echo "ReScript provides 100% type coverage"
+          if [ -f "affinescript.json" ]; then
+            echo "AffineScript provides 100% type coverage"
           fi
 
   # FUNCTIONALITY - Feature completeness
