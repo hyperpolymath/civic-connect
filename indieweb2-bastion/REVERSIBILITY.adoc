@@ -248,7 +248,7 @@ system func postupgrade() {
 
 == Frontend Rollback (Fully Reversible)
 
-=== ReScript Frontend Rollback
+=== AffineScript Frontend Rollback
 
 [source,bash]
 ----

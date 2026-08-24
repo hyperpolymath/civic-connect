@@ -6,13 +6,13 @@ This project uses a *three-tiered contribution model*:
 
 === 🔒 Perimeter 1: Core Systems (Maintainers Only)
 - **Scope**: Bastion ingress, oDNS core, GraphQL DNS schema, provenance export routines.
-- **Languages**: ReScript, Deno, Nickel, stapeln configs
+- **Languages**: AffineScript, Deno, Nickel, stapeln configs
 - **Access**: Restricted to maintainers.
 - **Contribution Path**: Direct commits with full SPDX and compliance coverage.
 
 === 🧠 Perimeter 2: Expert Extensions
 - **Scope**: Custom DNS record adapters, SurrealDB queries, browser extension components.
-- **Languages**: ReScript, WASM, SurrealQL
+- **Languages**: AffineScript, WASM, SurrealQL
 - **Access**: Trusted contributors.
 - **Contribution Path**:
   1. Apply via `.github/ISSUE_TEMPLATE/expert-contributor.yml`.
@@ -30,7 +30,7 @@ This project uses a *three-tiered contribution model*:
   4. Submit a pull request.
 
 == 📐 Coding Conventions
-- Indent with 2 spaces (ReScript standard).
+- Indent with 2 spaces (AffineScript standard).
 - Use SPDX headers in all source files.
 - Prefer AsciiDoc for structured documentation.
 

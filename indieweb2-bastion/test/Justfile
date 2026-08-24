@@ -13,10 +13,10 @@ nickel-validate: init
 nickel-eval: init
   nickel eval {{POLICY}} > /dev/null
 
-rescript-build:
-  npx rescript build
+affinescript-build:
+  npx affinescript build
 
-policy-gate: nickel-validate rescript-build
+policy-gate: nickel-validate affinescript-build
   node ../lib/js/src/PolicyGateCLI.js {{POLICY_JSON}}
 
 deno-sign: nickel-validate

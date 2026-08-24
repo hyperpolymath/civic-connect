@@ -12,7 +12,7 @@ Philosophy: **Palimpsest**. The Palimpsest-MPL (PMPL) text is provided in `licen
 
 :project-name: IndieWeb2
 :project-description: A consent-first, audit-grade bastion and oDNS system with GraphQL DNS and SurrealDB provenance.
-:language: ReScript, Deno, Ada 2022 (for tooling inspiration)
+:language: AffineScript, Deno, Ada 2022 (for tooling inspiration)
 :version: 0.1.0
 :repo-url: https://gitlab.com/hyperpolymath/indieweb2
 :default-shell: Bash
@@ -32,7 +32,7 @@ This will:
 * Create directories
 * Install jq, capnproto, nickel, deno
 * Validate Nickel policies
-* Run ReScript policy gate
+* Run AffineScript policy gate
 * Sign and publish policies
 * Start GUI/PWA server on port 8443 (or fallback to 8080)
 

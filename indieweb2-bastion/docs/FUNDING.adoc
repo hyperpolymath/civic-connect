@@ -8,7 +8,7 @@
 
 == 📋 Allocation
 Funds are used for:
-- Development time (ReScript/Deno expertise)
+- Development time (AffineScript/Deno expertise)
 - CI/CD infrastructure
 - Community workshops on audit-grade web tooling
 

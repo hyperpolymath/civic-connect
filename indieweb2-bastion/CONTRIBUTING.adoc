@@ -10,7 +10,7 @@ toc::[]
 
 == Welcome
 
-Thank you for considering contributing to indieweb2-bastion! This multi-chain identity platform welcomes contributions across Solidity, Motoko, ReScript, and infrastructure.
+Thank you for considering contributing to indieweb2-bastion! This multi-chain identity platform welcomes contributions across Solidity, Motoko, AffineScript, and infrastructure.
 
 == Code of Conduct
 
@@ -45,7 +45,7 @@ just test-all
 
 # 4. Make changes and test
 # Smart contracts: just test-contracts
-# ReScript: just test-rescript
+# AffineScript: just test-affinescript
 # Infrastructure: just test-infra
 
 # 5. Create PR
@@ -62,7 +62,7 @@ See link:ONBOARDING.adoc[ONBOARDING.adoc] for detailed multi-chain setup.
 * Node.js 20+, npm 9+
 * Solidity tooling (Foundry/Hardhat)
 * dfx (Internet Computer SDK)
-* ReScript 11.0.1+
+* AffineScript 11.0.1+
 * stapeln toolchain — cerro-torre, selur, vordr (for containers and local testnet)
 
 == Types of Contributions
@@ -115,8 +115,8 @@ See link:ONBOARDING.adoc[ONBOARDING.adoc] for detailed multi-chain setup.
 * Use `moc` formatter
 * Doc comments required
 
-**ReScript:**
-* Use `rescript format`
+**AffineScript:**
+* Use `affinescript format`
 * Type annotations where helpful
 * Doc comments for public APIs
 
@@ -147,7 +147,7 @@ contract IdentityRegistry {
 * Integration tests on testnet
 * Gas benchmarks
 
-**ReScript/Infrastructure:**
+**AffineScript/Infrastructure:**
 * 80%+ coverage
 * Integration tests
 * E2E tests for critical flows
@@ -216,7 +216,7 @@ See link:SECURITY.adoc[SECURITY.adoc] for reporting process.
 1. **Pre-PR checklist:**
    - [ ] Tests pass (`just test-all`)
    - [ ] Contracts formatted (`forge fmt`, `moc`)
-   - [ ] ReScript formatted (`rescript format`)
+   - [ ] AffineScript formatted (`affinescript format`)
    - [ ] Documentation updated
    - [ ] CHANGELOG.md updated
    - [ ] No secrets in commits

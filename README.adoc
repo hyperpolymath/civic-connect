@@ -63,7 +63,7 @@ just bootstrap
 just all
 ----
 
-This bootstraps dependencies (jq, capnproto, nickel, deno), validates Nickel policies, runs the ReScript policy gate, and starts the GUI/PWA server on port 8443.
+This bootstraps dependencies (jq, capnproto, nickel, deno), validates Nickel policies, runs the AffineScript policy gate, and starts the GUI/PWA server on port 8443.
 
 === Prerequisites
 
@@ -81,7 +81,7 @@ This bootstraps dependencies (jq, capnproto, nickel, deno), validates Nickel pol
 | Language | Purpose
 
 | Rust | odns-rs, graphql-dns-api, webmention-limiter
-| ReScript | Policy gate (9 validators), UI components
+| AffineScript | Policy gate (9 validators), UI components
 | Deno | Consent API, signing, publishing, static server
 | Nickel | Policy contracts and validation
 | Solidity | Smart contracts (Ethereum/Polygon)

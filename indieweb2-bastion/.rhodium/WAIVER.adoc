@@ -90,14 +90,14 @@ Smart contracts compile to chain-specific targets:
 
 * **Ethereum/Polygon:** Solidity/Vyper → EVM bytecode (not WASM)
 * **Internet Computer:** Motoko → WASM (ALREADY COMPLIANT)
-* **ReScript frontend:** Can compile to WASM
+* **AffineScript frontend:** Can compile to WASM
 
 **Partial Compliance:** Internet Computer canisters already use WASM as native target.
 
 **Remediation Plan:**
 
 * 2025-04: Evaluate EVM → WASM transpilation options (experimental)
-* 2025-05: Implement WASM build targets for ReScript frontend components
+* 2025-05: Implement WASM build targets for AffineScript frontend components
 * 2025-07: Document WASM compliance per component (IC: native, EVM: not applicable, frontend: compliant)
 * 2025-09: Multi-target WASM strategy documented in ADR
 

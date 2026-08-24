@@ -30,7 +30,7 @@ IndieWeb2 Bastion
   ├── GraphQL DNS API (Rust/Axum, port 8443)
   ├── Oblivious DNS (Rust/Tokio, port 853/8853)
   ├── Consent API (Deno, port 443)
-  └── Policy Gate (ReScript + Deno, 9 validators)
+  └── Policy Gate (AffineScript + Deno, 9 validators)
         │
         ▼
 Civic-Stream (Government API Integration)
@@ -88,7 +88,7 @@ just build
 # Rust tests (odns-rs, graphql-dns-api)
 cargo test
 
-# ReScript policy gate
+# AffineScript policy gate
 deno test
 
 # Integration tests
@@ -116,7 +116,7 @@ selur-compose -f compose.toml up
 | Language/Tool | Use Case | Notes |
 |---------------|----------|-------|
 | **Rust** | Core services, crypto, DNS, API | Primary for performance-critical code |
-| **ReScript** | Policy gate, UI components | Compiles to JS, type-safe |
+| **AffineScript** | Policy gate, UI components | Compiles to JS, type-safe |
 | **Deno** | Runtime, consent API, signing | Replaces Node/npm/bun |
 | **Nickel** | Policy contracts | Complex config validation |
 | **Guile Scheme** | State/meta files | .machine_readable/6a2/STATE.a2ml, .machine_readable/6a2/META.a2ml, .machine_readable/6a2/ECOSYSTEM.a2ml |
@@ -128,18 +128,18 @@ selur-compose -f compose.toml up
 
 | Banned | Replacement |
 |--------|-------------|
-| TypeScript | ReScript |
+| TypeScript | AffineScript |
 | Node.js | Deno |
 | npm/Bun/pnpm/yarn | Deno |
 | Go | Rust |
-| Python | Julia/Rust/ReScript |
+| Python | Julia/Rust/AffineScript |
 | Java/Kotlin | Rust |
 | Docker | Podman + stapeln |
 
 ### Package Management
 
 - **Primary**: Guix (guix.scm)
-- **Fallback**: Nix (flake.nix)
+- **Fallback**: Guix (flake.guix)
 - **JS deps**: Deno (deno.json imports)
 
 ### Security Requirements

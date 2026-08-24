@@ -10,7 +10,7 @@ Bootstrap sets up everything needed for first run:
 == Commands
 * `just bootstrap` — run once to prepare environment.
 * `just validate` — export and validate Nickel policy.
-* `just policy-gate` — run ReScript validator on exported JSON.
+* `just policy-gate` — run AffineScript validator on exported JSON.
 * `just sign-policy` — sign policy with Deno crypto.
 * `just verify-publish` — verify signature and publish to IPFS.
 * `just gui-dev` — start static PWA server (prefers port 8443, falls back to 8080).

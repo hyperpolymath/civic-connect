@@ -2,8 +2,8 @@
 git clone https://github.com/hyperpolymath/indieweb2-bastion.git
 cd indieweb2-bastion
 
-# Using Nix (recommended for reproducibility)
-nix develop
+# Using Guix (recommended for reproducibility)
+guix develop
 
 # Or using toolbox/distrobox
 toolbox create indieweb2-bastion-dev
@@ -41,7 +41,7 @@ indieweb2-bastion/
 ├── MAINTAINERS.md
 ├── README.adoc
 ├── SECURITY.md
-├── flake.nix            # Nix flake (Perimeter 1)
+├── flake.guix            # Guix flake (Perimeter 1)
 └── Justfile             # Task runner (Perimeter 1)
 ```
 

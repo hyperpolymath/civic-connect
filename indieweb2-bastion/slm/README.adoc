@@ -7,7 +7,7 @@ This directory contains resources for integrating **Mistral 7B** into IndieWeb2:
 - Privacy-preserving operations for sensitive manifests and provenance graphs.
 
 == 📂 Structure
-- prompts/: ReScript and GraphQL DNS review templates.
+- prompts/: AffineScript and GraphQL DNS review templates.
 - data/: Example provenance graphs for fine-tuning.
 - models/: Quantized Mistral 7B (`mistral-7b.Q4_K_M.gguf`).
 - scripts/: `inference.sh`, `fine-tune.sh`.

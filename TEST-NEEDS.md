@@ -78,7 +78,7 @@ All items ticked below were added in the CRG D→C blitz (2026-04-04).
 - resolvers.rs — integration test exists
 - schema.rs — no dedicated tests
 
-### ReScript UI (17 files)
+### AffineScript UI (17 files)
 - ZERO test files — needs deno test integration
 
 ### Idris2 ABI (6 files) + Zig FFI (6 files)

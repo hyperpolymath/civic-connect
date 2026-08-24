@@ -68,7 +68,7 @@ It provides network-level protection. Application-level protocol security (sanit
 | SurrealDB graph + Internet Computer canisters + IPFS pinning
 
 | **Policy Validation**
-| Nickel CURPS contracts, ReScript policy gate CLI
+| Nickel CURPS contracts, AffineScript policy gate CLI
 
 | **Consent Management**
 | RFC9415 manifest-based consent tracking
