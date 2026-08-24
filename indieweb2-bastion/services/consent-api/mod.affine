@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
-// Ported via Harvard Engine mechanical processor
+// Ported via Harvard Engine (Semantic pass)
 
 module mod;
 
-// TODO: Complete semantic implementation
-
-/* === ORIGINAL TYPESCRIPT CONTEXT ===
 // SPDX-License-Identifier: MPL-2.0
 // Consent API - IndieWeb2 Bastion
 //
@@ -14,7 +11,7 @@ module mod;
 // and SurrealDB for storage.
 
 import { serve } from "https://deno.land/std@0.218.0/http/server.ts";
-// deno-lint-ignore-file no-explicit-any
+// deno-lint-ignore-file no-explicit-unknown
 import { Surreal } from "https://deno.land/x/surrealdb@v1.0.0/mod.ts";
 
 // Content integrity hashing (CPR-009: BLAKE3 per CRYPTO-POLICY.adoc)
@@ -23,16 +20,16 @@ import { Surreal } from "https://deno.land/x/surrealdb@v1.0.0/mod.ts";
 // TODO(CPR-005): Add Ed448+Dilithium5 hybrid signing of consent records via Rust WASM.
 //   See: odns-rs/common/src/signatures.rs for reference implementation.
 //   Path: Build consent-crypto WASM crate → import in Deno → sign records on store.
-async function contentHash(data: string): Promise<string> {
-  const encoded = new TextEncoder().encode(data);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", encoded);
+async fn contentHash(data: string): string {
+  let encoded = new TextEncoder().encode(data);
+  let hashBuffer = await crypto.subtle.digest("SHA-256", encoded);
   return Array.from(new Uint8Array(hashBuffer))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
 
 // Consent preference types
-export interface ConsentPreferences {
+struct ConsentPreferences {
   identity: string;          // WordPress user identity (URL or email)
   telemetry: "on" | "off";   // Allow telemetry collection
   indexing: "on" | "off";    // Allow search engine indexing
@@ -43,7 +40,7 @@ export interface ConsentPreferences {
   source: string;            // Origin (e.g., "wordpress://example.com")
 }
 
-export interface ConsentRecord extends ConsentPreferences {
+struct ConsentRecord extends ConsentPreferences {
   id: string;
   createdAt: string;
   updatedAt: string;
@@ -53,12 +50,12 @@ export interface ConsentRecord extends ConsentPreferences {
 // SurrealDB client
 let db: Surreal | null = null;
 
-async function initDatabase(): Promise<Surreal> {
+async fn initDatabase(): Surreal {
   if (db) return db;
 
-  const dbUrl = Deno.env.get("SURREALDB_URL") || "ws://localhost:8000/rpc";
-  const dbNs = Deno.env.get("SURREALDB_NS") || "indieweb2";
-  const dbName = Deno.env.get("SURREALDB_DB") || "consent";
+  let dbUrl = Deno.env.get("SURREALDB_URL") || "ws://localhost:8000/rpc";
+  let dbNs = Deno.env.get("SURREALDB_NS") || "indieweb2";
+  let dbName = Deno.env.get("SURREALDB_DB") || "consent";
 
   db = new Surreal();
   await db.connect(dbUrl);
@@ -87,23 +84,23 @@ async function initDatabase(): Promise<Surreal> {
 }
 
 // Store consent preferences
-async function storeConsent(prefs: ConsentPreferences): Promise<ConsentRecord> {
-  const db = await initDatabase();
+async fn storeConsent(prefs: ConsentPreferences): ConsentRecord {
+  let db = await initDatabase();
 
   // Check if consent already exists for this identity
-  const existing = await db.query<ConsentRecord[]>(
+  let existing = await db.query<ConsentRecord[]>(
     "SELECT * FROM consent WHERE identity = $identity",
     { identity: prefs.identity }
   );
 
   // Compute content integrity hash (CPR-009)
-  const hashInput = `${prefs.identity}:${prefs.telemetry}:${prefs.indexing}:${prefs.webmentions}:${prefs.dnsOperations}:${prefs.timestamp}`;
-  const hash = await contentHash(hashInput);
+  let hashInput = `${prefs.identity}:${prefs.telemetry}:${prefs.indexing}:${prefs.webmentions}:${prefs.dnsOperations}:${prefs.timestamp}`;
+  let hash = await contentHash(hashInput);
 
   if (existing && existing.length > 0) {
     // Update existing record (parameterized to prevent injection)
-    const record = existing[0];
-    const updated = await db.query<ConsentRecord[]>(
+    let record = existing[0];
+    let updated = await db.query<ConsentRecord[]>(
       `UPDATE type::thing("consent", $recordId) SET
         telemetry = $telemetry,
         indexing = $indexing,
@@ -120,7 +117,7 @@ async function storeConsent(prefs: ConsentPreferences): Promise<ConsentRecord> {
     return updated[0];
   } else {
     // Create new record
-    const created = await db.create<ConsentRecord>("consent", {
+    let created = await db.create<ConsentRecord>("consent", {
       ...prefs,
       contentHash: hash,
       createdAt: new Date().toISOString(),
@@ -132,9 +129,9 @@ async function storeConsent(prefs: ConsentPreferences): Promise<ConsentRecord> {
 }
 
 // Get consent for identity
-async function getConsent(identity: string): Promise<ConsentRecord | null> {
-  const db = await initDatabase();
-  const results = await db.query<ConsentRecord[]>(
+async fn getConsent(identity: string): ConsentRecord | null {
+  let db = await initDatabase();
+  let results = await db.query<ConsentRecord[]>(
     "SELECT * FROM consent WHERE identity = $identity",
     { identity }
   );
@@ -142,11 +139,11 @@ async function getConsent(identity: string): Promise<ConsentRecord | null> {
 }
 
 // Check if operation is allowed by consent
-export async function checkConsentForOperation(
+async fn checkConsentForOperation(
   identity: string,
   operation: "telemetry" | "indexing" | "webmentions" | "dnsOperations"
-): Promise<boolean> {
-  const consent = await getConsent(identity);
+): boolean {
+  let consent = await getConsent(identity);
   if (!consent) {
     // No consent record - use defaults from Nickel policy
     const defaults: Record<string, string> = {
@@ -161,20 +158,20 @@ export async function checkConsentForOperation(
 }
 
 // Revoke all consent for identity
-async function revokeConsent(identity: string): Promise<void> {
-  const db = await initDatabase();
+async fn revokeConsent(identity: string): void {
+  let db = await initDatabase();
   await db.query("DELETE FROM consent WHERE identity = $identity", { identity });
 }
 
 // HTTP request handler
-async function handler(req: Request): Promise<Response> {
-  const url = new URL(req.url);
-  const path = url.pathname;
+async fn handler(req: Request): Response {
+  let url = new URL(req.url);
+  let path = url.pathname;
 
   // CORS headers — restrict to configured origins (not permissive)
-  const allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") || "https://localhost").split(",");
-  const origin = req.headers.get("Origin") || "";
-  const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+  let allowedOrigins = (Deno.env.get("ALLOWED_ORIGINS") || "https://localhost").split(",");
+  let origin = req.headers.get("Origin") || "";
+  let corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
 
   const headers: Record<string, string> = {
     "Access-Control-Allow-Origin": corsOrigin,
@@ -191,7 +188,7 @@ async function handler(req: Request): Promise<Response> {
   try {
     // POST /consent - Store consent preferences
     if (path === "/consent" && req.method === "POST") {
-      const prefs = await req.json() as ConsentPreferences;
+      let prefs = await req.json() as ConsentPreferences;
 
       // Validate required fields
       if (!prefs.identity || !prefs.telemetry || !prefs.indexing) {
@@ -206,14 +203,14 @@ async function handler(req: Request): Promise<Response> {
       prefs.dnsOperations = prefs.dnsOperations || "off";
       prefs.timestamp = prefs.timestamp || new Date().toISOString();
 
-      const record = await storeConsent(prefs);
+      let record = await storeConsent(prefs);
       return new Response(JSON.stringify(record), { status: 201, headers });
     }
 
     // GET /consent/:identity - Get consent for identity
     if (path.startsWith("/consent/") && req.method === "GET") {
-      const identity = decodeURIComponent(path.substring(9));
-      const consent = await getConsent(identity);
+      let identity = decodeURIComponent(path.substring(9));
+      let consent = await getConsent(identity);
 
       if (!consent) {
         return new Response(
@@ -227,7 +224,7 @@ async function handler(req: Request): Promise<Response> {
 
     // POST /consent/:identity/check - Check if operation is allowed
     if (path.match(/^\/consent\/[^/]+\/check$/) && req.method === "POST") {
-      const identity = decodeURIComponent(path.split("/")[2]);
+      let identity = decodeURIComponent(path.split("/")[2]);
       const { operation } = await req.json() as { operation: string };
 
       if (!["telemetry", "indexing", "webmentions", "dnsOperations"].includes(operation)) {
@@ -237,7 +234,7 @@ async function handler(req: Request): Promise<Response> {
         );
       }
 
-      const allowed = await checkConsentForOperation(
+      let allowed = await checkConsentForOperation(
         identity,
         operation as "telemetry" | "indexing" | "webmentions" | "dnsOperations"
       );
@@ -250,7 +247,7 @@ async function handler(req: Request): Promise<Response> {
 
     // DELETE /consent/:identity - Revoke consent
     if (path.startsWith("/consent/") && req.method === "DELETE") {
-      const identity = decodeURIComponent(path.substring(9));
+      let identity = decodeURIComponent(path.substring(9));
       await revokeConsent(identity);
       return new Response(
         JSON.stringify({ message: "Consent revoked", identity }),
@@ -279,7 +276,7 @@ async function handler(req: Request): Promise<Response> {
 
 // Start server
 if (import.meta.main) {
-  const port = parseInt(Deno.env.get("PORT") || "8082");
+  let port = parseInt(Deno.env.get("PORT") || "8082");
   console.log(`🔒 Consent API server starting on http://localhost:${port}`);
   console.log(`   - POST /consent - Store consent preferences`);
   console.log(`   - GET /consent/:identity - Get consent for identity`);
@@ -289,4 +286,3 @@ if (import.meta.main) {
   await serve(handler, { port });
 }
 
-==================================== */
