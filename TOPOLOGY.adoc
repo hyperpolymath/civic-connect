@@ -1,12 +1,8 @@
-<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
-<!-- TOPOLOGY.md — Project architecture map and completion dashboard -->
-<!-- Last updated: 2026-02-20 -->
+== Civic-Connect — Project Topology
 
-# Civic-Connect — Project Topology
+=== System Architecture
 
-## System Architecture
-
-```
+....
                         ┌─────────────────────────────────────────┐
                         │              USERS / CITIZENS           │
                         │        (GUI / PWA / API Clients)        │
@@ -58,11 +54,11 @@
                         │  Gamification │ Events │ Messaging      │
                         │  Leveling     │ QR Verify │ Mentoring   │
                         └─────────────────────────────────────────┘
-```
+....
 
-## Completion Dashboard
+=== Completion Dashboard
 
-```
+....
 COMPONENT                          STATUS              NOTES
 ─────────────────────────────────  ──────────────────  ─────────────────────────────────
 INDIEWEB2 BASTION
@@ -103,11 +99,11 @@ PLANNED: CIVICCONNECT LAYER
 
 ─────────────────────────────────────────────────────────────────────────────
 OVERALL:                            ███████░░░  ~70%   Bastion maturing, stream growing
-```
+....
 
-## Key Dependencies
+=== Key Dependencies
 
-```
+....
 Nickel Policy ───► Cerro-Torre ───► Bastion Ingress ───► Civic-Stream
      │                 │                 │                  │
      └─────────────────┴────────┬────────┴──────────────────┘
@@ -116,11 +112,11 @@ Nickel Policy ───► Cerro-Torre ───► Bastion Ingress ───►
                                 │
                                 ▼
                     Blockchain Anchors (ETH/Poly/IC)
-```
+....
 
-## Crypto Algorithm Map
+=== Crypto Algorithm Map
 
-```
+....
 REQUIREMENT   ALGORITHM                    STATUS
 ───────────   ──────────────────────────   ──────────────
 CPR-001       Argon2id (512MiB/8it/4ln)    Dep added
@@ -136,16 +132,17 @@ CPR-010       QUIC + HTTP/3 + IPv6         NOT STARTED
 CPR-011       WCAG 2.3 AAA                 NOT STARTED
 CPR-012       SPHINCS+ fallback            odns-rs module
 CPR-013       Coq/Isabelle verification    NOT STARTED
-```
+....
 
-## Update Protocol
+=== Update Protocol
 
 This file is maintained by both humans and AI agents. When updating:
 
-1. **After completing a component**: Change its bar and percentage
-2. **After adding a component**: Add a new row in the appropriate section
-3. **After architectural changes**: Update the ASCII diagram
-4. **Date**: Update the `Last updated` comment at the top of this file
+[arabic]
+. *After completing a component*: Change its bar and percentage
+. *After adding a component*: Add a new row in the appropriate section
+. *After architectural changes*: Update the ASCII diagram
+. *Date*: Update the `+Last updated+` comment at the top of this file
 
-Progress bars use: `█` (filled) and `░` (empty), 10 characters wide.
-Percentages: 0%, 10%, 20%, ... 100% (in 10% increments).
+Progress bars use: `+█+` (filled) and `+░+` (empty), 10 characters wide.
+Percentages: 0%, 10%, 20%, … 100% (in 10% increments).

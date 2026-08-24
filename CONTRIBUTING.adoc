@@ -1,7 +1,7 @@
 == Clone the repository
 
-git clone https://github.com/hyperpolymath/indieweb2-bastion.git cd
-indieweb2-bastion
+git clone https://github/hyperpolymath/civic-connect.git cd
+civic-connect
 
 == Using Guix (recommended for reproducibility)
 
@@ -9,8 +9,8 @@ guix develop
 
 == Or using toolbox/distrobox
 
-toolbox create indieweb2-bastion-dev toolbox enter indieweb2-bastion-dev
-# Install dependencies manually
+toolbox create civic-connect-dev toolbox enter civic-connect-dev #
+Install dependencies manually
 
 == Verify setup
 
@@ -22,16 +22,16 @@ suite
 ### Repository Structure
 ....
 
-indieweb2-bastion/ ├── src/ # Source code (Perimeter 1-2) ├── lib/ #
-Library code (Perimeter 1-2) ├── extensions/ # Extensions (Perimeter 2)
-├── plugins/ # Plugins (Perimeter 2) ├── tools/ # Tooling (Perimeter 2)
-├── docs/ # Documentation (Perimeter 3) │ ├── architecture/ # ADRs,
-specs (Perimeter 2) │ └── proposals/ # RFCs (Perimeter 3) ├── examples/
-# Examples (Perimeter 3) ├── spec/ # Spec tests (Perimeter 3) ├── tests/
-# Test suite (Perimeter 2-3) ├── .well-known/ # Protocol files
-(Perimeter 1-3) ├── .github/ # GitHub config (Perimeter 1) │ ├──
-ISSUE_TEMPLATE/ │ └── workflows/ ├── CHANGELOG.md ├── CODE_OF_CONDUCT.md
-├── CONTRIBUTING.md # This file ├── GOVERNANCE.md ├── LICENSE ├──
+civic-connect/ ├── src/ # Source code (Perimeter 1-2) ├── lib/ # Library
+code (Perimeter 1-2) ├── extensions/ # Extensions (Perimeter 2) ├──
+plugins/ # Plugins (Perimeter 2) ├── tools/ # Tooling (Perimeter 2) ├──
+docs/ # Documentation (Perimeter 3) │ ├── architecture/ # ADRs, specs
+(Perimeter 2) │ └── proposals/ # RFCs (Perimeter 3) ├── examples/ #
+Examples (Perimeter 3) ├── spec/ # Spec tests (Perimeter 3) ├── tests/ #
+Test suite (Perimeter 2-3) ├── .well-known/ # Protocol files (Perimeter
+1-3) ├── .github/ # GitHub config (Perimeter 1) │ ├── ISSUE_TEMPLATE/ │
+└── workflows/ ├── CHANGELOG.md ├── CODE_OF_CONDUCT.md ├──
+CONTRIBUTING.md # This file ├── GOVERNANCE.md ├── LICENSE ├──
 MAINTAINERS.md ├── README.adoc ├── SECURITY.md ├── flake.guix # Guix
 flake (Perimeter 1) └── Justfile # Task runner (Perimeter 1)
 
@@ -78,10 +78,10 @@ Use the [feature request template](.github/ISSUE_TEMPLATE/feature_request.md) an
 
 Look for issues labelled:
 
-- [`good first issue`](https://github.com/hyperpolymath/indieweb2-bastion/labels/good%20first%20issue) — Simple Perimeter 3 tasks
-- [`help wanted`](https://github.com/hyperpolymath/indieweb2-bastion/labels/help%20wanted) — Community help needed
-- [`documentation`](https://github.com/hyperpolymath/indieweb2-bastion/labels/documentation) — Docs improvements
-- [`perimeter-3`](https://github.com/hyperpolymath/indieweb2-bastion/labels/perimeter-3) — Community sandbox scope
+- [`good first issue`](https://github/hyperpolymath/civic-connect/labels/good%20first%20issue) — Simple Perimeter 3 tasks
+- [`help wanted`](https://github/hyperpolymath/civic-connect/labels/help%20wanted) — Community help needed
+- [`documentation`](https://github/hyperpolymath/civic-connect/labels/documentation) — Docs improvements
+- [`perimeter-3`](https://github/hyperpolymath/civic-connect/labels/perimeter-3) — Community sandbox scope
 
 ---
 
