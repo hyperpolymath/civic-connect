@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
-// Ported via Harvard Engine mechanical processor
+// Ported via Harvard Engine (Semantic pass)
 
 module mod;
 
-// TODO: Complete semantic implementation
-
-/* === ORIGINAL TYPESCRIPT CONTEXT ===
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 //
@@ -32,13 +29,13 @@ module mod;
 //   3. QR verification (Month 2)
 //   4. This groove bridge (ready now)
 
-const BURBLE_PORT = 6473;
-const VEXT_PORT = 6480;
-const GROOVE_PATH = "/.well-known/groove";
-const PROBE_TIMEOUT_MS = 2000;
+let BURBLE_PORT = 6473;
+let VEXT_PORT = 6480;
+let GROOVE_PATH = "/.well-known/groove";
+let PROBE_TIMEOUT_MS = 2000;
 
 /** Groove target status. */
-export interface GrooveTarget {
+struct GrooveTarget {
   serviceId: string;
   port: number;
   status: "connected" | "not_found" | "error";
@@ -48,7 +45,7 @@ export interface GrooveTarget {
 }
 
 /** Voice town hall configuration. */
-export interface TownHallConfig {
+struct TownHallConfig {
   /** Room name displayed to participants. */
   name: string;
   /** Maximum participants (0 = unlimited). */
@@ -64,7 +61,7 @@ export interface TownHallConfig {
 }
 
 /** Default town hall configuration. */
-export const defaultTownHallConfig: TownHallConfig = {
+const defaultTownHallConfig: TownHallConfig = {
   name: "Community Town Hall",
   maxParticipants: 0,
   e2eeMandatory: true,
@@ -79,12 +76,12 @@ export const defaultTownHallConfig: TownHallConfig = {
  * @param port - Target port number
  * @returns Parsed manifest or null
  */
-export async function probeGroove(port: number): Promise<Record<string, unknown> | null> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
+async fn probeGroove(port: number): Record<string, unknown | null> {
+  let controller = new AbortController();
+  let timeoutId = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
 
   try {
-    const response = await fetch(`http://127.0.0.1:${port}${GROOVE_PATH}`, {
+    let response = await fetch(`http://127.0.0.1:${port}${GROOVE_PATH}`, {
       method: "GET",
       headers: { Accept: "application/json" },
       signal: controller.signal,
@@ -104,10 +101,10 @@ export async function probeGroove(port: number): Promise<Record<string, unknown>
  *
  * @returns Object with burble and vext groove targets
  */
-export async function discoverVoiceGrooves(): Promise<{
+async fn discoverVoiceGrooves(): {
   burble: GrooveTarget;
   vext: GrooveTarget;
-}> {
+} {
   const [burbleManifest, vextManifest] = await Promise.all([
     probeGroove(BURBLE_PORT),
     probeGroove(VEXT_PORT),
@@ -123,7 +120,7 @@ export async function discoverVoiceGrooves(): Promise<{
  * Check if voice town halls are available.
  * Requires Burble with E2EE support.
  */
-export async function isVoiceAvailable(): Promise<boolean> {
+async fn isVoiceAvailable(): boolean {
   const { burble } = await discoverVoiceGrooves();
   return burble.status === "connected" && burble.capabilities.includes("voice");
 }
@@ -131,12 +128,12 @@ export async function isVoiceAvailable(): Promise<boolean> {
 /**
  * Send a message to a groove service.
  */
-export async function sendGrooveMessage(
+async fn sendGrooveMessage(
   port: number,
   message: Record<string, unknown>,
-): Promise<boolean> {
+): boolean {
   try {
-    const response = await fetch(`http://127.0.0.1:${port}/.well-known/groove/message`, {
+    let response = await fetch(`http://127.0.0.1:${port}/.well-known/groove/message`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(message),
@@ -151,15 +148,15 @@ export async function sendGrooveMessage(
  * Request a town hall room from Burble via groove.
  * This is a groove message — Burble creates the room and returns its ID.
  */
-export async function requestTownHall(
+async fn requestTownHall(
   config: TownHallConfig = defaultTownHallConfig,
-): Promise<{ ok: boolean; roomId?: string; error?: string }> {
-  const grooves = await discoverVoiceGrooves();
+): { ok: boolean; roomId?: string; error?: string } {
+  let grooves = await discoverVoiceGrooves();
   if (grooves.burble.status !== "connected") {
     return { ok: false, error: "Burble voice not available (groove not connected)" };
   }
 
-  const success = await sendGrooveMessage(BURBLE_PORT, {
+  let success = await sendGrooveMessage(BURBLE_PORT, {
     type: "create_town_hall",
     source: "civic-connect",
     config: {
@@ -182,7 +179,7 @@ export async function requestTownHall(
 
 // ── Internal ──
 
-function manifestToTarget(
+fn manifestToTarget(
   serviceId: string,
   port: number,
   manifest: Record<string, unknown> | null,
@@ -198,7 +195,7 @@ function manifestToTarget(
     };
   }
 
-  const caps = manifest.capabilities as Record<string, unknown> | undefined;
+  let caps = manifest.capabilities as Record<string, unknown> | undefined;
   return {
     serviceId: (manifest.service_id as string) || serviceId,
     port,
@@ -209,4 +206,3 @@ function manifestToTarget(
   };
 }
 
-==================================== */
