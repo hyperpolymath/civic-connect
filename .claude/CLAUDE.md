@@ -129,6 +129,7 @@ selur-compose -f compose.toml up
 | Banned | Replacement |
 |--------|-------------|
 | TypeScript | AffineScript |
+| Deno | Bun |
 | Node.js | Bun |
 | npm/pnpm/yarn | Bun |
 | Go | Rust |
@@ -140,7 +141,7 @@ selur-compose -f compose.toml up
 
 - **Primary**: Guix (guix.scm)
 - **Fallback**: Guix (flake.guix)
-- **JS deps**: Bun (`package.json` + `bun.lock`); `bunx <tool>` for one-off tooling
+- **JS deps**: Bun (`package.json` + `bun.lock`). Declare tooling as a devDependency and run `bunx --no-install --bun <tool>` — a bare `bunx <tool>` can fetch an unpinned package and may start Node via its shebang.
 
 ### Security Requirements
 
