@@ -117,7 +117,7 @@ selur-compose -f compose.toml up
 |---------------|----------|-------|
 | **Rust** | Core services, crypto, DNS, API | Primary for performance-critical code |
 | **AffineScript** | Policy gate, UI components | Compiles to JS, type-safe |
-| **Deno** | Runtime, consent API, signing | Replaces Node/npm/bun |
+| **Bun** | Runtime, consent API, signing | Replaces Node/npm/Deno |
 | **Nickel** | Policy contracts | Complex config validation |
 | **Guile Scheme** | State/meta files | .machine_readable/6a2/STATE.a2ml, .machine_readable/6a2/META.a2ml, .machine_readable/6a2/ECOSYSTEM.a2ml |
 | **Solidity** | Smart contracts | Ethereum/Polygon |
@@ -129,8 +129,9 @@ selur-compose -f compose.toml up
 | Banned | Replacement |
 |--------|-------------|
 | TypeScript | AffineScript |
-| Node.js | Deno |
-| npm/Bun/pnpm/yarn | Deno |
+| Deno | Bun |
+| Node.js | Bun |
+| npm/pnpm/yarn | Bun |
 | Go | Rust |
 | Python | Julia/Rust/AffineScript |
 | Java/Kotlin | Rust |
@@ -140,7 +141,7 @@ selur-compose -f compose.toml up
 
 - **Primary**: Guix (guix.scm)
 - **Fallback**: Guix (flake.guix)
-- **JS deps**: Deno (deno.json imports)
+- **JS deps**: Bun (`package.json` + `bun.lock`). Declare tooling as a devDependency and run `bunx --no-install --bun <tool>` — a bare `bunx <tool>` can fetch an unpinned package and may start Node via its shebang.
 
 ### Security Requirements
 
