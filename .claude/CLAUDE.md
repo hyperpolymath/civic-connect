@@ -129,6 +129,7 @@ selur-compose -f compose.toml up
 | Banned | Replacement |
 |--------|-------------|
 | TypeScript | AffineScript |
+| ReScript | AffineScript |
 | Deno | Bun |
 | Node.js | Bun |
 | npm/pnpm/yarn | Bun |
