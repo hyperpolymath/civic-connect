@@ -3,7 +3,7 @@
 
 == 🏛️ Decision-Making
 - **Maintainers**: Project stewards with bastion, oDNS, and GraphQL DNS expertise.
-- **Contributors**: Follow link:CONTRIBUTING.adoc[Contribution Guidelines].
+- **Contributors**: Follow link:../../.github/CONTRIBUTING.md[Contribution Guidelines].
 
 == 📜 Policies
 - **Conflict Resolution**: Mediation via maintainers (contact: maintainers@indieweb2.gitlab).
