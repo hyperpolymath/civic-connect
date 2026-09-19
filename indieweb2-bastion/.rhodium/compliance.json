@@ -135,7 +135,7 @@
         },
         "contributing_guide": {
           "status": "compliant",
-          "details": "CONTRIBUTING.adoc with smart contract security guidelines"
+          "details": "../../.github/CONTRIBUTING.md with smart contract security guidelines"
         },
         "carbon_reporting": {
           "status": "planned",

@@ -212,14 +212,14 @@ indieweb2-bastion is a consent-first, multi-chain identity platform combining Et
 **Documentation:** All Rhodium Gold docs complete
 * SECURITY.adoc (500+ lines, blockchain-specific)
 * PRIVACY.adoc (600+ lines, GDPR + blockchain immutability)
-* CONTRIBUTING.adoc, TESTING.adoc, CI_CD.adoc
+* ../.github/CONTRIBUTING.md, TESTING.adoc, CI_CD.adoc
 * docs/FORMAL_SPEC.adoc (600+ lines, Certora specs)
 * docs/PERFORMANCE.adoc (700+ lines, gas optimization)
 
 **Community:**
 * Repository: `/var$HOME/workspace/projects/to-git/_non-initiate/_rhodinised/indieweb2-bastion`
 * License: Check LICENSE file
-* Contact: See CONTRIBUTING.adoc
+* Contact: See ../.github/CONTRIBUTING.md
 
 ---
 

@@ -113,7 +113,7 @@ Support this project: link:docs/FUNDING.adoc[Contribute or Sponsor].
 
 == 🛠️ Contributing
 We use the *Tri-Perimeter Contribution Framework* to balance openness with architectural integrity.
-See link:docs/CONTRIBUTING.adoc[Contribution Guidelines].
+See link:docs/../.github/CONTRIBUTING.md[Contribution Guidelines].
 
 == 📂 Documentation
 - link:docs/ARCHITECTURE.adoc[Architecture]
