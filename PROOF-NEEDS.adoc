@@ -91,7 +91,7 @@ Today alignment is checked by `checkCABI`, not guaranteed by construction.
 ----
 cd src
 for m in Abi/Types.idr Abi/Layout.idr Abi/Foreign.idr Abi/Proofs.idr; do
-  idris2 --check "$m"
+  idris2 --check "$m" || exit 1
 done
 ----
 
