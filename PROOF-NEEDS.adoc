@@ -1,40 +1,100 @@
 == Proof Requirements
 
+Status tokens follow standards `3-practice/PROOF-POLICY.adoc` §5: `proven`,
+`proven-with-postulates`, `tested-only`, `argued`, `open`.
+
 === Current state
 
 * `+src/Abi/Types.idr+` — Civic domain types (RBAC, Consent, Auditing)
 * `+src/Abi/Layout.idr+` — Memory layout proofs (C ABI compliance)
 * `+src/Abi/Foreign.idr+` — Type-safe FFI bridge
-* `+src/Abi/Proofs.idr+` — Substantive proofs for security and logic
-invariants
-* ABI layer is formally verified for core invariants
+* `+src/Abi/Proofs.idr+` — Proofs of security and logic invariants
+* All four modules are `%default total` and contain no `postulate`,
+`believe_me` or `assert_total`. They type-check locally (see below).
+* *No CI job type-checks them.* A local check is not a CI receipt, so this
+file makes no claim that rests on CI. Until an Idris2 job runs in CI, a
+regression here goes unnoticed.
 
-=== What was proven
+=== What is proven (kernel-checked locally, Idris2 0.7.0)
 
-* *Citizen data privacy*: Proved that PII access is only possible with a
-valid `+Consent+` proof (`+piiAccessRequiresConsent+`).
-* *Vote/petition integrity*: Proved that tallying is correct and adding
-a vote specifically increment the correct counter
-(`+tallyIncreasesByOne+`, `+tallyIndependent+`).
-* *Access control correctness*: Proved that sensitive privileges
-(ManageUsers, AccessPII) are restricted to the `+Admin+` role
-(`+onlyAdminCanManage+`, `+onlyAdminCanPII+`).
-* *Audit trail completeness*: Proved that every state mutation
-designated as `+Audited+` must be accompanied by an `+AuditEntry+`
-(`+extractAuditEntry+`).
+* *Citizen data privacy*: PII access is only possible with a valid
+`+Consent+` proof (`+piiAccessRequiresConsent+`).
+* *Vote/petition integrity*: tallying is correct, and adding a vote
+increments the correct counter (`+tallyIncreasesByOne+`,
+`+tallyIndependent+`).
+* *Access control correctness*: sensitive privileges (ManageUsers,
+AccessPII) are restricted to the `+Admin+` role (`+onlyAdminCanManage+`,
+`+onlyAdminCanPII+`).
+* *Audit trail completeness*: every state mutation designated as
+`+Audited+` is accompanied by an `+AuditEntry+` (`+extractAuditEntry+`).
+* *Alignment*: `+alignUp+` returns a multiple of a positive alignment
+(`+alignUpCorrect+`), and so does `+calcStructSize+`
+(`+calcStructSizeAligned+`). Both are constructive.
+
+These are statements about the Idris2 model. Nothing links them to the Rust,
+Zig or Deno code that runs.
+
+=== The former postulates (corrected 2026-11-17)
+
+Until 2026-11-17 `+src/Abi/Layout.idr+` declared four `postulate` items.
+Idris2 has no `postulate` keyword, so the module did not parse, and
+`+Foreign.idr+`, which imports it, did not build either. The earlier claim
+"All proofs successfully verified using Idris2" was therefore false for
+two of the four modules.
+
+[cols="1,1,3",options="header"]
+|===
+| Former postulate | Now | Why
+
+| `alignUpDivides`
+| `proven`
+| Removed. `alignUp` is now defined as quotient × alignment for a positive
+alignment, so `alignUpCorrect` holds by definition. The new definition agrees
+with the old formula `size + paddingFor size align` on every pair with
+size 0..200 and alignment 0..33 (6834 pairs, 0 mismatches; a bounded check,
+`tested-only`).
+
+| `calcStructSizeAligned`
+| `proven` for positive alignment
+| As stated it was false for alignment 0. It now takes `S k` and is proved
+by cases. `verifyLayout` rejects alignment 0.
+
+| `mkFieldsAligned`
+| removed: false as stated
+| It claimed every field list is aligned (false for offset 1, alignment 4).
+It is replaced by `checkFieldsAligned`, a sound check that returns a witness
+or `Nothing`. `checkCABI` now rejects misaligned fields, where it previously
+accepted every layout.
+
+| `offsetInBoundsPrf`
+| removed: false as stated
+| It claimed the bound for any field, including fields outside the layout.
+`offsetInBounds` now decides the bound and returns `Maybe`.
+|===
+
+=== Open obligations
+
+* `open`: for every field of a `StructLayout`, `offset + size <= totalSize`.
+This needs a stronger `StructLayout` invariant than `sizeCorrect`, which
+bounds only the sum of the field sizes.
+* `open`: layouts built by `verifyLayout` respect C field-alignment rules.
+Today alignment is checked by `checkCABI`, not guaranteed by construction.
+* `open`: an Idris2 type-check job in CI.
 
 === Recommended prover
 
-* *Idris2* — Completed. The skeletal ABI has been expanded into a fully
-verified layer.
+* *Idris2*, as now.
 
-=== Priority
+=== How to check
 
-* *LOW* — Core invariants are now formally verified. Ongoing work should
-maintain these proofs as the system evolves.
+[source,shell]
+----
+cd src
+for m in Abi/Types.idr Abi/Layout.idr Abi/Foreign.idr Abi/Proofs.idr; do
+  idris2 --check "$m"
+done
+----
 
-=== Proof Verification (2026-04-04)
-
-* All proofs successfully verified using Idris2.
-* Directory structured for Idris2 module compliance (`+src/Abi/+`).
-* Security and logic invariants formally modeled and proven.
+Last run 2026-11-17 with Idris2 0.7.0: all four exit 0. `Layout.idr`
+reports "n is shadowing" warnings only, from the implicit `n` of the
+`StructLayout` record.

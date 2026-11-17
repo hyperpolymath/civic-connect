@@ -11,6 +11,7 @@ module Abi.Layout
 import Abi.Types
 import Data.Vect
 import Data.So
+import Decidable.Equality
 
 %default total
 
@@ -33,24 +34,25 @@ public export
 data Divides : Nat -> Nat -> Type where
   DivideBy : (k : Nat) -> {n : Nat} -> {m : Nat} -> (m = k * n) -> Divides n m
 
-||| Round up to next alignment boundary
+||| Round up to next alignment boundary.
+|||
+||| For a positive alignment `S k` this is `ceil(size / S k) * S k`, written
+||| as a quotient times the alignment so that divisibility holds by
+||| definition (see `alignUpCorrect`). An alignment of 0 leaves the size
+||| unchanged, as `paddingFor size 0 = 0` does.
 public export
 alignUp : (size : Nat) -> (alignment : Nat) -> Nat
-alignUp size alignment =
-  size + paddingFor size alignment
+alignUp size Z = size
+alignUp size (S k) = divNatNZ (size + k) (S k) SIsNonZero * S k
 
--- Alignment divisibility requires div_mod_lemma infrastructure from Data.Nat
--- (the proof that (size + align - (size mod align)) mod align = 0 and the
--- corresponding k witness). Deferred until those lemmas are in scope.
-export
-postulate alignUpDivides : (size : Nat) -> (align : Nat) ->
-  alignUp size align = (alignUp size align `div` align) * align
-
-||| Proof that alignUp produces aligned result
+||| Proof that alignUp produces aligned result.
+||| Constructive, with no postulate: the quotient is the witness and the
+||| equation holds by the definition of `alignUp`. `So (align > 0)` rules
+||| out an alignment of 0.
 public export
 alignUpCorrect : (size : Nat) -> (align : Nat) -> So (align > 0) -> Divides align (alignUp size align)
-alignUpCorrect size align _ =
-  DivideBy (alignUp size align `div` align) (alignUpDivides size align)
+alignUpCorrect _ Z Oh impossible
+alignUpCorrect size (S k) _ = DivideBy (divNatNZ (size + k) (S k) SIsNonZero) Refl
 
 --------------------------------------------------------------------------------
 -- Struct Field Layout
@@ -100,20 +102,28 @@ data FieldsAligned : Vect n Field -> Type where
     FieldsAligned rest ->
     FieldsAligned (f :: rest)
 
--- calcStructSize always returns a value divisible by align (its last step is alignUp).
--- Deferred: proof requires induction over fields + alignUpDivides.
+||| calcStructSize returns a value divisible by a positive alignment: its
+||| last step is alignUp, and the empty struct has size 0.
+||| Constructive, with no postulate. (The former postulate quantified over
+||| every alignment, including 0, for which it is false.)
 export
-postulate calcStructSizeAligned : (fields : Vect n Field) -> (align : Nat) ->
-  Divides align (calcStructSize fields align)
+calcStructSizeAligned : (fields : Vect n Field) -> (k : Nat) ->
+  Divides (S k) (calcStructSize fields (S k))
+calcStructSizeAligned [] k = DivideBy 0 Refl
+calcStructSizeAligned (f :: fs) k =
+  alignUpCorrect (foldl (\acc, field => nextFieldOffset field) f.offset fs
+                    + foldr (\field, _ => field.size) f.size fs)
+                 (S k) Oh
 
-||| Verify a struct layout is valid
+||| Verify a struct layout is valid. An alignment of 0 is rejected: no C
+||| type has it, and `Divides 0 size` holds only for size 0.
 public export
 verifyLayout : (fields : Vect n Field) -> (align : Nat) -> Either String StructLayout
-verifyLayout {n} fields align =
-  let size = calcStructSize fields align
-   in case decSo (size >= sum (map (\f => f.size) fields)) of
-        Yes prf => Right (MkStructLayout {n} fields size align {sizeCorrect = prf}
-                                                                 {aligned = calcStructSizeAligned fields align})
+verifyLayout _ Z = Left "Alignment must be positive"
+verifyLayout {n} fields (S k) =
+  case decSo (calcStructSize fields (S k) >= sum (map (\f => f.size) fields)) of
+        Yes prf => Right (MkStructLayout {n} fields (calcStructSize fields (S k)) (S k) {sizeCorrect = prf}
+                                                                 {aligned = calcStructSizeAligned fields k})
         No _ => Left "Invalid struct size"
 
 --------------------------------------------------------------------------------
@@ -146,16 +156,40 @@ data CABICompliant : StructLayout -> Type where
     FieldsAligned layout.fields ->
     CABICompliant layout
 
--- Constructing FieldsAligned requires decidable Divides for each field offset.
--- decideDivides needs div_mod_lemma; deferred until that machinery is in scope.
+||| Check whether `a` divides `m`, returning the witness when it does.
+||| Sound: every `Just` carries a checked equation. A `Nothing` makes no claim.
 export
-postulate mkFieldsAligned : (fields : Vect n Field) -> FieldsAligned fields
+checkDivides : (a : Nat) -> (m : Nat) -> Maybe (Divides a m)
+checkDivides Z m = case decEq m 0 of
+  Yes prf => Just (DivideBy 0 prf)
+  No _ => Nothing
+checkDivides (S k) m =
+  let q = divNatNZ m (S k) SIsNonZero in
+  case decEq m (q * S k) of
+    Yes prf => Just (DivideBy q prf)
+    No _ => Nothing
+
+||| Build a FieldsAligned witness by checking every field offset.
+||| This replaces the former postulate `mkFieldsAligned`, which claimed that
+||| every field list is aligned. That is false, for example for a field with
+||| offset 1 and alignment 4.
+export
+checkFieldsAligned : (fields : Vect n Field) -> Maybe (FieldsAligned fields)
+checkFieldsAligned [] = Just NoFields
+checkFieldsAligned (f :: rest) =
+  case checkDivides f.alignment f.offset of
+    Nothing => Nothing
+    Just d => case checkFieldsAligned rest of
+      Nothing => Nothing
+      Just r => Just (ConsField f rest d r)
 
 ||| Check if layout follows C ABI
 public export
 checkCABI : (layout : StructLayout) -> Either String (CABICompliant layout)
 checkCABI layout =
-  Right (CABIOk layout (mkFieldsAligned layout.fields))
+  case checkFieldsAligned layout.fields of
+    Just prf => Right (CABIOk layout prf)
+    Nothing => Left "A field offset is not a multiple of its alignment"
 
 --------------------------------------------------------------------------------
 -- Example Layouts
@@ -205,13 +239,17 @@ fieldOffset layout name =
     Just idx => Just (finToNat idx ** index idx layout.fields)
     Nothing => Nothing
 
--- offsetInBounds requires f ∈ layout.fields — a membership constraint not currently
--- in the type signature. Deferred until the type is strengthened with that proof.
-export
-postulate offsetInBoundsPrf : (layout : StructLayout) -> (f : Field) ->
-  So (f.offset + f.size <= layout.totalSize)
-
-||| Proof that field offset is within struct bounds
+||| Check that a field lies within the struct bounds, returning the proof
+||| when it does.
+||| This replaces the former postulate `offsetInBoundsPrf`, which claimed the
+||| bound for every field. That is false: `f` need not belong to the layout,
+||| and even a member field is bounded only by `sizeCorrect`, which constrains
+||| the sum of the field sizes, not each offset. Proving the bound for member
+||| fields needs a stronger StructLayout invariant (recorded as open in
+||| PROOF-NEEDS.adoc).
 public export
-offsetInBounds : (layout : StructLayout) -> (f : Field) -> So (f.offset + f.size <= layout.totalSize)
-offsetInBounds layout f = offsetInBoundsPrf layout f
+offsetInBounds : (layout : StructLayout) -> (f : Field) -> Maybe (So (f.offset + f.size <= layout.totalSize))
+offsetInBounds layout f =
+  case decSo (f.offset + f.size <= layout.totalSize) of
+    Yes prf => Just prf
+    No _ => Nothing
