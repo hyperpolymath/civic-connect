@@ -165,7 +165,7 @@ selur-compose -f compose.toml up
 
 1. Complete graphql-dns-api to 100% (currently 70%)
 2. Fix panic paths from security scan
-3. Remove node_modules from indieweb2-bastion (use Deno only)
+3. Remove node_modules from indieweb2-bastion (use Bun first)
 4. Expand civic-stream government API endpoints (40% → 80%)
 5. QUIC/HTTP3 transport (CPR-010)
 6. WCAG 2.3 AAA accessibility (CPR-011)
