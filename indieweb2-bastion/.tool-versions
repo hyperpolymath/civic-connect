@@ -2,13 +2,11 @@
 # Multi-chain smart contract platform
 # Languages: Solidity, Vyper, Motoko, ReScript, Deno
 # Node.js for build tools and ReScript
-nodejs 25.6.1
 # Deno runtime
 deno 1.43.0
 # Solidity compiler
 solidity 0.8.24
 # Python for Vyper
-python 3.11.8
 # Nickel configuration
 nickel 1.4.0
 # Cap'n Proto for data serialization
